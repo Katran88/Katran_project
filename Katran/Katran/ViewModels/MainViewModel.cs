@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
+using System.Windows;
 using System.Windows.Input;
 
 
@@ -23,6 +24,19 @@ namespace Katran.ViewModels
         {
             UserInfo = null;
 
+            //ServerRequest(new RRTemplate(RRType.Registration, new RegistrationTemplate(-1,
+            //                                                                           "Vasya",
+            //                                                                           "vasyaEmail@gmail.com",
+            //                                                                           "Hello everyone!",
+            //                                                                           null,
+            //                                                                           Status.Online,
+            //                                                                           LawStatus.User,
+            //                                                                           "VasyaL",
+            //                                                                           "vasya1234")));
+
+            //ServerRequest(new RRTemplate(RRType.Authorization, new AuthtorizationTemplate("Katran", "12345"))); //для теста
+
+
             try
             {
                 using (FileStream fs = new FileStream(RegistrationTemplate.AuthTokenFileName, FileMode.Open, FileAccess.Read))
@@ -34,8 +48,8 @@ namespace Katran.ViewModels
                         UserInfo = new UserInfo(regTempl);
                         //открыть стандартное окно
                     }
-                    else 
-                    { 
+                    else
+                    {
                         //открыть окно авторизации
                     }
 
@@ -44,7 +58,11 @@ namespace Katran.ViewModels
             catch (FileNotFoundException ex)
             {
                 //открыть окно авторизации
-                ServerRequest(new RRTemplate(RRType.Authorization, new AuthtorizationTemplate("Katran", "12345"))); //для теста
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -83,8 +101,6 @@ namespace Katran.ViewModels
                 {
                     switch (serverResponse.RRType)
                     {
-                        case RRType.None:
-                            break;
                         case RRType.Authorization:
                             RegistrationTemplate reg = serverResponse.RRObject as RegistrationTemplate; //RegistrationTemplate служит как шаблон для преднастройки приложения
                             if (reg != null)
@@ -92,7 +108,15 @@ namespace Katran.ViewModels
                                 Authtorization(reg);
                             }
                             break;
-                        case RRType.Registration:
+                        case RRType.Error:
+                            ErrorReportTemplate error = serverResponse.RRObject as ErrorReportTemplate;
+                            if (error != null)
+                            {
+                                ErrorService(error);
+                            }
+                            break;
+                        default:
+                            MessageBox.Show("Получен необработанный ответ с сервера");
                             break;
                     }
                 }
@@ -102,6 +126,22 @@ namespace Katran.ViewModels
 
             stream.Close();
             client.Close();
+        }
+
+        private void ErrorService(ErrorReportTemplate error)
+        {
+            switch (error.ErrorType)
+            {
+                case ErrorType.Other:
+                    MessageBox.Show(error.Error.Message);
+                    break;
+                case ErrorType.WrongLoginOrPassword:
+                    MessageBox.Show("Wrong login or password");
+                    break;
+                case ErrorType.UserAlreadyRegistr:
+                    MessageBox.Show("Login is already busy");
+                    break;
+            }
         }
 
         private void Authtorization(RegistrationTemplate reg)

@@ -1,5 +1,8 @@
-﻿using System;
+﻿using KatranClassLibrary;
+using System;
 using System.Data.SqlClient;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -18,7 +21,7 @@ namespace KatranServer
             TcpListener server = null;
             try
             {
-                Server.sql = DBConnection.getInstance();
+                Server.sql = DBConnection.getInstance();                
 
                 server = new TcpListener(IPAddress.Parse(ip), port);
                 server.Start();
@@ -33,7 +36,6 @@ namespace KatranServer
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                Console.ReadKey();
             }
             finally
             {
