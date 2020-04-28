@@ -15,10 +15,7 @@ namespace Katran.ViewModels
 {
     class MainViewModel : INotifyPropertyChanged
     {
-        const string serverIP = "127.0.0.1";
-        const int serverPort = 8001;
-
-        public UserInfo UserInfo;
+        public static UserInfo UserInfo;
 
         public MainViewModel()
         {
@@ -64,96 +61,6 @@ namespace Katran.ViewModels
             {
                 MessageBox.Show(ex.Message);
             }
-        }
-
-        void ServerRequest(RRTemplate request)
-        {
-            TcpClient client = new TcpClient();
-            client.Connect(serverIP, serverPort);
-            NetworkStream stream = client.GetStream();
-
-            BinaryFormatter formatter = new BinaryFormatter();
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                formatter.Serialize(memoryStream, request);
-
-                stream.Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
-
-                memoryStream.Flush();
-                memoryStream.Position = 0;
-                
-                do
-                {
-                    byte[] buffer = new byte[256];
-                    int bytes;
-
-                    bytes = stream.Read(buffer, 0, buffer.Length);
-                    memoryStream.Write(buffer, 0, bytes);
-
-                    buffer = new byte[256];
-                }
-                while (stream.DataAvailable);
-
-                memoryStream.Position = 0;
-                RRTemplate serverResponse = formatter.Deserialize(memoryStream) as RRTemplate;
-
-                if (serverResponse != null)
-                {
-                    switch (serverResponse.RRType)
-                    {
-                        case RRType.Authorization:
-                            RegistrationTemplate reg = serverResponse.RRObject as RegistrationTemplate; //RegistrationTemplate служит как шаблон для преднастройки приложения
-                            if (reg != null)
-                            {
-                                Authtorization(reg);
-                            }
-                            break;
-                        case RRType.Error:
-                            ErrorReportTemplate error = serverResponse.RRObject as ErrorReportTemplate;
-                            if (error != null)
-                            {
-                                ErrorService(error);
-                            }
-                            break;
-                        default:
-                            MessageBox.Show("Получен необработанный ответ с сервера");
-                            break;
-                    }
-                }
-
-
-            }
-
-            stream.Close();
-            client.Close();
-        }
-
-        private void ErrorService(ErrorReportTemplate error)
-        {
-            switch (error.ErrorType)
-            {
-                case ErrorType.Other:
-                    MessageBox.Show(error.Error.Message);
-                    break;
-                case ErrorType.WrongLoginOrPassword:
-                    MessageBox.Show("Wrong login or password");
-                    break;
-                case ErrorType.UserAlreadyRegistr:
-                    MessageBox.Show("Login is already busy");
-                    break;
-            }
-        }
-
-        private void Authtorization(RegistrationTemplate reg)
-        {
-            // получаем поток, куда будем записывать сериализованный объект
-            using (FileStream fs = new FileStream(RegistrationTemplate.AuthTokenFileName, FileMode.OpenOrCreate))
-            {
-                BinaryFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(fs, reg);
-            }
-
-            UserInfo = new UserInfo(reg);
         }
 
         public ICommand commandExample
