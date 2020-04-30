@@ -11,9 +11,13 @@
 
     <Grid>
         <Border Style="{DynamicResource ResourceKey=AuthReg_BorderStyle}">
-            <StackPanel Orientation="Vertical">
-                <Image Source="/Resources/KatranIcon.png" />
-                <uc:InputField />
+            <StackPanel Orientation="Vertical"  >
+                <Image Source="/Resources/KatranIcon.png" Margin="0,25,0,50" Width="150" />
+                <uc:InputField FieldName="Login:" InputFieldWidth="290" Margin="10,5" />
+                <uc:InputField FieldName="Password:" InputFieldWidth="250" Margin="10,5"  />
+                <Button x:Name="SignInButton" Template="{StaticResource btTemplate}" Content="Sign In"
+                        Height="45" Width="180"
+                        Margin="0,40,0,0" />
             </StackPanel>
         </Border>
     </Grid>

@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 
@@ -17,10 +18,24 @@ namespace Katran.ViewModels
     {
         public static UserInfo UserInfo;
 
+        private Page currentPage;
+        public Page CurrentPage
+        {
+           get 
+           {
+                return currentPage;
+           }
+
+           set
+           {
+                currentPage = value;
+                OnPropertyChanged();
+            }
+        }
+
         public MainViewModel()
         {
             UserInfo = null;
-
             //ServerRequest(new RRTemplate(RRType.Registration, new RegistrationTemplate(-1,
             //                                                                           "Vasya",
             //                                                                           "vasyaEmail@gmail.com",
@@ -43,18 +58,18 @@ namespace Katran.ViewModels
                     if (regTempl != null)
                     {
                         UserInfo = new UserInfo(regTempl);
-                        //открыть стандартное окно
+                        CurrentPage = new Pages.MainPage();
                     }
                     else
                     {
-                        //открыть окно авторизации
+                        CurrentPage = new Pages.AuhtorizationPage();
                     }
 
                 }
             }
             catch (FileNotFoundException ex)
             {
-                //открыть окно авторизации
+                CurrentPage = new Pages.AuhtorizationPage();
 
             }
             catch (Exception ex)

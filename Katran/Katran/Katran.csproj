@@ -64,7 +64,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Styles\CustomWindowStyle.xaml">
+    <Page Include="Pages\MainPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\RegistrationPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\CommonStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -88,6 +96,12 @@
     <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Pages\AuhtorizationPage.xaml.cs">
       <DependentUpon>AuhtorizationPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\RegistrationPage.xaml.cs">
+      <DependentUpon>RegistrationPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControlls\InputField.xaml.cs">
       <DependentUpon>InputField.xaml</DependentUpon>
@@ -116,6 +130,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

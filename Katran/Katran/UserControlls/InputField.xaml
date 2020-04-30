@@ -3,11 +3,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Katran.UserControlls"
-             mc:Ignorable="d">
+             xmlns:local="clr-namespace:Katran.UserControlls" Width="Auto" MinHeight="24"
+             mc:Ignorable="d" Height="30" >
+
     <Grid>
-        <StackPanel Orientation="Horizontal">
-            <TextBlock x:Name="FieldName" Text="Field Name" Style="{DynamicResource ResourceKey=InputField_TextBlockStyle}" />
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <TextBlock x:Name="textblock_FieldName" Text="Field Name:" VerticalAlignment="Center"
+                       Style="{DynamicResource ResourceKey=TextStyle}" />
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Border x:Name="Underline" Grid.Row="0" Style="{DynamicResource ResourceKey=Underline_LostFocus}" Margin="5,0,0,3" />
+                <TextBox Grid.Row="0" x:Name="textbox_InputField" Style="{DynamicResource InputTextboxStyle}" Margin="5,0,0,0"
+                         MouseEnter="textbox_InputField_MouseEnter" MouseLeave="textbox_InputField_MouseLeave" />
+
+            </Grid>
         </StackPanel>
+
     </Grid>
 </UserControl>
