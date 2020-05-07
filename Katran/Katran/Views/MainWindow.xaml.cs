@@ -24,7 +24,6 @@ namespace Katran
         public MainWindow()
         {
             InitializeComponent();
-            this.DataContext = new MainViewModel();
         }
     }
 }

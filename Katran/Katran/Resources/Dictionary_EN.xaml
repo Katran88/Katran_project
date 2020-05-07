@@ -1,0 +1,38 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Katran.Resources" 
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    
+    <system:String x:Key="l_Title">Katran</system:String>
+    
+    <system:String x:Key="l_Login">Login:</system:String>
+    <system:String x:Key="l_Password">Password:</system:String>
+    
+    <system:String x:Key="l_SignIn_main">Sign In</system:String>
+    <system:String x:Key="l_SignUp_main">Sign Up</system:String>
+    <system:String x:Key="l_SignIn_q">Sign In?</system:String>
+    <system:String x:Key="l_SignUp_q">Sign Up?</system:String>
+
+    <system:String x:Key="l_Username">Username:</system:String>
+    <system:String x:Key="l_Email">Email:</system:String>
+    <system:String x:Key="l_Avatar">Avatar:</system:String>
+
+    
+    <!--Уведомления для строки состояния (при добавлении нового уведомления не забывай добавлять ее в enum в MainViewModel.cs)-->
+    <system:String x:Key="l_sAuth">Succsessful authtorization</system:String>
+    <system:String x:Key="l_sReg">Succsessful registration</system:String>
+    <system:String x:Key="l_uncorServerResponse">Uncorrect server response</system:String>
+    <system:String x:Key="l_wrngLogOrPass">Wrong login or password</system:String>
+    <system:String x:Key="l_userAlrReg">User already registered</system:String>
+    <system:String x:Key="l_undefError">Undefined error</system:String>
+    <system:String x:Key="l_noConWithServer">No connection with server</system:String>
+
+    <system:String x:Key="l_forgotLogin">Type your login</system:String>
+    <system:String x:Key="l_forgotUsername">Type your username</system:String>
+    <system:String x:Key="l_forgotEmail">Type your email</system:String>
+    <system:String x:Key="l_forgotPassword">Type your password</system:String>
+    
+    <system:String x:Key="l_uncorrectEmail">Uncorrect email</system:String>
+    <system:String x:Key="l_uncorrectPassword">Uncorrect password</system:String>
+    <system:String x:Key="l_notSamePasswords">Passwords are not same</system:String>
+</ResourceDictionary>

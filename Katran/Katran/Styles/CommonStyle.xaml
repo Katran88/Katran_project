@@ -1,14 +1,79 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:Katran.Styles">
+                    xmlns:local="clr-namespace:Katran.Styles" 
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    
+    <system:Int32 x:Key="LoginMaxLength" >20</system:Int32>
+    <system:Int32 x:Key="UserNameMaxLength" >30</system:Int32>
+    <system:Int32 x:Key="UserDiscriptionMaxLength" >400</system:Int32>
+    <system:Int32 x:Key="MessageMaxLength" >500</system:Int32>
+
     <FontFamily x:Key="FontFamilyStyle" >Maiandra GD</FontFamily>
 
-    <Style x:Key="TextStyle" >
+    <system:Double x:Key="SmallFontSize">14</system:Double>
+    <system:Double x:Key="MediumFontSize">18</system:Double>
+    <system:Double x:Key="HighFontSize">24</system:Double>
+
+    <SolidColorBrush x:Key="OutlineBrush" Color="#FF34D0FF" />
+    <Color x:Key="OutlineColor" >#FF34D0FF</Color>
+
+    <SolidColorBrush x:Key="InteractBrush" Color="#FF064F65" />
+    <Color x:Key="InteractColor" >#FF064F65</Color>
+
+    <Style x:Key="BigTextStyle" >
         <Setter Property="Control.FontFamily" Value="{StaticResource ResourceKey=FontFamilyStyle}" />
-        <Setter Property="Control.FontSize" Value="24" />
+        <Setter Property="Control.FontSize" Value="{StaticResource ResourceKey=HighFontSize}" /> 
     </Style>
 
-    <Style x:Key="InputTextboxStyle" TargetType="TextBox" BasedOn="{StaticResource TextStyle}" >
+    <Style x:Key="MediumTextStyle" >
+        <Setter Property="Control.FontFamily" Value="{StaticResource ResourceKey=FontFamilyStyle}" />
+        <Setter Property="Control.FontSize" Value="{StaticResource ResourceKey=MediumFontSize}" />
+    </Style>
+
+    <Style x:Key="SmallTextStyle" >
+        <Setter Property="Control.FontFamily" Value="{StaticResource ResourceKey=FontFamilyStyle}" />
+        <Setter Property="Control.FontSize" Value="{StaticResource ResourceKey=SmallFontSize}" />
+    </Style>
+
+    <Style x:Key="RowStateStyle" TargetType="TextBlock" >
+        <Style.Setters>
+            <Setter Property="FontFamily" Value="{StaticResource ResourceKey=FontFamilyStyle}" />
+            <Setter Property="FontSize" Value="{StaticResource ResourceKey=SmallFontSize}" />
+            <Setter Property="Foreground" Value="Red" />
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+        </Style.Setters>
+        <Style.Triggers>
+            <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                <EventTrigger.Actions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="Opacity" Duration="0:0:2" From="0" To="1" AutoReverse="True" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger.Actions>
+            </EventTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="InputTextboxStyle" TargetType="TextBox" BasedOn="{StaticResource BigTextStyle}" >
+        <Style.Setters>
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+            <Setter Property="MinWidth" Value="20" />
+        </Style.Setters>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderThickness" Value="0" />
+            </Trigger>
+            <Trigger Property="IsFocused" Value="True">
+                <Setter Property="BorderThickness" Value="0" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="InputPasswordboxStyle" TargetType="PasswordBox" BasedOn="{StaticResource BigTextStyle}" >
         <Style.Setters>
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderBrush" Value="Transparent" />
@@ -32,6 +97,10 @@
         <Setter Property="MinWidth" Value="20" />
     </Style>
 
+    <Style x:Key="Underline_Uncorrect" TargetType="Border" BasedOn="{StaticResource Underline_Style}" >
+        <Setter Property="Background" Value="Red" />
+    </Style>
+    
     <Style x:Key="Underline_LostFocus" TargetType="Border" BasedOn="{StaticResource Underline_Style}" >
         <Setter Property="Background" Value="Black" />
     </Style>
@@ -40,10 +109,52 @@
         <Setter Property="Background" Value="#FF34D0FF" />
     </Style>
 
-    <ControlTemplate TargetType="Button" x:Key="btTemplate">
-        <Border CornerRadius="8" BorderBrush="Black" BorderThickness="2" Background="Transparent" >
-            <ContentPresenter Style="{StaticResource ResourceKey=TextStyle}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+    <ControlTemplate TargetType="Button" x:Key="btTemplateWithBorder">
+        <Border x:Name="btBorder" CornerRadius="8" BorderBrush="Black" BorderThickness="2" Background="Transparent" >
+            <ContentPresenter x:Name="btContent" Style="{StaticResource ResourceKey=BigTextStyle}" VerticalAlignment="Center" HorizontalAlignment="Center" />
         </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="true">
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter TargetName="btBorder" Property="BorderBrush" Value="{StaticResource ResourceKey=OutlineBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource ResourceKey=OutlineBrush}" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="true">
+                <Setter Property="FontWeight" Value="Regular" />
+                <Setter TargetName="btBorder" Property="BorderBrush" Value="{StaticResource ResourceKey=InteractBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource ResourceKey=InteractBrush}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate TargetType="Button" x:Key="btTemplateWithoutBorder" >
+        <ContentPresenter x:Name="btContent" VerticalAlignment="Center" HorizontalAlignment="Center" />
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="true">
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="Foreground" Value="{StaticResource ResourceKey=OutlineBrush}" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="true">
+                <Setter Property="FontWeight" Value="Regular" />
+                <Setter Property="Foreground" Value="{StaticResource ResourceKey=InteractBrush}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate TargetType="Button" x:Key="FilePicker" >
+        <Grid Width="19" Height="13">
+            <Path x:Name="polygon" Data="M11.0603 12.0542C10.2597 13.0526 8.74031 13.0526 7.93969 12.0542L1.28172 3.75117C0.231936 2.44201 1.16395 0.5 2.84203 0.5L16.158 0.5C17.836 0.5 18.7681 2.44202 17.7183 3.75117L11.0603 12.0542Z" Fill="Black" StrokeThickness="0" />
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="true">
+                <Setter TargetName="polygon" Property="Stroke" Value="{StaticResource ResourceKey=OutlineBrush}" />
+                <Setter TargetName="polygon" Property="StrokeThickness" Value="2" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="true">
+                <Setter TargetName="polygon" Property="Stroke" Value="{StaticResource ResourceKey=InteractBrush}" />
+                <Setter TargetName="polygon" Property="StrokeThickness" Value="2" />
+            </Trigger>
+        </ControlTemplate.Triggers>
     </ControlTemplate>
 
 </ResourceDictionary>

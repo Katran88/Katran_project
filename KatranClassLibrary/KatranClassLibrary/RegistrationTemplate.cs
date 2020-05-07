@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -19,19 +21,148 @@ namespace KatranClassLibrary
 
 
     [Serializable]
-    public class RegistrationTemplate
+    public class RegistrationTemplate : INotifyPropertyChanged
     {
         public const string AuthTokenFileName = "AuthToken.dat";
 
-        public string Login;
-        public string Password;
-        public int Id;
-        public string App_name;
-        public string Email;
-        public string User_discription;
-        public byte[] Image;
-        public Status Status;
-        public LawStatus LawStatus;
+        private string      login;
+        private string      password;
+        private int         id;
+        private string      app_name;
+        private string      email;
+        private string      user_discription;
+        private byte[]      image;
+        private Status      status;
+        private LawStatus   lawStatus;
+
+        #region Properties
+        public string Login
+        {
+            get
+            {
+                return login;
+            }
+
+            set
+            {
+                login = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string Password
+        {
+            get
+            {
+                return password;
+            }
+
+            set
+            {
+                password = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int Id
+        {
+            get
+            {
+                return id;
+            }
+
+            set
+            {
+                id = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string App_name
+        {
+            get
+            {
+                return app_name;
+            }
+
+            set
+            {
+                app_name = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string Email
+        {
+            get
+            {
+                return email;
+            }
+
+            set
+            {
+                email = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string User_discription
+        {
+            get
+            {
+                return user_discription;
+            }
+
+            set
+            {
+                user_discription = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public byte[] Image
+        {
+            get
+            {
+                return image;
+            }
+
+            set
+            {
+                image = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Status Status
+        {
+            get
+            {
+                return status;
+            }
+
+            set
+            {
+                status = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public LawStatus LawStatus
+        {
+            get
+            {
+                return lawStatus;
+            }
+
+            set
+            {
+                lawStatus = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion
+        
 
         private RegistrationTemplate()
         {
@@ -70,5 +201,13 @@ namespace KatranClassLibrary
             Status = status;
             LawStatus = lawStatus;
         }
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void OnPropertyChanged([CallerMemberName]string property = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+        }
+
     }
 }

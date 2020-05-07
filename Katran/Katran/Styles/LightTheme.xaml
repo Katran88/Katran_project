@@ -6,8 +6,6 @@
         <Setter Property="CornerRadius" Value="10" />
         <Setter Property="Background" Value="#7B90A3" />
         <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="Width" Value="420" />
-        <Setter Property="Height" Value="480" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="HorizontalAlignment" Value="Center" />
     </Style>

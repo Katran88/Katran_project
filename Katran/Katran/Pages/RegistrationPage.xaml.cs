@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using Katran.ViewModels;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Katran.Pages
 {
@@ -20,9 +8,22 @@ namespace Katran.Pages
     /// </summary>
     public partial class RegistrationPage : Page
     {
-        public RegistrationPage()
+        public RegistrationPage(MainViewModel mainViewModel)
         {
             InitializeComponent();
+            DataContext = new RegPageViewModel(mainViewModel, this);
+        }
+
+        internal string Password_1
+        {
+            get { return passwordInputField_1.Password; }
+            set { passwordInputField_1.Password = value; }
+        }
+
+        internal string Password_2
+        {
+            get { return passwordInputField_2.Password; }
+            set { passwordInputField_2.Password = value; }
         }
     }
 }

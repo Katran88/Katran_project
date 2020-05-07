@@ -1,14 +1,19 @@
-﻿<Window x:Class="Katran.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Katran"
+        xmlns:ViewModels="clr-namespace:Katran.ViewModels" x:Class="Katran.MainWindow"
         mc:Ignorable="d"
         MinHeight="550" MinWidth="800"
-        Icon="/Resources/KatranIcon.png" Title="Katran"
+        Icon="/Resources/KatranIcon.png" Title="{DynamicResource l_Title}"
         FontFamily="{DynamicResource ResourceKey=FontFamilyStyle}" >
-    
+
+    <Window.DataContext>
+        <ViewModels:MainViewModel/>
+    </Window.DataContext>
+
     <Window.Background>
         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
             <GradientStop Color="#FF515C6B" Offset="0.01"/>
@@ -17,6 +22,18 @@
     </Window.Background>
 
     <Grid>
-        <Frame x:Name="Frame" Content="{Binding CurrentPage}" NavigationUIVisibility="Hidden" />
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition MaxHeight="20"/>
+        </Grid.RowDefinitions>
+        <Frame Grid.Row="0" x:Name="Frame" Content="{Binding CurrentPage}" NavigationUIVisibility="Hidden" Margin="0,0,-0.4,2.2" />
+        <TextBlock x:Name="RowState"  Grid.Row="1" Margin="7,0,0,0"
+                   Text="{Binding RowState, NotifyOnTargetUpdated=True}"
+                   Style="{DynamicResource ResourceKey=RowStateStyle}" />
+        <Button Grid.Row="1" x:Name="CultureChangeButton" VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                        Template="{StaticResource ResourceKey=btTemplateWithoutBorder}"
+                        Command="{Binding ChangeCulture}" Margin="0,0,5,2" >
+            <TextBlock Text="{Binding CultureTag}" Style="{DynamicResource ResourceKey=SmallTextStyle}" TextDecorations="Underline"  />
+        </Button>
     </Grid>
 </Window>

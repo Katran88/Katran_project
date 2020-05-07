@@ -1,13 +1,10 @@
 ﻿using KatranClassLibrary;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Katran.Models
 {
-    class UserInfo
+    public class UserInfo : INotifyPropertyChanged
     {
         RegistrationTemplate info;
 
@@ -20,12 +17,19 @@ namespace Katran.Models
             set
             {
                 info = value;
+                OnPropertyChanged();
             }
         }
 
         public UserInfo(RegistrationTemplate info)
         {
             this.Info = info;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void OnPropertyChanged([CallerMemberName]string property = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
         }
     }
 }

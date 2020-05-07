@@ -1,24 +1,40 @@
-﻿<Page x:Class="Katran.Pages.AuhtorizationPage"
+﻿<Page
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Katran.Pages"
       xmlns:uc="clr-namespace:Katran.UserControlls"
+      xmlns:ViewModels="clr-namespace:Katran.ViewModels" x:Class="Katran.Pages.AuhtorizationPage"
       mc:Ignorable="d" 
       d:DesignHeight="1000" d:DesignWidth="1920"
       Title="AuhtorizationPage">
 
+    <Page.DataContext>
+        <ViewModels:AuthPageViewModel />
+    </Page.DataContext>
+
     <Grid>
-        <Border Style="{DynamicResource ResourceKey=AuthReg_BorderStyle}">
-            <StackPanel Orientation="Vertical"  >
+        <Border Style="{DynamicResource ResourceKey=AuthReg_BorderStyle}" Width="420" Height="480" >
+            <StackPanel Orientation="Vertical" >
                 <Image Source="/Resources/KatranIcon.png" Margin="0,25,0,50" Width="150" />
-                <uc:InputField FieldName="Login:" InputFieldWidth="290" Margin="10,5" />
-                <uc:InputField FieldName="Password:" InputFieldWidth="250" Margin="10,5"  />
-                <Button x:Name="SignInButton" Template="{StaticResource btTemplate}" Content="Sign In"
-                        Height="45" Width="180"
-                        Margin="0,40,0,0" />
+                <uc:LoginField x:Name="loginInputField" FieldName="{DynamicResource l_Login}"
+                               InputFieldWidth="290" Margin="10,5" InputFieldMaxLength="{StaticResource LoginMaxLength}"
+                               InputFieldBind="{Binding Login, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                />
+                <uc:CryptInputField x:Name="passwordInputField" FieldName="{DynamicResource l_Password}"
+                                    InputFieldWidth="250" Margin="10,5"  />
+                <Button x:Name="SignInButton" Template="{StaticResource ResourceKey=btTemplateWithBorder}" Content="{DynamicResource l_SignIn_main}"
+                        Height="45" Width="180" 
+                        Margin="0,40,0,0" Command="{Binding SignInCommand}"
+                        />
+                <Button x:Name="SignUpButton" 
+                        Template="{StaticResource ResourceKey=btTemplateWithoutBorder}"
+                        Margin="305,55,0,0" Command="{Binding SignUpPageCommand}" >
+                    <TextBlock Text="{DynamicResource l_SignUp_q}" Style="{StaticResource ResourceKey=BigTextStyle}" TextDecorations="Underline" />
+                </Button>
             </StackPanel>
         </Border>
+        
     </Grid>
 </Page>

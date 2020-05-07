@@ -3,12 +3,73 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:Katran.Pages"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      xmlns:local="clr-namespace:Katran.Pages" 
+      xmlns:ViewModels="clr-namespace:Katran.ViewModels" xmlns:uc="clr-namespace:Katran.UserControlls"
+      mc:Ignorable="d"
+      d:DesignHeight="1000" d:DesignWidth="1920"
       Title="RegistrationPage">
 
+    <Page.DataContext>
+        <ViewModels:RegPageViewModel />
+    </Page.DataContext>
+
     <Grid>
-        
+
+        <Border x:Name="MainBorder" Style="{DynamicResource ResourceKey=AuthReg_BorderStyle}" Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center"  >
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.05*" MinWidth="50" />
+                    <ColumnDefinition Width="0.2*" MinWidth="300" />
+                    <ColumnDefinition Width="0.5*" MinWidth="300" />
+                    <ColumnDefinition Width="0.15*" MinWidth="90" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.1*" />
+                    <RowDefinition Height="0.6*" />
+                    <RowDefinition Height="0.3*" MinHeight="70" />
+                </Grid.RowDefinitions>
+
+                <Image Grid.Column="0" Grid.Row="0" Source="/Resources/KatranIcon.png" Margin="20,20,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
+
+                <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1" >
+                    <uc:LoginField FieldName="{DynamicResource l_Login}" InputFieldWidth="290" Margin="10,5" x:Name="loginInputField"
+                                   InputFieldMaxLength="{StaticResource LoginMaxLength}"
+                                   InputFieldBind="{Binding Login, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                    <uc:CryptInputField x:Name="passwordInputField_1" FieldName="{DynamicResource l_Password}" InputFieldWidth="250" Margin="10,5"  />
+                    <uc:CryptInputField x:Name="passwordInputField_2" FieldName="{DynamicResource l_Password}" InputFieldWidth="250" Margin="10,5"  />
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="1" >
+                    <uc:LoginField FieldName="{DynamicResource l_Username}" InputFieldWidth="255" Margin="10,5" x:Name="usernameInputField"
+                                   InputFieldMaxLength="{StaticResource UserNameMaxLength}"
+                                   InputFieldBind="{Binding Username, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                    <uc:EmailInputField x:Name="emailInputField" FieldName="{DynamicResource l_Email}" InputFieldWidth="300" Margin="10,5"
+                                        InputFieldBind="{Binding Email, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"  />
+                    <StackPanel Orientation="Horizontal">
+                        <uc:LoginField FieldName="{DynamicResource l_Avatar}" InputFieldWidth="180" Margin="10,5" x:Name="fileNameField" IsEnabled="False"
+                                       InputFieldBind="{Binding FileName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                        <Button Template="{DynamicResource ResourceKey=FilePicker}"
+                                Command="{Binding SelectImage}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <Button Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" x:Name="SignInButton" 
+                        Template="{StaticResource ResourceKey=btTemplateWithBorder}"
+                        Width="200" Height="50"
+                        Command="{Binding SignInCommand}" Margin="5,5" Content="{DynamicResource l_SignUp_main}" />
+
+                <Button Grid.Column="3" Grid.Row="2" x:Name="SignUpButton" VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                        Template="{StaticResource ResourceKey=btTemplateWithoutBorder}"
+                        Command="{Binding SignInPageCommand}" Margin="0,0,5,5" >
+                    <TextBlock Text="{DynamicResource l_SignIn_q}" Style="{StaticResource ResourceKey=BigTextStyle}" TextDecorations="Underline" />
+                </Button>
+            </Grid>
+
+
+
+
+            <!--<Button Template="{DynamicResource ResourceKey=FilePicker}" />-->
+
+        </Border>
     </Grid>
 </Page>

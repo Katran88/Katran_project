@@ -17,69 +17,86 @@ namespace Katran.Models
         const string serverIP = "127.0.0.1";
         const int serverPort = 8001;
 
-        public static void ServerRequest(RRTemplate request)
+        public static RRTemplate ServerRequest(RRTemplate request)
         {
             TcpClient client = new TcpClient();
-            client.Connect(serverIP, serverPort);
-            NetworkStream stream = client.GetStream();
 
-            BinaryFormatter formatter = new BinaryFormatter();
-            using (MemoryStream memoryStream = new MemoryStream())
+            try
             {
-                formatter.Serialize(memoryStream, request);
+                client.Connect(serverIP, serverPort);
+                NetworkStream stream = client.GetStream();
 
-                stream.Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
-
-                memoryStream.Flush();
-                memoryStream.Position = 0;
-
-                do
+                BinaryFormatter formatter = new BinaryFormatter();
+                using (MemoryStream memoryStream = new MemoryStream())
                 {
-                    byte[] buffer = new byte[256];
-                    int bytes;
+                    formatter.Serialize(memoryStream, request);
 
-                    bytes = stream.Read(buffer, 0, buffer.Length);
-                    memoryStream.Write(buffer, 0, bytes);
+                    stream.Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
 
-                    buffer = new byte[256];
-                }
-                while (stream.DataAvailable);
+                    memoryStream.Flush();
+                    memoryStream.Position = 0;
 
-                memoryStream.Position = 0;
-                RRTemplate serverResponse = formatter.Deserialize(memoryStream) as RRTemplate;
-
-                if (serverResponse != null)
-                {
-                    switch (serverResponse.RRType)
+                    do
                     {
-                        case RRType.Authorization:
-                            RegistrationTemplate reg = serverResponse.RRObject as RegistrationTemplate; //RegistrationTemplate служит как шаблон для преднастройки приложения
-                            if (reg != null)
-                            {
-                                Authtorization(reg);
-                            }
-                            break;
-                        case RRType.Error:
-                            ErrorReportTemplate error = serverResponse.RRObject as ErrorReportTemplate;
-                            if (error != null)
-                            {
-                                ErrorService(error);
-                            }
-                            break;
-                        default:
-                            MessageBox.Show("Получен необработанный ответ с сервера");
-                            break;
+                        byte[] buffer = new byte[256];
+                        int bytes;
+
+                        bytes = stream.Read(buffer, 0, buffer.Length);
+                        memoryStream.Write(buffer, 0, bytes);
+
+                        buffer = new byte[256];
                     }
+                    while (stream.DataAvailable);
+
+                    memoryStream.Position = 0;
+                    RRTemplate serverResponse = formatter.Deserialize(memoryStream) as RRTemplate;
+
+                    if (serverResponse != null)
+                    {
+                        switch (serverResponse.RRType)
+                        {
+                            case RRType.Authorization:
+                                RegistrationTemplate reg = serverResponse.RRObject as RegistrationTemplate; //RegistrationTemplate служит как шаблон для преднастройки приложения
+                                if (reg != null)
+                                {
+                                    CreateAuthToken(reg);
+                                    return serverResponse;
+                                }
+                                break;
+                            case RRType.Error:
+                                ErrorReportTemplate error = serverResponse.RRObject as ErrorReportTemplate;
+                                if (error != null)
+                                {
+                                    return new RRTemplate(RRType.Error, error);
+                                }
+                                break;
+                            default:
+                                return new RRTemplate(RRType.Error, new ErrorReportTemplate(ErrorType.Other, new Exception("Unknown problem")));
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        return new RRTemplate(RRType.Error, new ErrorReportTemplate(ErrorType.UnCorrectServerResponse, new Exception("Uncorrect server response")));
+                    }
+
                 }
 
-
+                stream.Close();
+                client.Close();
+                return new RRTemplate(RRType.Error, new ErrorReportTemplate(ErrorType.Other, new Exception("Unknown problem")));
             }
-
-            stream.Close();
-            client.Close();
+            catch (SocketException ex)
+            {
+                return new RRTemplate(RRType.Error, new ErrorReportTemplate(ErrorType.NoConnectionWithServer, ex));
+            }
+            catch (Exception ex)
+            {
+                return new RRTemplate(RRType.Error, new ErrorReportTemplate(ErrorType.Other, ex));
+            }
         }
 
-        static private void Authtorization(RegistrationTemplate reg)
+        static private void CreateAuthToken(RegistrationTemplate reg)
         {
             // получаем поток, куда будем записывать сериализованный объект
             using (FileStream fs = new FileStream(RegistrationTemplate.AuthTokenFileName, FileMode.OpenOrCreate))
@@ -87,8 +104,6 @@ namespace Katran.Models
                 BinaryFormatter formatter = new BinaryFormatter();
                 formatter.Serialize(fs, reg);
             }
-
-            MainViewModel.UserInfo = new UserInfo(reg);
         }
 
         static private void ErrorService(ErrorReportTemplate error)

@@ -7,7 +7,7 @@ namespace KatranClassLibrary
     [Serializable]
     public enum ErrorType
     {
-        Other, WrongLoginOrPassword, UserAlreadyRegistr
+        Other, UnCorrectServerResponse, WrongLoginOrPassword, UserAlreadyRegistr, NoConnectionWithServer
     }
 
     [Serializable]

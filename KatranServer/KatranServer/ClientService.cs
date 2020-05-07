@@ -89,11 +89,14 @@ namespace KatranServer
             #region Проверка есть ли зарегестрированный пользователь с таким логином
             SqlCommand checkForAlreadyReg = new SqlCommand("select * from Users where auth_login = @auth_login", Server.sql);
             checkForAlreadyReg.Parameters.Add(new SqlParameter("@auth_login", reg.Login));
-            if (checkForAlreadyReg.ExecuteNonQuery() == 0)
+            SqlDataReader checkForAlreadyRegReader = checkForAlreadyReg.ExecuteReader();
+            if (checkForAlreadyRegReader.HasRows)
             {
                 ErrorResponse(ErrorType.UserAlreadyRegistr, new Exception("Пользователь с таким логином уже существует"));
+                checkForAlreadyRegReader.Close();
                 return;
             }
+            checkForAlreadyRegReader.Close();
             #endregion
 
             #region Добавление в таблицу Users
@@ -204,6 +207,7 @@ namespace KatranServer
             }
             else 
             {
+                reader_Users.Close();
                 ErrorResponse(ErrorType.WrongLoginOrPassword, new Exception("Неверный логин или пароль"));
             }
         }
