@@ -145,10 +145,9 @@ namespace Katran.ViewModels
                     }
                 }
             }
-            catch (FileNotFoundException ex)
+            catch(FileNotFoundException ex)
             {
                 CurrentPage = new Pages.AuhtorizationPage(this);
-
             }
             catch (Exception ex)
             {

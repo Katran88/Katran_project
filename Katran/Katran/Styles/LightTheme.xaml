@@ -2,6 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:Katran.Styles">
 
+    <SolidColorBrush x:Key="TextColor" Color="Black" />
+    
     <Style x:Key="AuthReg_BorderStyle" TargetType="Border">
         <Setter Property="CornerRadius" Value="10" />
         <Setter Property="Background" Value="#7B90A3" />

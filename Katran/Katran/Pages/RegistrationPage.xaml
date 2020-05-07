@@ -29,7 +29,7 @@
                     <RowDefinition Height="0.3*" MinHeight="70" />
                 </Grid.RowDefinitions>
 
-                <Image Grid.Column="0" Grid.Row="0" Source="/Resources/KatranIcon.png" Margin="20,20,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                <Image Grid.Column="0" Grid.Row="0" Source="/Resources/Katran.png" Margin="20,20,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
                 <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1" >
                     <uc:LoginField FieldName="{DynamicResource l_Login}" InputFieldWidth="290" Margin="10,5" x:Name="loginInputField"
@@ -61,7 +61,10 @@
                 <Button Grid.Column="3" Grid.Row="2" x:Name="SignUpButton" VerticalAlignment="Bottom" HorizontalAlignment="Right"
                         Template="{StaticResource ResourceKey=btTemplateWithoutBorder}"
                         Command="{Binding SignInPageCommand}" Margin="0,0,5,5" >
-                    <TextBlock Text="{DynamicResource l_SignIn_q}" Style="{StaticResource ResourceKey=BigTextStyle}" TextDecorations="Underline" />
+                    <TextBlock Text="{DynamicResource l_SignIn_q}"
+                               Style="{StaticResource ResourceKey=BigTextStyle}"
+                               Foreground="{DynamicResource TextColor}"
+                               TextDecorations="Underline" />
                 </Button>
             </Grid>
 

@@ -11,6 +11,7 @@
         <StackPanel Grid.Row="0" Orientation="Horizontal">
             <TextBlock x:Name="textblock_FieldName" VerticalAlignment="Center"
                        Text="{Binding FieldName, ElementName=InputField, UpdateSourceTrigger=PropertyChanged}"
+                       Foreground="{DynamicResource ResourceKey=TextColor}"
                        Style="{DynamicResource ResourceKey=BigTextStyle}" />
             <Grid>
                 <Grid.RowDefinitions>

@@ -9,6 +9,26 @@
       Title="MainPage">
 
     <Grid>
-        <TextBlock Text="Hello!" />
+        <Expander ExpandDirection="left" MaxWidth="300" HorizontalAlignment="Left" >
+            <Expander.Header>
+                <TextBlock Text="{DynamicResource ResourceKey=l_Menu}" >
+                    <TextBlock.LayoutTransform>
+                        <RotateTransform Angle="90" />
+                    </TextBlock.LayoutTransform>
+                </TextBlock>
+            </Expander.Header>
+            
+            <ListView>
+                <ListViewItem>
+                    Hello
+                </ListViewItem>
+                <ListViewItem>
+                    World
+                </ListViewItem>
+                <ListViewItem>
+                    :)
+                </ListViewItem>
+            </ListView>
+        </Expander>
     </Grid>
 </Page>

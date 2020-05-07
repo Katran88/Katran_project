@@ -63,9 +63,9 @@ namespace Katran.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap KatranIcon {
+        internal static System.Drawing.Bitmap Katran {
             get {
-                object obj = ResourceManager.GetObject("KatranIcon", resourceCulture);
+                object obj = ResourceManager.GetObject("Katran", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
