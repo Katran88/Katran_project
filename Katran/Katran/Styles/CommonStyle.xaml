@@ -14,6 +14,9 @@
     <system:Double x:Key="MediumFontSize">18</system:Double>
     <system:Double x:Key="HighFontSize">24</system:Double>
 
+    <SolidColorBrush x:Key="ChromeBrush" Color="#FF282E33" />
+    <Color x:Key="ChromeColor" >#FF282E33</Color>
+    
     <SolidColorBrush x:Key="OutlineBrush" Color="#FF34D0FF" />
     <Color x:Key="OutlineColor" >#FF34D0FF</Color>
 
@@ -108,7 +111,7 @@
     </Style>
 
     <Style x:Key="Underline_GotFocus" TargetType="Border" BasedOn="{StaticResource Underline_Style}" >
-        <Setter Property="Background" Value="#FF34D0FF" />
+        <Setter Property="Background" Value="{DynamicResource ResourceKey=OutlineBrush}" />
     </Style>
 
     <ControlTemplate TargetType="Button" x:Key="btTemplateWithBorder">

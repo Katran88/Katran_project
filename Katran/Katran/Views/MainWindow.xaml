@@ -4,31 +4,42 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Katran"
-        xmlns:ViewModels="clr-namespace:Katran.ViewModels" x:Class="Katran.MainWindow"
-        mc:Ignorable="d"
-        MinHeight="550" MinWidth="800"
+        xmlns:ViewModels="clr-namespace:Katran.ViewModels"
+        xmlns:UserControlls="clr-namespace:Katran.UserControlls"
+        x:Class="Katran.MainWindow"
+        mc:Ignorable="d" 
+        MinHeight="550" MinWidth="800" BorderThickness="1" BorderBrush="{StaticResource OutlineBrush}"
         Icon="/Resources/Katran.png" Title="{DynamicResource l_Title}"
-        FontFamily="{DynamicResource ResourceKey=FontFamilyStyle}" >
+        WindowStyle="None"
+        FontFamily="{DynamicResource ResourceKey=FontFamilyStyle}" ScrollViewer.CanContentScroll="True" >
 
     <Window.DataContext>
         <ViewModels:MainViewModel/>
     </Window.DataContext>
 
+    <WindowChrome.WindowChrome >
+        <WindowChrome  ResizeBorderThickness="1" CaptionHeight="0" />
+    </WindowChrome.WindowChrome>
+
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
             <RowDefinition />
             <RowDefinition MaxHeight="20"/>
         </Grid.RowDefinitions>
-        <Frame Grid.Row="0" x:Name="Frame" Content="{Binding CurrentPage}" NavigationUIVisibility="Hidden" Margin="0,0,-0.4,2.2" />
 
-        <Border Grid.Row="1" Style="{DynamicResource ResourceKey=Underline_LostFocus}" VerticalAlignment="Top" Margin="15,1,10,0" />
+        <UserControlls:WindowStyle x:Name="WindowStyle" />
 
-        <TextBlock x:Name="RowState"  Grid.Row="1" Margin="7,0,0,0"
+        <Frame Grid.Row="1" x:Name="Frame" Content="{Binding CurrentPage}" NavigationUIVisibility="Hidden" Margin="0,0,-0.4,2.2" />
+
+        <Border Grid.Row="2" Style="{DynamicResource ResourceKey=Underline_LostFocus}" VerticalAlignment="Top" Margin="15,1,10,0" />
+
+        <TextBlock x:Name="RowState"  Grid.Row="2" Margin="7,0,0,0"
                    Text="{Binding RowState, NotifyOnTargetUpdated=True}"
                    Style="{DynamicResource ResourceKey=RowStateStyle}" />
         <Button x:Name="CultureChangeButton" VerticalAlignment="Bottom" HorizontalAlignment="Right"
                         Template="{StaticResource ResourceKey=btTemplateWithoutBorder}"
-                        Command="{Binding ChangeCulture}" Margin="0,0,5,0" Height="20" Grid.Row="2" >
+                        Command="{Binding ChangeCulture}" Margin="0,0,7,0" Height="20" Grid.Row="2" >
             <TextBlock Text="{Binding CultureTag}" Style="{DynamicResource ResourceKey=SmallTextStyle}" TextDecorations="Underline"  />
         </Button>
     </Grid>

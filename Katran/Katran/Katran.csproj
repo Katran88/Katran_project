@@ -92,6 +92,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Styles\CustomWindowStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Styles\LightTheme.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -105,6 +109,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControlls\LoginField.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControlls\WindowStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -135,6 +143,9 @@
     </Compile>
     <Compile Include="UserControlls\LoginField.xaml.cs">
       <DependentUpon>LoginField.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControlls\WindowStyle.xaml.cs">
+      <DependentUpon>WindowStyle.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\AuthPageViewModel.cs" />
     <Compile Include="ViewModels\DelegateCommand.cs" />

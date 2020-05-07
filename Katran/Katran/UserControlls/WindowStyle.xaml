@@ -1,0 +1,15 @@
+﻿<UserControl x:Class="Katran.UserControlls.WindowStyle"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Katran.UserControlls"
+             mc:Ignorable="d" 
+             Height="20" Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualWidth}" Background="#FF282E33" Foreground="{x:Null}" MouseLeftButtonDown="UserControl_MouseLeftButtonDown" >
+    <StackPanel FlowDirection="RightToLeft" Orientation="Horizontal" HorizontalAlignment="Right"
+                VerticalAlignment="Top" Height="20" Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualWidth}">
+        <Button Template="{DynamicResource ButtonWindowClose}" Click="Close_Click" Height="20" />
+        <Button x:Name="Expand" Template="{DynamicResource ButtonWindowExpand}" Height="20" Click="Expand_Click"/>
+        <Button Template="{DynamicResource ButtonWindowCollapse}" Height="20" Click="Collapse_Click"/>
+    </StackPanel>
+</UserControl>

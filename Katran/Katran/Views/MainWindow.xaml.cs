@@ -24,6 +24,7 @@ namespace Katran
         public MainWindow()
         {
             InitializeComponent();
+            this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 7;
         }
     }
 }

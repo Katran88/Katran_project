@@ -10,7 +10,8 @@
                 <ResourceDictionary Source="Resources/Dictionary_EN.xaml" />
                 <ResourceDictionary Source="Styles/CommonStyle.xaml" />
                 <ResourceDictionary Source="Styles/LightTheme.xaml" />
-                
+                <ResourceDictionary Source="Styles\CustomWindowStyle.xaml" />
+
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.DeepPurple.xaml" />

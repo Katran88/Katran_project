@@ -1,0 +1,58 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Katran.Styles">
+
+    <ControlTemplate x:Key="ButtonWindowClose" TargetType="Button">
+        <Grid  x:Name="CloseButton" Width="25" VerticalAlignment="Top" Height="20" Background="{DynamicResource ResourceKey=ChromeBrush}">
+            <Path x:Name="Close1" Data="M18,-2 L0.125,16" Fill="#FF282E33" Height="10" Stretch="Fill" Width="10" Stroke="#FFE0E0E0" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat" StrokeMiterLimit="12"/>
+            <Path x:Name="Close2" Data="M0.75,1.0333333 L15,15" Fill="#FF282E33" HorizontalAlignment="Left" Height="10" Margin="7.5,5,0,0" StrokeStartLineCap="Flat" Stretch="Fill" StrokeEndLineCap="Flat" Stroke="#FFE0E0E0" StrokeMiterLimit="12" VerticalAlignment="Top" Width="10"/>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="CloseButton" Property="Background" Value="#FFFF4141"/>
+                <Setter TargetName="Close1" Property="Stroke" Value="Black"/>
+                <Setter TargetName="Close2" Property="Stroke" Value="Black"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="ButtonWindowCollapse" TargetType="Button">
+        <Grid x:Name="CollapseButton"  Width="25" Height="20" Background="{DynamicResource ResourceKey=ChromeBrush}">
+            <Path Data="M15.975,6.3 L1.075,6.3" x:Name="Collapse" Fill="#FF282E33" Height="10" StrokeStartLineCap="Flat" Stretch="Fill" StrokeEndLineCap="Flat" Stroke="#FFE0E0E0" StrokeMiterLimit="12" Width="12" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="6.4,0,6.6,5"/>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="CollapseButton" Property="Background" Value="#FF5C5C5C"/>
+                <Setter TargetName="Collapse" Property="Stroke" Value="Black"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="ButtonWindowExpand" TargetType="{x:Type Button}">
+        <Grid x:Name="ExpandButton"  Width="25" Height="20" Background="{DynamicResource ResourceKey=ChromeBrush}">
+            <Rectangle x:Name="Expand" Fill="{x:Null}" Height="10" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat" Stroke="#FFE0E0E0" StrokeMiterLimit="12" Width="12"/>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="ExpandButton" Property="Background" Value="#FF5C5C5C"/>
+                <Setter TargetName="Expand" Property="Stroke" Value="Black"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="ButtonWindowExpand_2" TargetType="{x:Type Button}">
+        <Grid x:Name="ExpandButton"  Width="25" Height="20" Background="{DynamicResource ResourceKey=ChromeBrush}">
+            <Rectangle x:Name="Expand_Copy" Fill="{x:Null}" Height="8" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat" Stroke="#FFE0E0E0" StrokeMiterLimit="12" Width="10" Margin="6.233,5.066,8.766,6.933"/>
+            <Rectangle x:Name="Expand" Fill="#FF282E33" Height="8" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat" Stroke="#FFE0E0E0" StrokeMiterLimit="12" Width="10" Margin="8.233,7,6.766,5"/>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="ExpandButton" Property="Background" Value="#FF5C5C5C"/>
+                <Setter TargetName="Expand" Property="Stroke" Value="Black"/>
+                <Setter TargetName="Expand" Property="Fill" Value="#FF5C5C5C"/>
+                <Setter TargetName="Expand_Copy" Property="Stroke" Value="Black"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+</ResourceDictionary>
