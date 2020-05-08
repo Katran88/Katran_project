@@ -6,16 +6,28 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-
-                <ResourceDictionary Source="Resources/Dictionary_EN.xaml" />
-                <ResourceDictionary Source="Styles/CommonStyle.xaml" />
-                <ResourceDictionary Source="Styles/LightTheme.xaml" />
+                
+                <ResourceDictionary Source="Resources\Dictionary_EN.xaml" />
+                <ResourceDictionary Source="Styles\LightTheme.xaml" />
+                <ResourceDictionary Source="Styles\CommonStyle.xaml" />
                 <ResourceDictionary Source="Styles\CustomWindowStyle.xaml" />
 
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.DeepPurple.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Lime.xaml" />
+
+                <ResourceDictionary>
+                    <!-- primary -->
+                    <SolidColorBrush x:Key="PrimaryHueLightBrush" Color="{StaticResource OutlineColor}"/>
+                    <SolidColorBrush x:Key="PrimaryHueLightForegroundBrush" Color="Yellow"/>
+                    <SolidColorBrush x:Key="PrimaryHueMidBrush" Color="{StaticResource OutlineColor}"/>
+                    <SolidColorBrush x:Key="PrimaryHueMidForegroundBrush" Color="Yellow"/>
+                    <SolidColorBrush x:Key="PrimaryHueDarkBrush" Color="{StaticResource InteractColor}"/>
+                    <SolidColorBrush x:Key="PrimaryHueDarkForegroundBrush" Color="Yellow"/>
+                    <!-- accent -->
+                    <SolidColorBrush x:Key="SecondaryAccentBrush" Color="{StaticResource OutlineColor}"/>
+                    <SolidColorBrush x:Key="SecondaryAccentForegroundBrush" Color="Yellow"/>
+                </ResourceDictionary>
+
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

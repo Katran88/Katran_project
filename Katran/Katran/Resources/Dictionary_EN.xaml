@@ -5,7 +5,9 @@
     
     <system:String x:Key="l_Title">Katran</system:String>
     <system:String x:Key="l_Menu">Menu</system:String>
-    
+    <system:String x:Key="l_ToolTipContacts">Contacts</system:String>
+    <system:String x:Key="l_YourMessage">Your message</system:String>
+
     <system:String x:Key="l_Login">Login:</system:String>
     <system:String x:Key="l_Password">Password:</system:String>
     

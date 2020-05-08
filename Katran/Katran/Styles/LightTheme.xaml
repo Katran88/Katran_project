@@ -1,15 +1,13 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:Katran.Styles">
+                    xmlns:local="clr-namespace:Katran.Styles" 
+                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" xmlns:system="clr-namespace:System;assembly=mscorlib">
 
     <SolidColorBrush x:Key="TextColor" Color="Black" />
-    
-    <Style x:Key="AuthReg_BorderStyle" TargetType="Border">
-        <Setter Property="CornerRadius" Value="10" />
-        <Setter Property="Background" Value="#7B90A3" />
-        <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="HorizontalAlignment" Value="Center" />
-    </Style>
-    
+    <SolidColorBrush x:Key="AR_BorderBrush" Color="#FFFAFAFA" /> <!--цвет окон регистрации и авторизации-->
+
+    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="White" />
+    <SolidColorBrush x:Key="ChromeBrush" Color="#FFFAFAFA" />
+    <Color x:Key="ChromeColor" >#FFFAFAFA</Color>
+
 </ResourceDictionary>

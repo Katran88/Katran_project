@@ -136,7 +136,7 @@ namespace Katran.ViewModels
                     if (regTempl != null)
                     {
                         UserInfo = new UserInfo(regTempl);
-                        CurrentPage = new Pages.MainPage();
+                        CurrentPage = new Pages.MainPage(this);
                         NotifyUserByRowState(RowStateResourcesName.l_sAuth);
                     }
                     else

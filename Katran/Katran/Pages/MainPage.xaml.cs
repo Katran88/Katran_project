@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Katran.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +21,10 @@ namespace Katran.Pages
     /// </summary>
     public partial class MainPage : Page
     {
-        public MainPage()
+        public MainPage(MainViewModel mainViewModel)
         {
             InitializeComponent();
+            DataContext = new MainPageViewModel(mainViewModel, this);
         }
     }
 }

@@ -3,32 +3,78 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:Katran.Pages"
+      xmlns:local="clr-namespace:Katran.Pages" 
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
+      xmlns:ViewModels="clr-namespace:Katran.ViewModels" xmlns:usercontrolls="clr-namespace:Katran.UserControlls"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="MainPage">
 
+    <Page.DataContext>
+        <ViewModels:MainPageViewModel />
+    </Page.DataContext>
+    
     <Grid>
-        <Expander ExpandDirection="left" MaxWidth="300" HorizontalAlignment="Left" >
-            <Expander.Header>
-                <TextBlock Text="{DynamicResource ResourceKey=l_Menu}" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        
+        
+        <Expander Grid.Column="0" ExpandDirection="left" HorizontalAlignment="Left" Panel.ZIndex="1" >
+            <Expander.Header >
+                <TextBlock Text="{DynamicResource ResourceKey=l_Menu}" Style="{DynamicResource ResourceKey=MediumTextStyle}" >
                     <TextBlock.LayoutTransform>
                         <RotateTransform Angle="90" />
                     </TextBlock.LayoutTransform>
                 </TextBlock>
             </Expander.Header>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" >
+                    
+                    <RadioButton Style="{StaticResource MaterialDesignTabRadioButton}" IsChecked="True"
+                                 Margin="4"  Command="{Binding ContactsSelected}" >
+                        <materialDesign:PackIcon Kind="AccountGroup" ToolTip="{DynamicResource ResourceKey=l_ToolTipContacts}" Height="25" Width="25"  />
+                    </RadioButton>
+
+                </StackPanel>
+
+                <ContentPresenter Grid.Row="1" x:Name="presenter" Content="{Binding MenuContentPresenter}" />
+            </Grid>
             
-            <ListView>
-                <ListViewItem>
-                    Hello
-                </ListViewItem>
-                <ListViewItem>
-                    World
-                </ListViewItem>
-                <ListViewItem>
-                    :)
-                </ListViewItem>
-            </ListView>
         </Expander>
+
+        <StackPanel Grid.Column="1" Orientation="Vertical" >
+
+            <ContentPresenter Grid.Row="1" x:Name="messages" Content="{Binding MessagesContentPresenter}" />
+            
+            <Grid Margin="20,5,20,5" >
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <TextBox Grid.Row="0"
+                         Style="{StaticResource MaterialDesignOutlinedTextFieldTextBox}"
+                         VerticalAlignment="Bottom" AcceptsReturn="True"
+                         TextWrapping="Wrap" MaxHeight="200"
+                         VerticalScrollBarVisibility="Auto"                                           
+                         materialDesign:HintAssist.Hint="{DynamicResource ResourceKey=l_YourMessage}" />
+
+                <Button Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,5,0"
+                        Template="{DynamicResource ResourceKey=btTemplateWithoutBorder}" >
+                    <materialDesign:PackIcon Kind="Send" VerticalAlignment="Center" Height="20" Width="20" />
+                </Button>
+                
+            </Grid>
+            
+        </StackPanel>
+            
     </Grid>
 </Page>

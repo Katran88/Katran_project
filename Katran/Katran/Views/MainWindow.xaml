@@ -11,7 +11,7 @@
         MinHeight="550" MinWidth="800" BorderThickness="1" BorderBrush="{StaticResource OutlineBrush}"
         Icon="/Resources/Katran.png" Title="{DynamicResource l_Title}"
         WindowStyle="None"
-        FontFamily="{DynamicResource ResourceKey=FontFamilyStyle}" ScrollViewer.CanContentScroll="True" >
+        FontFamily="{DynamicResource ResourceKey=FontFamilyStyle}" ScrollViewer.CanContentScroll="True" Background="{StaticResource WindowBackgroundBrush}" >
 
     <Window.DataContext>
         <ViewModels:MainViewModel/>
@@ -28,10 +28,10 @@
             <RowDefinition MaxHeight="20"/>
         </Grid.RowDefinitions>
 
-        <UserControlls:WindowStyle x:Name="WindowStyle" />
+        <UserControlls:WindowStyle x:Name="WindowStyle" Background="{DynamicResource ChromeBrush}" />
 
         <Frame Grid.Row="1" x:Name="Frame" Content="{Binding CurrentPage}" NavigationUIVisibility="Hidden" Margin="0,0,-0.4,2.2" />
-
+     
         <Border Grid.Row="2" Style="{DynamicResource ResourceKey=Underline_LostFocus}" VerticalAlignment="Top" Margin="15,1,10,0" />
 
         <TextBlock x:Name="RowState"  Grid.Row="2" Margin="7,0,0,0"

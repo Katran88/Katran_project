@@ -3,6 +3,7 @@ go
 use Katran
 drop table Users_info
 drop table Users
+
 create table Users
 (
 	id int identity(1,1) primary key,

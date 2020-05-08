@@ -79,10 +79,7 @@ namespace Katran.ViewModels
                     Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
 
                     dlg.DefaultExt = ".png";
-                    dlg.Filter = "JPEG Files (*.jpeg)|*.jpeg|" +
-                                 "PNG Files (*.png)|*.png|" +
-                                 "JPG Files (*.jpg)|*.jpg|" +
-                                 "GIF Files (*.gif)|*.gif";
+                    dlg.Filter = "Images (*.jpeg, *.jpg, *.png)|*.jpeg;*.jpg;*.png|";
 
                     bool? result = dlg.ShowDialog();
 
