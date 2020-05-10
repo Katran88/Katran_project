@@ -1,10 +1,12 @@
 ﻿using KatranClassLibrary;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 
@@ -21,6 +23,7 @@ namespace KatranServer
         //обработка запроса пользователя
         public void Service()
         {
+            bool isUserStreamlistener = false; //флаг для предотвращения закрытия потока юзера, который выступает в роли слушателя (если true, то поток не закроется)
             NetworkStream clientStream = null;
             try
             {
@@ -63,6 +66,21 @@ namespace KatranServer
                                     Registration(reg);
                                 }
                                 break;
+                            case RRType.RefreshUserConnection:
+                                RefreshUserTemplate refrU = clientRequest.RRObject as RefreshUserTemplate;
+                                if (refrU != null)
+                                {
+                                    RefreshClientListener(refrU);
+                                    isUserStreamlistener = true;
+                                }
+                                break;
+                            case RRType.RefreshContacts:
+                                RefreshContactsTemplate refrC = clientRequest.RRObject as RefreshContactsTemplate;
+                                if (refrC != null)
+                                {
+                                    RefreshContacts(refrC);
+                                }
+                                break;
                             default:
                                 ErrorResponse(ErrorType.Other, new Exception("Получен необработанный запрос"));
                                 break;
@@ -77,9 +95,85 @@ namespace KatranServer
             }
             finally
             {
-                //закрываем поток данных и соединение с клиентом
-                clientStream.Close();
-                client.Close();
+                if (!isUserStreamlistener)
+                {
+                    //закрываем поток данных и соединение с клиентом
+                    clientStream.Close();
+                    client.Close();
+                }
+                
+            }
+        }
+
+        private void RefreshContacts(RefreshContactsTemplate refrC)
+        {
+            #region Получение из бд контактов юзера и запись в лист contacts
+
+            SqlCommand contactsCommand = new SqlCommand("select ui.id, ui.app_name, ui.image, ui.status " +
+                                                        "from Users_info as ui " +
+                                                        "join Contacts as c " +
+                                                        "on ui.id = c.contact and c.contact_owner = @userID", Server.sql);
+            contactsCommand.Parameters.Add(new SqlParameter("@userID", refrC.ContactsOwner));
+            SqlDataReader contactsReader = contactsCommand.ExecuteReader();
+
+            List<Contact> contacts = new List<Contact>();
+            if (contactsReader.HasRows)
+            {
+                Contact tempContact = null;
+                while (contactsReader.Read())
+                {
+                    tempContact = new Contact();
+                    tempContact.UserId = contactsReader.GetInt32(0);
+                    tempContact.AppName = contactsReader.GetString(1);
+
+                    object imageObj = contactsReader.GetValue(2);
+                    if (imageObj is System.DBNull)
+                    {
+                        tempContact.AvatarImage = GetDefaultUserImage();
+                    }
+                    else
+                    {
+                        tempContact.AvatarImage = (byte[])imageObj;
+                    }
+                    tempContact.Status = (Status)Enum.Parse(typeof(Status), contactsReader.GetString(3));
+
+                    contacts.Add(tempContact);
+                }
+            }
+
+            #endregion
+
+            #region Отправка контактов юзера или пустого листа 
+
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                formatter.Serialize(memoryStream, new RRTemplate(RRType.RefreshContacts, new RefreshContactsTemplate(refrC.ContactsOwner, contacts)));
+
+                ConectedUser user = Server.conectedUsers.Find(x => x.id == refrC.ContactsOwner);
+                if (user != null)
+                {
+                    user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                }
+            }
+
+            #endregion
+            
+            contactsReader.Close();
+        }
+
+        //обновление Статуса пользователя (Online/Offline)
+        private void RefreshClientListener(RefreshUserTemplate refrUser)
+        {
+            ConectedUser user = Server.conectedUsers.Find(x => x.id == refrUser.UserId);
+            if (user == null)
+            {
+                Server.conectedUsers.Add(new ConectedUser(refrUser.UserId, client));
+                Server.ChangeStatus(refrUser.UserId, Status.Online);
+            }
+            else
+            {
+                user.userSocket = client;
             }
         }
 
@@ -116,15 +210,15 @@ namespace KatranServer
             SqlDataReader userIdReader = command.ExecuteReader();
 
             userIdReader.Read();
-            int userId = (int)userIdReader["id"];
+            reg.Id = (int)userIdReader["id"];
             userIdReader.Close();
 
-            SqlCommand commandToUsersInfo = new SqlCommand("insert into Users_info (id, app_name, email, user_description, image, status) " +
-                                                           "values(@id, @app_name, @email, @user_description, @image, @status)", Server.sql);
-            commandToUsersInfo.Parameters.Add(new SqlParameter("@id", userId));
+            SqlCommand commandToUsersInfo = new SqlCommand("insert into Users_info (id, app_name, email, user_discription, image, status) " +
+                                                           "values(@id, @app_name, @email, @user_discription, @image, @status)", Server.sql);
+            commandToUsersInfo.Parameters.Add(new SqlParameter("@id", reg.Id));
             commandToUsersInfo.Parameters.Add(new SqlParameter("@app_name", reg.App_name));
             commandToUsersInfo.Parameters.Add(new SqlParameter("@email", reg.Email));
-            commandToUsersInfo.Parameters.Add(new SqlParameter("@user_description", reg.User_discription));
+            commandToUsersInfo.Parameters.Add(new SqlParameter("@user_discription", reg.User_discription));
             if (reg.Image == null || reg.Image.Length == 0)
                 commandToUsersInfo.Parameters.Add("@image", SqlDbType.VarBinary).Value = DBNull.Value;
             else
@@ -163,7 +257,7 @@ namespace KatranServer
             {
                 #region Запрос на данные о пользователе
                 reader_Users.Read();
-                command = new SqlCommand("select ui.id, ui.app_name, ui.email, ui.user_description, ui.image, ui.status, u.law_status from Users_info ui, Users u where ui.id = @id", Server.sql);
+                command = new SqlCommand("select ui.id, ui.app_name, ui.email, ui.user_discription, ui.image, ui.status, u.law_status from Users_info ui, Users u where ui.id = @id", Server.sql);
                 command.Parameters.Add(new SqlParameter("@id", (int)reader_Users.GetValue(0)));
                 reader_Users.Close();
                 SqlDataReader reader_Users_info = command.ExecuteReader();
@@ -191,7 +285,8 @@ namespace KatranServer
                     (string)reader_Users_info.GetValue(3),
                     image,
                     (Status)Enum.Parse(typeof(Status), reader_Users_info.GetString(5)),
-                    (LawStatus)Enum.Parse(typeof(LawStatus), reader_Users_info.GetString(6)));
+                    (LawStatus)Enum.Parse(typeof(LawStatus), reader_Users_info.GetString(6)),
+                    auth.AuthLogin, auth.Password);
 
                 BinaryFormatter formatter = new BinaryFormatter();
                 using (MemoryStream memoryStream = new MemoryStream())
@@ -222,7 +317,7 @@ namespace KatranServer
             }
         }
 
-        //Отправка пользователю сообщения, что произошла ошибка
+        //Отправка пользователю уведомления об ошибке
         void ErrorResponse(ErrorType errorType, Exception ex)
         {
             BinaryFormatter formatter = new BinaryFormatter();

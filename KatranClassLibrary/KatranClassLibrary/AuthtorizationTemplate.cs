@@ -25,7 +25,7 @@ namespace KatranClassLibrary
             {
                 byte[] bytes_password = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
 
-                StringBuilder tempBuilder = new StringBuilder(460);
+                StringBuilder tempBuilder = new StringBuilder(32);
                 for (int i = 0; i < bytes_password.Length; i++)
                 {
                     tempBuilder.Append(bytes_password[i].ToString("x2"));

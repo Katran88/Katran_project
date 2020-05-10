@@ -21,7 +21,7 @@
         </Grid.ColumnDefinitions>
         
         
-        <Expander Grid.Column="0" ExpandDirection="left" HorizontalAlignment="Left" Panel.ZIndex="1" >
+        <Expander Grid.Column="0" ExpandDirection="left" HorizontalAlignment="Left" Panel.ZIndex="1" Foreground="{DynamicResource TextColor}" >
             <Expander.Header >
                 <TextBlock Text="{DynamicResource ResourceKey=l_Menu}" Style="{DynamicResource ResourceKey=MediumTextStyle}" >
                     <TextBlock.LayoutTransform>
@@ -35,12 +35,11 @@
                     <RowDefinition Height="40" />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-
                 <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" >
-                    
+
                     <RadioButton Style="{StaticResource MaterialDesignTabRadioButton}" IsChecked="True"
                                  Margin="4"  Command="{Binding ContactsSelected}" >
-                        <materialDesign:PackIcon Kind="AccountGroup" ToolTip="{DynamicResource ResourceKey=l_ToolTipContacts}" Height="25" Width="25"  />
+                        <materialDesign:PackIcon Kind="AccountGroup" ToolTip="{DynamicResource ResourceKey=l_ToolTipContacts}" Height="25" Width="25" Foreground="{DynamicResource TextColor}" />
                     </RadioButton>
 
                 </StackPanel>
@@ -61,6 +60,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBox Grid.Row="0"
+                         Foreground="{DynamicResource TextColor}"
                          Style="{StaticResource MaterialDesignOutlinedTextFieldTextBox}"
                          VerticalAlignment="Bottom" AcceptsReturn="True"
                          TextWrapping="Wrap" MaxHeight="200"

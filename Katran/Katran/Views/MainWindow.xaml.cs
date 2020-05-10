@@ -1,4 +1,5 @@
-﻿using Katran.ViewModels;
+﻿using Katran.Models;
+using Katran.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,16 @@ namespace Katran
         {
             InitializeComponent();
             this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 7;
+            this.Closed += MainWindow_Closed;
+        }
+
+        private void MainWindow_Closed(object sender, EventArgs e)
+        {
+            if (MainPageViewModel.clientListener != null)
+            {
+                MainPageViewModel.clientListener.CloseConnection();
+            }
+            this.Close();
         }
     }
 }

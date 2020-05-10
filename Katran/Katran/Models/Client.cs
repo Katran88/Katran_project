@@ -14,24 +14,26 @@ namespace Katran.Models
 {
     public static class Client
     {
-        const string serverIP = "127.0.0.1";
-        const int serverPort = 8001;
+        static TcpClient client;
+        static NetworkStream clientStream;
+
+        public const string serverIP = "127.0.0.1";
+        public const int serverPort = 8001;
 
         public static RRTemplate ServerRequest(RRTemplate request)
         {
-            TcpClient client = new TcpClient();
-
             try
             {
+                client = new TcpClient();
                 client.Connect(serverIP, serverPort);
-                NetworkStream stream = client.GetStream();
+                clientStream = client.GetStream();
 
                 BinaryFormatter formatter = new BinaryFormatter();
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
                     formatter.Serialize(memoryStream, request);
 
-                    stream.Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                    clientStream.Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
 
                     memoryStream.Flush();
                     memoryStream.Position = 0;
@@ -41,12 +43,12 @@ namespace Katran.Models
                         byte[] buffer = new byte[256];
                         int bytes;
 
-                        bytes = stream.Read(buffer, 0, buffer.Length);
+                        bytes = clientStream.Read(buffer, 0, buffer.Length);
                         memoryStream.Write(buffer, 0, bytes);
 
                         buffer = new byte[256];
                     }
-                    while (stream.DataAvailable);
+                    while (clientStream.DataAvailable);
 
                     memoryStream.Position = 0;
                     RRTemplate serverResponse = formatter.Deserialize(memoryStream) as RRTemplate;
@@ -81,9 +83,6 @@ namespace Katran.Models
                     }
 
                 }
-
-                stream.Close();
-                client.Close();
                 return new RRTemplate(RRType.Error, new ErrorReportTemplate(ErrorType.Other, new Exception("Unknown problem")));
             }
             catch (SocketException ex)
@@ -98,7 +97,6 @@ namespace Katran.Models
 
         static private void CreateAuthToken(RegistrationTemplate reg)
         {
-            // получаем поток, куда будем записывать сериализованный объект
             using (FileStream fs = new FileStream(RegistrationTemplate.AuthTokenFileName, FileMode.OpenOrCreate))
             {
                 BinaryFormatter formatter = new BinaryFormatter();

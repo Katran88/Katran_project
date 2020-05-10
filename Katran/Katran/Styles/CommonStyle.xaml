@@ -20,7 +20,14 @@
     <SolidColorBrush x:Key="InteractBrush" Color="#FF064F65" />
     <Color x:Key="InteractColor" >#FF064F65</Color>
 
+    <SolidColorBrush x:Key="OnlineBrush" Color="#FF32FC32" />
+    <Color x:Key="OnlineColor" >#FF32FC32</Color>
+
+    <SolidColorBrush x:Key="OfflineBrush" Color="Transparent" />
+    <Color x:Key="OfflineColor" >Transparent</Color>
+
     <Style x:Key="TextStyleBase">
+        <Setter Property="Control.Foreground" Value="{DynamicResource ResourceKey=TextColor}" />
         <Setter Property="Control.FontFamily" Value="{StaticResource ResourceKey=FontFamilyStyle}" />
     </Style>
 
@@ -121,7 +128,7 @@
     </Style>
 
     <ControlTemplate TargetType="Button" x:Key="btTemplateWithBorder">
-        <Border x:Name="btBorder" CornerRadius="8" BorderBrush="Black" BorderThickness="2" Background="Transparent" >
+        <Border x:Name="btBorder" CornerRadius="8" BorderBrush="{DynamicResource TextColor}" BorderThickness="2" Background="Transparent" >
             <ContentPresenter x:Name="btContent" Style="{StaticResource ResourceKey=BigTextStyle}" VerticalAlignment="Center" HorizontalAlignment="Center" />
         </Border>
         <ControlTemplate.Triggers>
@@ -142,7 +149,9 @@
     </ControlTemplate>
 
     <ControlTemplate TargetType="Button" x:Key="btTemplateWithoutBorder" >
-        <ContentPresenter x:Name="btContent" TextElement.Foreground="{DynamicResource ResourceKey=TextColor}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+        <Border x:Name="btBorder" BorderThickness="0" Background="Transparent" >
+            <ContentPresenter x:Name="btContent" TextElement.Foreground="{DynamicResource ResourceKey=TextColor}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+        </Border>
         <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="false">
                 <Setter Property="Foreground" Value="{DynamicResource ResourceKey=TextColor}" />

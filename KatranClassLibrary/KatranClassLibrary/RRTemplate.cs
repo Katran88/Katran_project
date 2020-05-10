@@ -5,7 +5,12 @@ namespace KatranClassLibrary
     [Serializable]
     public enum RRType
     {
-        None, Authorization, Registration, Error
+        None, 
+        Authorization, 
+        Registration, 
+        Error,
+        RefreshUserConnection, 
+        RefreshContacts
     }
 
     [Serializable]

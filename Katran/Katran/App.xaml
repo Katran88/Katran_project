@@ -8,11 +8,11 @@
             <ResourceDictionary.MergedDictionaries>
                 
                 <ResourceDictionary Source="Resources\Dictionary_EN.xaml" />
-                <ResourceDictionary Source="Styles\LightTheme.xaml" />
+                <ResourceDictionary Source="Styles\DarkTheme.xaml" />
                 <ResourceDictionary Source="Styles\CommonStyle.xaml" />
                 <ResourceDictionary Source="Styles\CustomWindowStyle.xaml" />
 
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Dark.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
 
                 <ResourceDictionary>

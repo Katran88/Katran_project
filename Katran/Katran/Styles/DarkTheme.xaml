@@ -2,8 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:Katran.Styles">
 
-    <SolidColorBrush x:Key="TextColor" Color="Black" />
-    <SolidColorBrush x:Key="AR_BorderBrush" Color="#7B90A3" /> <!--цвет окон регистрации и авторизации-->
+    <SolidColorBrush x:Key="TextColor" Color="#FFD3D3D3" />
+    <SolidColorBrush x:Key="AR_BorderBrush" Color="#FF303030" /> <!--цвет окон регистрации и авторизации-->
 
     <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#FF3F3F46" />
     <SolidColorBrush x:Key="ChromeBrush" Color="#FF303030" />

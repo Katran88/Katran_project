@@ -104,7 +104,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UserControlls\Contact.xaml">
+    <Page Include="UserControlls\ContactsBorder.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControlls\ContactUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControlls\ContactsSearcher.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -133,6 +141,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Models\Client.cs" />
+    <Compile Include="Models\ClientListener.cs" />
     <Compile Include="Models\Converters.cs" />
     <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Pages\AuhtorizationPage.xaml.cs">
@@ -144,8 +153,14 @@
     <Compile Include="Pages\RegistrationPage.xaml.cs">
       <DependentUpon>RegistrationPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControlls\Contact.xaml.cs">
-      <DependentUpon>Contact.xaml</DependentUpon>
+    <Compile Include="UserControlls\ContactsBorder.xaml.cs">
+      <DependentUpon>ContactsBorder.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControlls\ContactUI.xaml.cs">
+      <DependentUpon>ContactUI.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControlls\ContactsSearcher.xaml.cs">
+      <DependentUpon>ContactsSearcher.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControlls\CryptInputField.xaml.cs">
       <DependentUpon>CryptInputField.xaml</DependentUpon>

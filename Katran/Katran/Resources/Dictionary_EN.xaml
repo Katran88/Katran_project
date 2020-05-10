@@ -5,8 +5,12 @@
     
     <system:String x:Key="l_Title">Katran</system:String>
     <system:String x:Key="l_Menu">Menu</system:String>
-    <system:String x:Key="l_ToolTipContacts">Contacts</system:String>
+    <system:String x:Key="l_ToolTipContacts">Contacts and Chats</system:String>
     <system:String x:Key="l_YourMessage">Your message</system:String>
+    <system:String x:Key="l_SearchForContact">Search for contact</system:String>
+    <system:String x:Key="l_Search">Search</system:String>
+    <system:String x:Key="l_AddToContacts">Add to Contacts</system:String>
+    <system:String x:Key="l_SearchOutContacts">Search out Contacts</system:String>
 
     <system:String x:Key="l_Login">Login:</system:String>
     <system:String x:Key="l_Password">Password:</system:String>

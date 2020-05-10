@@ -129,29 +129,34 @@ namespace Katran.ViewModels
         {
             try
             {
-                using (FileStream fs = new FileStream(RegistrationTemplate.AuthTokenFileName, FileMode.Open, FileAccess.Read))
+                FileStream fs = new FileStream(RegistrationTemplate.AuthTokenFileName, FileMode.Open, FileAccess.Read);
+
+                BinaryFormatter formatter = new BinaryFormatter();
+                RegistrationTemplate regTempl = formatter.Deserialize(fs) as RegistrationTemplate;
+                if (regTempl != null)
                 {
-                    BinaryFormatter formatter = new BinaryFormatter();
-                    RegistrationTemplate regTempl = formatter.Deserialize(fs) as RegistrationTemplate;
-                    if (regTempl != null)
-                    {
-                        UserInfo = new UserInfo(regTempl);
-                        CurrentPage = new Pages.MainPage(this);
-                        NotifyUserByRowState(RowStateResourcesName.l_sAuth);
-                    }
-                    else
-                    {
-                        CurrentPage = new Pages.AuhtorizationPage(this);
-                    }
+                    Client.ServerRequest(new RRTemplate(RRType.Authorization, new AuthtorizationTemplate(regTempl.Login, regTempl.Password)));
+
+                    UserInfo = new UserInfo(regTempl);
+                    CurrentPage = new Pages.MainPage(this);
+                    NotifyUserByRowState(RowStateResourcesName.l_sAuth);
+                }
+                else
+                {
+                    CurrentPage = new Pages.AuhtorizationPage(this);
                 }
             }
             catch(FileNotFoundException ex)
             {
                 CurrentPage = new Pages.AuhtorizationPage(this);
             }
+            catch (SocketException ex)
+            {
+                NotifyUserByRowState(RowStateResourcesName.l_noConWithServer);
+            }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.Message + " (ИЗ MainViewModel!!!!)");
             }
         }
 
@@ -159,11 +164,15 @@ namespace Katran.ViewModels
         {
             try
             {
-                object findedResourse = Application.Current.FindResource(notifyString.ToString());
-                if (findedResourse != null)
+                if (Application.Current != null)
                 {
-                    this.RowState = (string)findedResourse + " " + additionalNotifyInfo;
+                    object findedResourse = Application.Current.FindResource(notifyString.ToString());
+                    if (findedResourse != null)
+                    {
+                        this.RowState = (string)findedResourse + " " + additionalNotifyInfo;
+                    }
                 }
+                
             }
             catch
             {
