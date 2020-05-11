@@ -10,7 +10,9 @@ namespace KatranClassLibrary
         Registration, 
         Error,
         RefreshUserConnection, 
-        RefreshContacts
+        RefreshContacts,
+        RefreshUserData,
+        UserDisconected
     }
 
     [Serializable]

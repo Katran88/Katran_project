@@ -66,6 +66,13 @@ namespace KatranServer
                                     Registration(reg);
                                 }
                                 break;
+                            case RRType.UserDisconected:
+                                RefreshUserTemplate refrUC = clientRequest.RRObject as RefreshUserTemplate;
+                                if (refrUC != null)
+                                {
+                                    Server.ChangeStatus(refrUC.UserId, Status.Offline);
+                                }
+                                break;
                             case RRType.RefreshUserConnection:
                                 RefreshUserTemplate refrU = clientRequest.RRObject as RefreshUserTemplate;
                                 if (refrU != null)
@@ -79,6 +86,13 @@ namespace KatranServer
                                 if (refrC != null)
                                 {
                                     RefreshContacts(refrC);
+                                }
+                                break;
+                            case RRType.RefreshUserData:
+                                AuthtorizationTemplate refrUserData = clientRequest.RRObject as AuthtorizationTemplate;
+                                if (refrUserData != null)
+                                {
+                                    RefreshuserData(refrUserData);
                                 }
                                 break;
                             default:
@@ -103,6 +117,55 @@ namespace KatranServer
                 }
                 
             }
+        }
+
+        private void RefreshuserData(AuthtorizationTemplate refrUserData)
+        {
+            #region Запрос на данные о пользователе
+            SqlCommand command = new SqlCommand("select ui.id, ui.app_name, ui.email, ui.user_discription, ui.image, ui.status, u.law_status, u.password " +
+                                                "from Users_info ui join Users u on ui.id = u.id " +
+                                                "where ui.id = (select u2.id from Users as u2 where u2.auth_login = @auth_login)", Server.sql);
+            command.Parameters.Add(new SqlParameter("@auth_login", refrUserData.AuthLogin));
+
+            SqlDataReader reader_User_info = command.ExecuteReader();
+            reader_User_info.Read();
+            #endregion
+
+            #region Обработка случая если картинка пользователя задана, то ставится стандартная
+            object imageObj = reader_User_info.GetValue(4);
+            byte[] image;
+            if (imageObj is System.DBNull)
+            {
+                image = GetDefaultUserImage();
+            }
+            else
+            {
+                image = (byte[])imageObj;
+            }
+            #endregion
+
+            #region Отправка ответа на запрос обновление данных о пользователе
+            RegistrationTemplate regTempl = new RegistrationTemplate(
+                (int)reader_User_info.GetValue(0),
+                (string)reader_User_info.GetValue(1),
+                (string)reader_User_info.GetValue(2),
+                (string)reader_User_info.GetValue(3),
+                image,
+                (Status)Enum.Parse(typeof(Status), reader_User_info.GetString(5)),
+                (LawStatus)Enum.Parse(typeof(LawStatus), reader_User_info.GetString(6)),
+                refrUserData.AuthLogin,
+                (string)reader_User_info.GetValue(7));
+
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                formatter.Serialize(memoryStream, new RRTemplate(RRType.RefreshUserData, regTempl));
+
+                client.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+            }
+
+            reader_User_info.Close();
+            #endregion
         }
 
         private void RefreshContacts(RefreshContactsTemplate refrC)

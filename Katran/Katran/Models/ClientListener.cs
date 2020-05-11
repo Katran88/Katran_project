@@ -40,6 +40,7 @@ namespace Katran.Models
             clientStream.Close();
             clientStream.Dispose();
             client.Close();
+            Client.ServerRequest(new RRTemplate(RRType.UserDisconected, new RefreshUserTemplate(mainPageViewModel.MainViewModel.UserInfo.Info.Id)));
         }
 
         void RefreshClientIP()

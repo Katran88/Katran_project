@@ -58,6 +58,7 @@ namespace Katran.Models
                         switch (serverResponse.RRType)
                         {
                             case RRType.Authorization:
+                            case RRType.RefreshUserData:
                                 RegistrationTemplate reg = serverResponse.RRObject as RegistrationTemplate; //RegistrationTemplate служит как шаблон для преднастройки приложения
                                 if (reg != null)
                                 {

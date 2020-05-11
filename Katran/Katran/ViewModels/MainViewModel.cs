@@ -97,7 +97,7 @@ namespace Katran.ViewModels
 
         public MainViewModel()
         {
-            UserInfo = null;
+            UserInfo = new UserInfo(null);
             CultureTag = "EN";
             //ServerRequest(new RRTemplate(RRType.Registration, new RegistrationTemplate(-1,
             //                                                                           "Vasya",
@@ -111,7 +111,7 @@ namespace Katran.ViewModels
 
             //ServerRequest(new RRTemplate(RRType.Authorization, new AuthtorizationTemplate("Katran", "12345"))); //для теста 
 
-            TryAuthtorizait();
+            TryAuthtorizait(true);
         }
 
         public ICommand commandExample
@@ -125,7 +125,7 @@ namespace Katran.ViewModels
             }
         }
 
-        public void TryAuthtorizait()
+        public void TryAuthtorizait(bool isNeedRefreshUserData)
         {
             try
             {
@@ -135,9 +135,27 @@ namespace Katran.ViewModels
                 RegistrationTemplate regTempl = formatter.Deserialize(fs) as RegistrationTemplate;
                 if (regTempl != null)
                 {
-                    Client.ServerRequest(new RRTemplate(RRType.Authorization, new AuthtorizationTemplate(regTempl.Login, regTempl.Password)));
+                    if (isNeedRefreshUserData)
+                    {
+                        fs.Close();
+                        RRTemplate response = Client.ServerRequest(new RRTemplate(RRType.RefreshUserData, new AuthtorizationTemplate(regTempl.Login, "")));
 
-                    UserInfo = new UserInfo(regTempl);
+                        switch (response.RRType)
+                        {
+                            case RRType.RefreshUserData:
+                                RegistrationTemplate regResponseObj = response.RRObject as RegistrationTemplate;
+                                if (regResponseObj != null)
+                                {
+                                    UserInfo.Info = regResponseObj;
+                                    
+                                }
+                                break;
+                            default:
+                                ErrorService(response.RRObject as ErrorReportTemplate);
+                                break;
+                        }
+                    }
+
                     CurrentPage = new Pages.MainPage(this);
                     NotifyUserByRowState(RowStateResourcesName.l_sAuth);
                 }

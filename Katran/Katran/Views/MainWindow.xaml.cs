@@ -1,5 +1,6 @@
 ﻿using Katran.Models;
 using Katran.ViewModels;
+using KatranClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Linq;
