@@ -12,7 +12,8 @@ namespace KatranClassLibrary
         RefreshUserConnection, 
         RefreshContacts,
         RefreshUserData,
-        UserDisconected
+        UserDisconected,
+        SearchOutContacts
     }
 
     [Serializable]

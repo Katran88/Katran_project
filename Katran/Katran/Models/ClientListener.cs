@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -29,7 +30,7 @@ namespace Katran.Models
             client.Connect(Client.serverIP, Client.serverPort);
             clientStream = client.GetStream();
 
-            RefreshClientIP();
+            RefreshClientConnection();
 
             Thread listenerThread = new Thread(new ThreadStart(NotifyHandling));
             listenerThread.Start();
@@ -43,8 +44,21 @@ namespace Katran.Models
             Client.ServerRequest(new RRTemplate(RRType.UserDisconected, new RefreshUserTemplate(mainPageViewModel.MainViewModel.UserInfo.Info.Id)));
         }
 
-        void RefreshClientIP()
+        void RefreshClientConnection()
         {
+        //    if (mainPageViewModel.MainViewModel.UserInfo.Info == null)
+        //    {
+        //        FileStream fs = new FileStream(RegistrationTemplate.AuthTokenFileName, FileMode.Open, FileAccess.Read);
+
+        //        BinaryFormatter binForm = new BinaryFormatter();
+        //        RegistrationTemplate regTempl = binForm.Deserialize(fs) as RegistrationTemplate;
+        //        if (regTempl != null)
+        //        {
+        //            mainPageViewModel.MainViewModel.UserInfo.Info = regTempl;
+        //        }
+        //        fs.Close();
+        //    }
+
             RRTemplate request = new RRTemplate(RRType.RefreshUserConnection, new RefreshUserTemplate(mainPageViewModel.MainViewModel.UserInfo.Info.Id));
 
 
@@ -97,7 +111,13 @@ namespace Katran.Models
                                         RefreshContacts(refrC);
                                     }
                                     break;
-
+                                case RRType.SearchOutContacts:
+                                    SearchOutContactsTemplate searchOutC = serverResponse.RRObject as SearchOutContactsTemplate;
+                                    if (searchOutC != null)
+                                    {
+                                        SearchOutContacts(searchOutC);
+                                    }
+                                    break;
                                 default:
                                     if (client.Connected)
                                     {
@@ -148,9 +168,41 @@ namespace Katran.Models
             }
         }
 
+        private void SearchOutContacts(SearchOutContactsTemplate searchOutC)
+        {
+            Task.Factory.StartNew(() =>
+            {
+                MemoryStream memoryStream;
+                Bitmap avatar;
+                List<ContactUI> OutContacts = new List<ContactUI>();
+
+                foreach (Contact item in searchOutC.Contacts)
+                {
+                    memoryStream = new MemoryStream(item.AvatarImage);
+                    avatar = new Bitmap(memoryStream);
+
+                    Application.Current.Dispatcher.Invoke(new Action(() =>
+                    {
+                        OutContacts.Add(new ContactUI(item.AppName, "", Converters.BitmapToImageSource(avatar), item.Status, item.UserId, mainPageViewModel.ContactsAddButton));
+                    }
+                    ));
+                }
+
+                Application.Current.Dispatcher.Invoke(new Action(() =>
+                {
+                    mainPageViewModel.FilteredNoUserContacts.Clear();
+                    foreach (ContactUI item in OutContacts)
+                    {
+                        mainPageViewModel.FilteredNoUserContacts.Add(item);
+                    }
+                }
+                ));
+            });
+        }
+
         private void RefreshContacts(RefreshContactsTemplate refrC)
         {
-            Application.Current.Dispatcher.Invoke(new Action(() => 
+            Task.Factory.StartNew(() =>
             {
                 MemoryStream memoryStream;
                 Bitmap avatar;
@@ -160,25 +212,24 @@ namespace Katran.Models
                 {
                     memoryStream = new MemoryStream(item.AvatarImage);
                     avatar = new Bitmap(memoryStream);
-                    RefreshedContacts.Add(new ContactUI(item.AppName, "", Converters.BitmapToImageSource(avatar), item.Status, item.UserId));
+
+                    Application.Current.Dispatcher.Invoke(new Action(() =>
+                    {
+                        RefreshedContacts.Add(new ContactUI(item.AppName, "", Converters.BitmapToImageSource(avatar), item.Status, item.UserId));
+                    }
+                    ));                    
                 }
-            
-                mainPageViewModel.Contacts.Clear();
-                foreach(ContactUI item in RefreshedContacts)
+
+                Application.Current.Dispatcher.Invoke(new Action(() =>
                 {
-                    mainPageViewModel.Contacts.Add(item);
+                    mainPageViewModel.Contacts.Clear();
+                    foreach (ContactUI item in RefreshedContacts)
+                    {
+                        mainPageViewModel.Contacts.Add(item);
+                    }
                 }
-
-
-                Grid ContactsGrid = mainPageViewModel.MenuContentPresenter.Content as Grid;
-                if (ContactsGrid != null)
-                {
-                    ContactsGrid.Children.Add(new ContactsBorder(mainPageViewModel.SearchOutContacts));
-                    Grid.SetRow(ContactsGrid.Children[ContactsGrid.Children.Count - 1], 2);
-                }
-
-            }
-            ));
+                ));
+            });
         }
     }
 }

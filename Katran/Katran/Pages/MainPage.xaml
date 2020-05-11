@@ -37,14 +37,25 @@
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" >
 
-                    <RadioButton Style="{StaticResource MaterialDesignTabRadioButton}" IsChecked="True"
+                    <RadioButton Style="{StaticResource MaterialDesignTabRadioButton}"
                                  Margin="4"  Command="{Binding ContactsSelected}" >
                         <materialDesign:PackIcon Kind="AccountGroup" ToolTip="{DynamicResource ResourceKey=l_ToolTipContacts}" Height="25" Width="25" Foreground="{DynamicResource TextColor}" />
                     </RadioButton>
 
                 </StackPanel>
 
-                <ContentPresenter Grid.Row="1" x:Name="presenter" Content="{Binding MenuContentPresenter}" />
+                <StackPanel Grid.Row="1" Orientation="Vertical" Visibility="{Binding ContactsAndChatsTabVisibility}" >
+                    <usercontrolls:ContactsSearcher SearchFieldText="{Binding SearchTextField, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    SearchButtonBind="{Binding ContactsSearchButton}" />
+                    <ListView ItemsSource="{Binding Contacts}" SelectedItem="{Binding SelectedContact}" 
+                              ItemContainerStyle="{StaticResource ListViewItemStyle}" />
+                    <usercontrolls:ContactsBorder Visibility="{Binding ContactsBorderVisibility}"
+                                                  SearchOutContactsBind="{Binding SearchOutContacts}" />
+                    <ListView ItemsSource="{Binding FilteredNoUserContacts}"
+                              Visibility="{Binding NoUserContactsVisibility}"
+                              ItemContainerStyle="{StaticResource ListViewItemStyle}" />
+                </StackPanel>
+                
             </Grid>
             
         </Expander>

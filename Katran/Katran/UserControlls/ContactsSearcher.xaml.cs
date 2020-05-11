@@ -38,7 +38,7 @@ namespace Katran.UserControlls
             DependencyProperty.Register("SearchButtonBind", typeof(ICommand), typeof(ContactsSearcher),
                                         new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
 
-        private ContactsSearcher()
+        public ContactsSearcher()
         {
             InitializeComponent();
             SearchFieldText = "";

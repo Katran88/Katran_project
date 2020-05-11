@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,6 +22,20 @@ namespace Katran.ViewModels
 {
     public class MainPageViewModel : INotifyPropertyChanged
     {
+        private Visibility createChatTabVisibility;
+        public Visibility CreateChatTabVisibility
+        {
+            get { return createChatTabVisibility; }
+            set { createChatTabVisibility = value; OnPropertyChanged(); }
+        }
+
+        private Visibility settingsTabVisibility;
+        public Visibility SettingsTabVisibility
+        {
+            get { return settingsTabVisibility; }
+            set { settingsTabVisibility = value; OnPropertyChanged(); }
+        }
+
         internal static ClientListener clientListener;
         private MainViewModel mainViewModel;
         public MainViewModel MainViewModel
@@ -28,10 +43,37 @@ namespace Katran.ViewModels
             get { return mainViewModel; }
         }
 
-
         MainPage mainPage;
 
         #region ContactsTab
+
+        private Visibility contactsAndChatsTabVisibility;
+        public Visibility ContactsAndChatsTabVisibility
+        {
+            get { return contactsAndChatsTabVisibility; }
+            set { contactsAndChatsTabVisibility = value; OnPropertyChanged(); }
+        }
+
+        private Visibility contactsBorderVisibility;
+        public Visibility ContactsBorderVisibility
+        {
+            get { return contactsBorderVisibility; }
+            set { contactsBorderVisibility = value; OnPropertyChanged(); }
+        }
+
+        private Visibility noUserContactsVisibility;
+        public Visibility NoUserContactsVisibility
+        {
+            get { return noUserContactsVisibility; }
+            set { noUserContactsVisibility = value; OnPropertyChanged(); }
+        }
+
+        ContactUI selectedContact; 
+        public ContactUI SelectedContact
+        {
+            get { return selectedContact; }
+            set { selectedContact = value; OnPropertyChanged(); }
+        }
 
         ObservableCollection<ContactUI> contacts;
         public ObservableCollection<ContactUI> Contacts
@@ -40,11 +82,56 @@ namespace Katran.ViewModels
             set { contacts = value; OnPropertyChanged(); }
         }
 
+        ObservableCollection<ContactUI> filteredNoUserContacts;
+        public ObservableCollection<ContactUI> FilteredNoUserContacts
+        {
+            get { return filteredNoUserContacts; }
+            set { filteredNoUserContacts = value; OnPropertyChanged(); }
+        }
+
         private string searchTextField;
         public string SearchTextField
         {
             get { return searchTextField; }
-            set { searchTextField = value; OnPropertyChanged(); }
+            set 
+            {
+                string currentValue = Regex.Replace((string)value, @"[а-я|А-Я]+", "");
+                searchTextField = Regex.Match(currentValue, @"[\w|@|\.]+").Value;
+                OnPropertyChanged();
+
+                if (!isSearchOutsideContacts)
+                {
+                    if (searchTextField.Length != 0)
+                    {
+                        ContactsBorderVisibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        ContactsBorderVisibility = Visibility.Collapsed;
+
+                        foreach (ContactUI item in Contacts)
+                        {
+                            item.Visibility = Visibility.Visible;
+                        }
+
+                    }
+                }
+                else
+                {
+                    if (value.Length == 0)
+                    {
+                        NoUserContactsVisibility = Visibility.Collapsed;
+                        ContactsBorderVisibility = Visibility.Collapsed;
+
+                        foreach (ContactUI item in Contacts)
+                        {
+                            item.Visibility = Visibility.Visible;
+                        }
+                        isSearchOutsideContacts = false;
+                    }
+
+                }
+            }
         }
 
         public ICommand ContactsSearchButton
@@ -53,7 +140,26 @@ namespace Katran.ViewModels
             {
                 return new DelegateCommand(obj =>
                 {
-                    MessageBox.Show("Search");
+                    if (!isSearchOutsideContacts)
+                    {
+                        foreach (ContactUI item in Contacts)
+                        {
+                            if (!Regex.IsMatch(item.ContactUsername, searchTextField, RegexOptions.IgnoreCase))
+                            {
+                                item.Visibility = Visibility.Collapsed;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        NoUserContactsVisibility = Visibility.Visible;
+                        Task.Factory.StartNew(() => 
+                        { 
+                            Client.ServerRequest(new RRTemplate(RRType.SearchOutContacts, new SearchOutContactsTemplate(mainViewModel.UserInfo.Info.Id, searchTextField, null))); 
+                        });
+                    }
+                    
+
                 }, (obj) => 
                 {
                     return SearchTextField.Length != 0; 
@@ -61,13 +167,26 @@ namespace Katran.ViewModels
             }
         }
 
+        bool isSearchOutsideContacts;
+
         public ICommand SearchOutContacts
         {
             get
             {
                 return new DelegateCommand(obj =>
                 {
-                    MessageBox.Show("Search Out Contacts");
+                    foreach (ContactUI item in Contacts)
+                    {
+                        item.Visibility = Visibility.Collapsed;
+                    }
+                    ContactsBorderVisibility = Visibility.Collapsed;
+                    NoUserContactsVisibility = Visibility.Visible;
+                    isSearchOutsideContacts = true;
+
+                    Task.Factory.StartNew(() =>
+                    {
+                        Client.ServerRequest(new RRTemplate(RRType.SearchOutContacts, new SearchOutContactsTemplate(mainViewModel.UserInfo.Info.Id, searchTextField, null)));
+                    });
                 });
             }
         }
@@ -85,27 +204,19 @@ namespace Katran.ViewModels
 
         #endregion
 
-        private ContentPresenter menuContentPresenter;
-        public ContentPresenter MenuContentPresenter
-        {
-            get { return menuContentPresenter; }
-            set { menuContentPresenter = value; OnPropertyChanged(); }
-        }
-
-        private ContentPresenter messagesContentPresenter;
-        public ContentPresenter MessagesContentPresenter
-        {
-            get { return messagesContentPresenter; }
-            set { messagesContentPresenter = value; OnPropertyChanged(); }
-        }
-
         public MainPageViewModel()
         {
             this.mainViewModel = null;
             this.mainPage = null;
-            MenuContentPresenter = new ContentPresenter();
-            MessagesContentPresenter = new ContentPresenter();
             Contacts = new ObservableCollection<ContactUI>();
+            FilteredNoUserContacts = new ObservableCollection<ContactUI>();
+            isSearchOutsideContacts = false;
+            NoUserContactsVisibility = Visibility.Collapsed;
+
+            ContactsAndChatsTabVisibility = Visibility.Collapsed;
+            CreateChatTabVisibility = Visibility.Collapsed;
+            settingsTabVisibility = Visibility.Collapsed;
+
             SearchTextField = "";
         }
 
@@ -113,10 +224,15 @@ namespace Katran.ViewModels
         {
             this.mainViewModel = mainViewModel;
             this.mainPage = mainPage;
-            MenuContentPresenter = new ContentPresenter();
-            MessagesContentPresenter = new ContentPresenter();
             Contacts = new ObservableCollection<ContactUI>();
+            FilteredNoUserContacts = new ObservableCollection<ContactUI>();
             SearchTextField = "";
+            isSearchOutsideContacts = false;
+            NoUserContactsVisibility = Visibility.Collapsed;
+
+            ContactsAndChatsTabVisibility = Visibility.Collapsed;
+            CreateChatTabVisibility = Visibility.Collapsed;
+            settingsTabVisibility = Visibility.Collapsed;
 
             MainPageViewModel.clientListener = new ClientListener(this);
         }
@@ -127,27 +243,11 @@ namespace Katran.ViewModels
             {
                 return new DelegateCommand(obj =>
                 {
-                    if (MenuContentPresenter.Content == null || ((FrameworkElement)MenuContentPresenter.Content).Tag.ToString().CompareTo("contactsPanel") != 0)
+                    if (ContactsAndChatsTabVisibility != Visibility.Visible)
                     {
-                        Grid contactsPanel = new Grid();
-                        contactsPanel.Tag = "contactsPanel";
-                        contactsPanel.RowDefinitions.Add(new RowDefinition()); // for ContactsSeracher
-                        contactsPanel.RowDefinitions.Add(new RowDefinition()); // for Contacts
-                        contactsPanel.RowDefinitions.Add(new RowDefinition()); // for ContactsBorder
-                        contactsPanel.RowDefinitions.Add(new RowDefinition()); // for OutContacts
-                        contactsPanel.RowDefinitions[0].Height = GridLength.Auto;
-                        contactsPanel.RowDefinitions[1].Height = GridLength.Auto;
-                        contactsPanel.RowDefinitions[2].Height = GridLength.Auto;
-
-                        contactsPanel.Children.Add(new ContactsSearcher(SearchTextField, ContactsSearchButton));
-
-                        contactsPanel.Children.Add(new ListView());
-                        ((ListView)contactsPanel.Children[1]).ItemsSource = Contacts;
-
-                        Grid.SetRow(contactsPanel.Children[0], 0);
-                        Grid.SetRow(contactsPanel.Children[1], 1);
-
-                        MenuContentPresenter.Content = contactsPanel;
+                        ContactsAndChatsTabVisibility = Visibility.Visible;
+                        CreateChatTabVisibility = Visibility.Collapsed;
+                        settingsTabVisibility = Visibility.Collapsed;
 
                         Task.Factory.StartNew(() =>
                         {

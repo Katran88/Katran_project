@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:Katran.UserControlls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              mc:Ignorable="d" 
-             x:Name="ContactsSearcherUserControll" Margin="5,5,0,5"
+             x:Name="ContactsSearcherUserControll" Margin="7,7,0,7"
              Height="Auto" Width="200" MaxWidth="200"   >
     <Grid>
         <StackPanel Orientation="Horizontal" >

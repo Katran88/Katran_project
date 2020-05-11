@@ -88,6 +88,13 @@ namespace KatranServer
                                     RefreshContacts(refrC);
                                 }
                                 break;
+                            case RRType.SearchOutContacts:
+                                SearchOutContactsTemplate searchOutC = clientRequest.RRObject as SearchOutContactsTemplate;
+                                if (searchOutC != null)
+                                {
+                                    SearchOutContacts(searchOutC);
+                                }
+                                break;
                             case RRType.RefreshUserData:
                                 AuthtorizationTemplate refrUserData = clientRequest.RRObject as AuthtorizationTemplate;
                                 if (refrUserData != null)
@@ -117,6 +124,64 @@ namespace KatranServer
                 }
                 
             }
+        }
+
+        //поиск контактов вне контактов пользователя по поисковому запросу
+        private void SearchOutContacts(SearchOutContactsTemplate searchOutC)
+        {
+
+            #region Отправка запроса на поискконтактов по паттерну вне контактов и запись их в лист contacts
+            SqlCommand command = new SqlCommand("select ui.id, ui.app_name, ui.image, ui.status " +
+                                                "from Users_info as ui " +
+                                                "where charindex(@pattern, ui.app_name) > 0 and ui.id != @userID and " +
+                                                "ui.id NOT IN(select ui.id from Users_info as ui join Contacts as c on ui.id = c.contact and c.contact_owner = @userID)", Server.sql);
+            command.Parameters.Add(new SqlParameter("@pattern", searchOutC.SearchPattern));
+            command.Parameters.Add(new SqlParameter("@userID", searchOutC.ContactsOwner));
+
+            SqlDataReader reader = command.ExecuteReader();
+
+            List<Contact> contacts = new List<Contact>();
+            if (reader.HasRows)
+            {
+                Contact tempContact = null;
+                while (reader.Read())
+                {
+                    tempContact = new Contact();
+                    tempContact.UserId = reader.GetInt32(0);
+                    tempContact.AppName = reader.GetString(1);
+
+                    object imageObj = reader.GetValue(2);
+                    if (imageObj is System.DBNull)
+                    {
+                        tempContact.AvatarImage = GetDefaultUserImage();
+                    }
+                    else
+                    {
+                        tempContact.AvatarImage = (byte[])imageObj;
+                    }
+                    tempContact.Status = (Status)Enum.Parse(typeof(Status), reader.GetString(3));
+
+                    contacts.Add(tempContact);
+                }
+            }
+            #endregion
+
+            #region Отправка найденных контактов или пустого листа 
+
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                formatter.Serialize(memoryStream, new RRTemplate(RRType.SearchOutContacts, new SearchOutContactsTemplate(searchOutC.ContactsOwner, "", contacts)));
+
+                ConectedUser user = Server.conectedUsers.Find(x => x.id == searchOutC.ContactsOwner);
+                if (user != null)
+                {
+                    user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                }
+            }
+
+            #endregion
+
         }
 
         private void RefreshuserData(AuthtorizationTemplate refrUserData)

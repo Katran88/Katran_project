@@ -35,52 +35,63 @@ namespace Katran.Models
 
                     clientStream.Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
 
-                    memoryStream.Flush();
-                    memoryStream.Position = 0;
-
-                    do
+                    switch (request.RRType) //если попадает в default, то будет ответ, если нет, то нет
                     {
-                        byte[] buffer = new byte[256];
-                        int bytes;
+                        case RRType.RefreshContacts:
+                        case RRType.SearchOutContacts:
+                        case RRType.UserDisconected:
+                            clientStream.Close();
+                            client.Close();
+                            break;
+                        default:
+                            memoryStream.Flush();
+                            memoryStream.Position = 0;
 
-                        bytes = clientStream.Read(buffer, 0, buffer.Length);
-                        memoryStream.Write(buffer, 0, bytes);
+                            do
+                            {
+                                byte[] buffer = new byte[256];
+                                int bytes;
 
-                        buffer = new byte[256];
-                    }
-                    while (clientStream.DataAvailable);
+                                bytes = clientStream.Read(buffer, 0, buffer.Length);
+                                memoryStream.Write(buffer, 0, bytes);
 
-                    memoryStream.Position = 0;
-                    RRTemplate serverResponse = formatter.Deserialize(memoryStream) as RRTemplate;
+                                buffer = new byte[256];
+                            }
+                            while (clientStream.DataAvailable);
 
-                    if (serverResponse != null)
-                    {
-                        switch (serverResponse.RRType)
-                        {
-                            case RRType.Authorization:
-                            case RRType.RefreshUserData:
-                                RegistrationTemplate reg = serverResponse.RRObject as RegistrationTemplate; //RegistrationTemplate служит как шаблон для преднастройки приложения
-                                if (reg != null)
+                            memoryStream.Position = 0;
+                            RRTemplate serverResponse = formatter.Deserialize(memoryStream) as RRTemplate;
+
+                            if (serverResponse != null)
+                            {
+                                switch (serverResponse.RRType)
                                 {
-                                    CreateAuthToken(reg);
-                                    return serverResponse;
+                                    case RRType.Authorization:
+                                    case RRType.RefreshUserData:
+                                        RegistrationTemplate reg = serverResponse.RRObject as RegistrationTemplate; //RegistrationTemplate служит как шаблон для преднастройки приложения
+                                        if (reg != null)
+                                        {
+                                            CreateAuthToken(reg);
+                                            return serverResponse;
+                                        }
+                                        break;
+                                    case RRType.Error:
+                                        ErrorReportTemplate error = serverResponse.RRObject as ErrorReportTemplate;
+                                        if (error != null)
+                                        {
+                                            return new RRTemplate(RRType.Error, error);
+                                        }
+                                        break;
+                                    default:
+                                        return new RRTemplate(RRType.Error, new ErrorReportTemplate(ErrorType.Other, new Exception("Unknown problem")));
+                                        break;
                                 }
-                                break;
-                            case RRType.Error:
-                                ErrorReportTemplate error = serverResponse.RRObject as ErrorReportTemplate;
-                                if (error != null)
-                                {
-                                    return new RRTemplate(RRType.Error, error);
-                                }
-                                break;
-                            default:
-                                return new RRTemplate(RRType.Error, new ErrorReportTemplate(ErrorType.Other, new Exception("Unknown problem")));
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        return new RRTemplate(RRType.Error, new ErrorReportTemplate(ErrorType.UnCorrectServerResponse, new Exception("Uncorrect server response")));
+                            }
+                            else
+                            {
+                                return new RRTemplate(RRType.Error, new ErrorReportTemplate(ErrorType.UnCorrectServerResponse, new Exception("Uncorrect server response")));
+                            }
+                            break;
                     }
 
                 }

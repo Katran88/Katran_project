@@ -16,6 +16,13 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
 
                 <ResourceDictionary>
+
+                    <Style TargetType="ListViewItem" x:Key="ListViewItemStyle" BasedOn="{StaticResource MaterialDesignListBoxItem}" >
+                        <Setter Property="Margin" Value="0" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="BorderThickness" Value="0" />
+                    </Style>
+
                     <!-- primary -->
                     <SolidColorBrush x:Key="PrimaryHueLightBrush" Color="{StaticResource OutlineColor}"/>
                     <SolidColorBrush x:Key="PrimaryHueLightForegroundBrush" Color="Yellow"/>
