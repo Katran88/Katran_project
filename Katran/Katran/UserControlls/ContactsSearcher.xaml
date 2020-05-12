@@ -23,6 +23,24 @@
                          VerticalAlignment="Top" Margin="0,2,0,0"                                         
                          materialDesign:HintAssist.Hint="{DynamicResource ResourceKey=l_SearchForContact}" />
 
+                <Button Grid.Row="1"
+                        Template="{StaticResource ResourceKey=btTemplateWithoutBorder}"
+                        Visibility="{Binding RemoveContact_ButtonVisibility, ElementName=ContactsSearcherUserControll, UpdateSourceTrigger=PropertyChanged}"
+                        Command="{Binding RemoveContactButtonBind, ElementName=ContactsSearcherUserControll}"
+                        HorizontalAlignment="Right" VerticalAlignment="Bottom" Panel.ZIndex="1" Margin="0,0,3,0"
+                        ToolTip="{DynamicResource l_RemoveFromContacts}" Height="20" Width="20">
+                    <materialDesign:PackIcon Kind="AccountMultipleMinus" Width="Auto" Height="Auto" />
+                </Button>
+                
+                <Button Grid.Row="1"
+                        Template="{StaticResource ResourceKey=btTemplateWithoutBorder}"
+                        Visibility="{Binding AddContact_ButtonVisibility, ElementName=ContactsSearcherUserControll, UpdateSourceTrigger=PropertyChanged}"
+                        Command="{Binding AddContactButtonBind, ElementName=ContactsSearcherUserControll}"
+                        HorizontalAlignment="Right" VerticalAlignment="Bottom" Panel.ZIndex="1" Margin="0,0,3,0"
+                        ToolTip="{DynamicResource l_AddToContacts}" Height="20" Width="20">
+                    <materialDesign:PackIcon Kind="AccountMultiplePlus" Width="Auto" Height="Auto" />
+                </Button>
+
             </Grid>
             <Button Template="{StaticResource ResourceKey=btTemplateWithoutBorder}" 
                     Command="{Binding SearchButtonBind, ElementName=ContactsSearcherUserControll}"

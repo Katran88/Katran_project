@@ -183,7 +183,7 @@ namespace Katran.Models
 
                     Application.Current.Dispatcher.Invoke(new Action(() =>
                     {
-                        OutContacts.Add(new ContactUI(item.AppName, "", Converters.BitmapToImageSource(avatar), item.Status, item.UserId, mainPageViewModel.ContactsAddButton));
+                        OutContacts.Add(new ContactUI(item.AppName, "", Converters.BitmapToImageSource(avatar), item.Status, item.UserId));
                     }
                     ));
                 }

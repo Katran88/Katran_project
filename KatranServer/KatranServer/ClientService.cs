@@ -99,7 +99,7 @@ namespace KatranServer
                                 AuthtorizationTemplate refrUserData = clientRequest.RRObject as AuthtorizationTemplate;
                                 if (refrUserData != null)
                                 {
-                                    RefreshuserData(refrUserData);
+                                    RefreshUserData(refrUserData);
                                 }
                                 break;
                             default:
@@ -164,6 +164,7 @@ namespace KatranServer
                     contacts.Add(tempContact);
                 }
             }
+            reader.Close();
             #endregion
 
             #region Отправка найденных контактов или пустого листа 
@@ -184,7 +185,7 @@ namespace KatranServer
 
         }
 
-        private void RefreshuserData(AuthtorizationTemplate refrUserData)
+        private void RefreshUserData(AuthtorizationTemplate refrUserData)
         {
             #region Запрос на данные о пользователе
             SqlCommand command = new SqlCommand("select ui.id, ui.app_name, ui.email, ui.user_discription, ui.image, ui.status, u.law_status, u.password " +

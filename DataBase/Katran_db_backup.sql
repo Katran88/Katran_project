@@ -48,6 +48,6 @@ where ui.id = (select u2.id from Users as u2 where u2.auth_login = 'Vasya')
 
 select ui.id, ui.app_name, ui.image, ui.status
 from Users_info as ui
-where charindex('A', ui.app_name) > 0 and ui.id != 2 and
+where charindex('Aa', ui.app_name) > 0 and ui.id != 2 and
       ui.id NOT IN (select ui.id from Users_info as ui join Contacts as c on ui.id = c.contact and c.contact_owner = 2)
 

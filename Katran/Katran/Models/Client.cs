@@ -42,6 +42,7 @@ namespace Katran.Models
                         case RRType.UserDisconected:
                             clientStream.Close();
                             client.Close();
+                            return null;
                             break;
                         default:
                             memoryStream.Flush();

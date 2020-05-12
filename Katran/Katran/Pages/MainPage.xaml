@@ -13,8 +13,15 @@
     <Page.DataContext>
         <ViewModels:MainPageViewModel />
     </Page.DataContext>
-    
-    <Grid>
+
+    <materialDesign:DialogHost x:Name="dialog" >
+        <materialDesign:DialogHost.DialogContent>
+            <StackPanel Orientation="Horizontal" >
+                <Button Content="Accept" />
+                <Button Content="Reject" />
+            </StackPanel>
+        </materialDesign:DialogHost.DialogContent>
+         <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition />
@@ -46,14 +53,19 @@
 
                 <StackPanel Grid.Row="1" Orientation="Vertical" Visibility="{Binding ContactsAndChatsTabVisibility}" >
                     <usercontrolls:ContactsSearcher SearchFieldText="{Binding SearchTextField, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                    SearchButtonBind="{Binding ContactsSearchButton}" />
+                                                    SearchButtonBind="{Binding ContactsSearchButton}"
+                                                    AddContact_ButtonVisibility="{Binding AddContact_ButtonVisibility}"
+                                                    AddContactButtonBind="{Binding ContactAddButton}"
+                                                    RemoveContact_ButtonVisibility="{Binding RemoveContact_ButtonVisibility}"
+                                                    RemoveContactButtonBind="{Binding ContactRemoveButton}" />
                     <ListView ItemsSource="{Binding Contacts}" SelectedItem="{Binding SelectedContact}" 
                               ItemContainerStyle="{StaticResource ListViewItemStyle}" />
                     <usercontrolls:ContactsBorder Visibility="{Binding ContactsBorderVisibility}"
                                                   SearchOutContactsBind="{Binding SearchOutContacts}" />
                     <ListView ItemsSource="{Binding FilteredNoUserContacts}"
                               Visibility="{Binding NoUserContactsVisibility}"
-                              ItemContainerStyle="{StaticResource ListViewItemStyle}" />
+                              ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                              SelectedItem="{Binding SelectedNoUserContact}" />
                 </StackPanel>
                 
             </Grid>
@@ -88,4 +100,8 @@
         </StackPanel>
             
     </Grid>
+    </materialDesign:DialogHost>
+
+
+   
 </Page>

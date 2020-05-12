@@ -1,7 +1,9 @@
 ﻿using Katran.Models;
 using Katran.Pages;
 using Katran.UserControlls;
+using Katran.Views;
 using KatranClassLibrary;
+using MaterialDesignThemes.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -61,6 +63,20 @@ namespace Katran.ViewModels
             set { contactsBorderVisibility = value; OnPropertyChanged(); }
         }
 
+        private Visibility removeContact_ButtonVisibility;
+        public Visibility RemoveContact_ButtonVisibility
+        {
+            get { return removeContact_ButtonVisibility; }
+            set { removeContact_ButtonVisibility = value; OnPropertyChanged(); }
+        }
+
+        private Visibility addContact_ButtonVisibility;
+        public Visibility AddContact_ButtonVisibility
+        {
+            get { return addContact_ButtonVisibility; }
+            set { addContact_ButtonVisibility = value; OnPropertyChanged(); }
+        }
+
         private Visibility noUserContactsVisibility;
         public Visibility NoUserContactsVisibility
         {
@@ -72,7 +88,48 @@ namespace Katran.ViewModels
         public ContactUI SelectedContact
         {
             get { return selectedContact; }
-            set { selectedContact = value; OnPropertyChanged(); }
+            set 
+            { 
+                selectedContact = value;
+                OnPropertyChanged();
+
+                if (selectedContact != null)
+                {
+                    if (!isSearchOutsideContacts)
+                    {
+                        RemoveContact_ButtonVisibility = Visibility.Visible;
+                        AddContact_ButtonVisibility = Visibility.Hidden;
+                    }
+                    else
+                    {
+                        RemoveContact_ButtonVisibility = Visibility.Hidden;
+                    }
+                }
+            }
+        }
+
+        ContactUI selectedNoUserContact;
+        public ContactUI SelectedNoUserContact
+        {
+            get { return selectedNoUserContact; }
+            set 
+            { 
+                selectedNoUserContact = value;
+                OnPropertyChanged();
+
+                if (selectedNoUserContact != null)
+                {
+                    if (isSearchOutsideContacts)
+                    {
+                        RemoveContact_ButtonVisibility = Visibility.Hidden;
+                        AddContact_ButtonVisibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        AddContact_ButtonVisibility = Visibility.Hidden;
+                    }
+                }
+            }
         }
 
         ObservableCollection<ContactUI> contacts;
@@ -115,6 +172,7 @@ namespace Katran.ViewModels
                         }
 
                     }
+
                 }
                 else
                 {
@@ -131,6 +189,37 @@ namespace Katran.ViewModels
                     }
 
                 }
+
+                if (isSearchOutsideContacts)
+                {
+                    RemoveContact_ButtonVisibility = Visibility.Hidden;
+                }
+                else
+                {
+                    if (selectedContact != null)
+                    {
+                        RemoveContact_ButtonVisibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        RemoveContact_ButtonVisibility = Visibility.Hidden;
+                    }
+                }
+
+                if (searchTextField.Length == 0)
+                {
+                    if (selectedContact != null)
+                    {
+                        RemoveContact_ButtonVisibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        RemoveContact_ButtonVisibility = Visibility.Hidden;
+                    }
+
+                    AddContact_ButtonVisibility = Visibility.Hidden;
+                }
+
             }
         }
 
@@ -181,6 +270,7 @@ namespace Katran.ViewModels
                     }
                     ContactsBorderVisibility = Visibility.Collapsed;
                     NoUserContactsVisibility = Visibility.Visible;
+                    RemoveContact_ButtonVisibility = Visibility.Hidden;
                     isSearchOutsideContacts = true;
 
                     Task.Factory.StartNew(() =>
@@ -191,13 +281,42 @@ namespace Katran.ViewModels
             }
         }
 
-        public ICommand ContactsAddButton
+        public ICommand ContactAddButton
         {
             get
             {
                 return new DelegateCommand(obj =>
                 {
-                    MessageBox.Show("Add");
+                    DialogWindow dialog = new DialogWindow((string)Application.Current.FindResource("l_AddContact"));
+
+                    if (dialog.ShowDialog() == true)
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
+                }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
+            }
+        }
+
+        public ICommand ContactRemoveButton
+        {
+            get
+            {
+                return new DelegateCommand(obj =>
+                {
+                    DialogWindow dialog  = new DialogWindow((string)Application.Current.FindResource("l_RemoveContact"));
+
+                    if (dialog.ShowDialog() == true)
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
                 }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
             }
         }
@@ -211,6 +330,7 @@ namespace Katran.ViewModels
             Contacts = new ObservableCollection<ContactUI>();
             FilteredNoUserContacts = new ObservableCollection<ContactUI>();
             isSearchOutsideContacts = false;
+            RemoveContact_ButtonVisibility = addContact_ButtonVisibility = Visibility.Hidden;
             NoUserContactsVisibility = Visibility.Collapsed;
 
             ContactsAndChatsTabVisibility = Visibility.Collapsed;
@@ -228,6 +348,7 @@ namespace Katran.ViewModels
             FilteredNoUserContacts = new ObservableCollection<ContactUI>();
             SearchTextField = "";
             isSearchOutsideContacts = false;
+            RemoveContact_ButtonVisibility = addContact_ButtonVisibility = Visibility.Hidden;
             NoUserContactsVisibility = Visibility.Collapsed;
 
             ContactsAndChatsTabVisibility = Visibility.Collapsed;

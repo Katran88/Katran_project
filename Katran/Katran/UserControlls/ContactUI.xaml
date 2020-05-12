@@ -30,8 +30,8 @@
                              StrokeThickness="0.25" Stroke="{DynamicResource TextColor}" />
 
                 </Grid>
-                
-                
+
+
             </Border>
 
             <StackPanel Orientation="Vertical">
@@ -47,14 +47,5 @@
             </StackPanel>
 
         </StackPanel>
-        
-        <Button Template="{StaticResource ResourceKey=btTemplateWithoutBorder}"
-                Visibility="{Binding AddContact_ButtonVisibility}"
-                Command="{Binding AddContactButtonBind, ElementName=ContactUserControl}"
-                HorizontalAlignment="Right" VerticalAlignment="Bottom" Panel.ZIndex="1" Margin="0,0,3,0"
-                ToolTip="{DynamicResource l_AddToContacts}" Height="20" Width="20">
-            <materialDesign:PackIcon Kind="AccountMultiplePlus" Width="Auto" Height="Auto" />
-        </Button>
-        
     </Grid>
 </UserControl>

@@ -33,15 +33,6 @@ namespace Katran.UserControlls
             DependencyProperty.Register("ContactUsername", typeof(string), typeof(ContactUI),
                                         new FrameworkPropertyMetadata("Username", FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
 
-        public ICommand AddContactButtonBind
-        {
-            get { return (ICommand)GetValue(AddContactButtonBindProperty); }
-            set { SetValue(AddContactButtonBindProperty, value); }
-        }
-        public static readonly DependencyProperty AddContactButtonBindProperty =
-            DependencyProperty.Register("AddContactButtonBind", typeof(ICommand), typeof(ContactUI),
-                                        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
-
         public string ContactLastMessage
         {
             get { return (string)GetValue(ContactLastMessageProperty); }
@@ -91,16 +82,6 @@ namespace Katran.UserControlls
             }
         }
 
-        private Visibility addContact_ButtonVisibility;
-
-        public Visibility AddContact_ButtonVisibility
-        {
-            get { return addContact_ButtonVisibility; }
-            set { addContact_ButtonVisibility = value; OnPropertyChanged(); }
-        }
-
-
-
         public ContactUI()
         {
             InitializeComponent();
@@ -110,10 +91,9 @@ namespace Katran.UserControlls
             ContactAvatar = null;
             ContactStatus = Status.Offline;
             ContactID = -1;
-            AddContact_ButtonVisibility = Visibility.Hidden;
         }
 
-        public ContactUI(string contactUsername, string contactLasMessage, BitmapImage bitmapImage, Status contactStatus, int contactID, ICommand addContactButtonBind = null)
+        public ContactUI(string contactUsername, string contactLasMessage, BitmapImage bitmapImage, Status contactStatus, int contactID)
         {
             InitializeComponent();
 
@@ -121,18 +101,7 @@ namespace Katran.UserControlls
             ContactLastMessage = contactLasMessage;
             ContactAvatar = bitmapImage;
             ContactStatus = contactStatus;
-            ContactID = contactID;
-            if (addContactButtonBind != null)
-            {
-                AddContact_ButtonVisibility = Visibility.Visible;
-                AddContactButtonBind = addContactButtonBind;
-            }
-            else
-            {
-                AddContact_ButtonVisibility = Visibility.Hidden;
-            }
-
-            
+            ContactID = contactID;            
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
