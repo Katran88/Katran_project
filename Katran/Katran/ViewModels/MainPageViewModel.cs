@@ -105,6 +105,10 @@ namespace Katran.ViewModels
                         RemoveContact_ButtonVisibility = Visibility.Hidden;
                     }
                 }
+                else
+                {
+                    RemoveContact_ButtonVisibility = Visibility.Hidden;
+                }
             }
         }
 
@@ -128,6 +132,10 @@ namespace Katran.ViewModels
                     {
                         AddContact_ButtonVisibility = Visibility.Hidden;
                     }
+                }
+                else
+                {
+                    AddContact_ButtonVisibility = Visibility.Hidden;
                 }
             }
         }
@@ -289,13 +297,12 @@ namespace Katran.ViewModels
                 {
                     DialogWindow dialog = new DialogWindow((string)Application.Current.FindResource("l_AddContact"));
 
-                    if (dialog.ShowDialog() == true)
+                    if (dialog.ShowDialog().Value)
                     {
-
-                    }
-                    else
-                    {
-
+                        Task.Factory.StartNew(() =>
+                        {
+                            Client.ServerRequest(new RRTemplate(RRType.AddContact, new AddRemoveContactTemplate(mainViewModel.UserInfo.Info.Id, selectedNoUserContact.ContactID)));
+                        });
                     }
                 }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
             }
@@ -311,11 +318,7 @@ namespace Katran.ViewModels
 
                     if (dialog.ShowDialog() == true)
                     {
-
-                    }
-                    else
-                    {
-
+                        Client.ServerRequest(new RRTemplate(RRType.RemoveContact, new AddRemoveContactTemplate(mainViewModel.UserInfo.Info.Id, selectedContact.ContactID)));
                     }
                 }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
             }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -104,6 +105,20 @@ namespace Katran.Models
                         {
                             switch (serverResponse.RRType)
                             {
+                                case RRType.AddContact:
+                                    AddRemoveContactTemplate aContT = serverResponse.RRObject as AddRemoveContactTemplate;
+                                    if (aContT != null)
+                                    {
+                                        AddContact(aContT);
+                                    }
+                                    break;
+                                case RRType.RemoveContact:
+                                    AddRemoveContactTemplate rContT = serverResponse.RRObject as AddRemoveContactTemplate;
+                                    if (rContT != null)
+                                    {
+                                        RemoveContact(rContT);
+                                    }
+                                    break;
                                 case RRType.RefreshContacts:
                                     RefreshContactsTemplate refrC = serverResponse.RRObject as RefreshContactsTemplate;
                                     if (refrC != null)
@@ -165,6 +180,54 @@ namespace Katran.Models
                         }
                     }
                 }
+            }
+        }
+
+        private void RemoveContact(AddRemoveContactTemplate rContT)
+        {
+            ContactUI rContact = null;
+            foreach (ContactUI i in mainPageViewModel.Contacts)
+            {
+                if (i.ContactID == rContT.TargetContactId)
+                {
+                    rContact = i;
+                    break;
+                }
+            }
+
+            if (rContact != null)
+            {
+                Application.Current.Dispatcher.Invoke(new Action(() =>
+                {
+                    mainPageViewModel.Contacts.Remove(rContact);
+                    mainPageViewModel.SelectedContact = null;
+                }
+                ));
+            }
+        }
+
+        private void AddContact(AddRemoveContactTemplate arContT)
+        {
+            ContactUI newContact = null;
+            foreach (ContactUI i in mainPageViewModel.FilteredNoUserContacts)
+            {
+                if (i.ContactID == arContT.TargetContactId)
+                {
+                    newContact = i;
+                    break;
+                }
+            }
+
+            if (newContact != null)
+            {
+                Application.Current.Dispatcher.Invoke(new Action(() =>
+                {
+                    mainPageViewModel.FilteredNoUserContacts.Remove(newContact);
+                    mainPageViewModel.Contacts.Add(newContact);
+                    newContact.Visibility = Visibility.Collapsed;
+                    mainPageViewModel.SelectedNoUserContact = null;
+                }
+                ));
             }
         }
 

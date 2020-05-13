@@ -102,6 +102,20 @@ namespace KatranServer
                                     RefreshUserData(refrUserData);
                                 }
                                 break;
+                            case RRType.AddContact:
+                                AddRemoveContactTemplate aContT = clientRequest.RRObject as AddRemoveContactTemplate;
+                                if(aContT != null)
+                                {
+                                    AddContact(aContT);
+                                }
+                                break;
+                            case RRType.RemoveContact:
+                                AddRemoveContactTemplate rContT = clientRequest.RRObject as AddRemoveContactTemplate;
+                                if (rContT != null)
+                                {
+                                    RemoveContact(rContT);
+                                }
+                                break;
                             default:
                                 ErrorResponse(ErrorType.Other, new Exception("Получен необработанный запрос"));
                                 break;
@@ -126,10 +140,112 @@ namespace KatranServer
             }
         }
 
+        private void RemoveContact(AddRemoveContactTemplate rContT)
+        {
+            #region Удаление из таблицы контактов 
+            SqlCommand command = new SqlCommand("delete from Contacts where contact_owner = @contactOwner and contact = @targetContact " +
+                                                "delete from Contacts where contact_owner = @targetContact and contact = @contactOwner", Server.sql);
+            command.Parameters.Add(new SqlParameter("@contactOwner", rContT.ContactOwnerId));
+            command.Parameters.Add(new SqlParameter("@targetContact", rContT.TargetContactId));
+            command.ExecuteNonQuery();
+            #endregion
+
+            #region Удаление чата и сообщений этих юзеров из бд 
+            command = new SqlCommand("select chat_id from Chats where chat_title = @chatTitle_1 or chat_title = @chatTitle_2", Server.sql);
+            string chatTitle_1 = String.Format("{0}_{1}", rContT.ContactOwnerId, rContT.TargetContactId);
+            string chatTitle_2 = String.Format("{1}_{0}", rContT.ContactOwnerId, rContT.TargetContactId);
+            command.Parameters.Add(new SqlParameter("@chatTitle_1", chatTitle_1));
+            command.Parameters.Add(new SqlParameter("@chatTitle_2", chatTitle_2));
+            SqlDataReader reader = command.ExecuteReader();
+            int chatID = -1;
+            if(reader.HasRows)
+            {
+                reader.Read();
+                chatID = reader.GetInt32(0);
+            }
+            reader.Close();
+
+            if (chatID != -1)
+            {
+                command = new SqlCommand($"drop table ChatMessages_{chatID} " +
+                                          "delete from Chats where chat_id = @chatID", Server.sql);
+                command.Parameters.Add(new SqlParameter("@chatID", chatID));
+                command.ExecuteNonQuery();
+            }
+            #endregion
+
+            #region Ответ об успешном удалении юзера из контактов
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                formatter.Serialize(memoryStream, new RRTemplate(RRType.RemoveContact, new AddRemoveContactTemplate(rContT.ContactOwnerId, rContT.TargetContactId)));
+
+                ConectedUser user = Server.conectedUsers.Find(x => x.id == rContT.ContactOwnerId);
+                if (user != null)
+                {
+                    user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                }
+            }
+            #endregion
+
+        }
+
+        private void AddContact(AddRemoveContactTemplate arContT)
+        {
+            #region Добавление в таблицу контактов 
+            SqlCommand command = new SqlCommand("insert into Contacts (contact_owner, contact) values(@contactOwner, @targetContact), (@targetContact, @contactOwner)", Server.sql);
+            command.Parameters.Add(new SqlParameter("@contactOwner", arContT.ContactOwnerId));
+            command.Parameters.Add(new SqlParameter("@targetContact", arContT.TargetContactId));
+            command.ExecuteNonQuery();
+            #endregion
+
+            #region Добавление чата в бд для этих юзеров
+            string chatTitle = String.Format("{0}_{1}", arContT.ContactOwnerId, arContT.TargetContactId);
+            command = new SqlCommand("insert into Chats (chat_title) values (@chatTitle)", Server.sql);
+            command.Parameters.Add(new SqlParameter("@chatTitle", chatTitle));
+            command.ExecuteNonQuery();
+            #endregion
+
+            #region Получаем Id только что добавленного чата и записываем в chatId
+            SqlCommand getChatID = new SqlCommand("select chat_id from Chats where chat_title = @chatTitle", Server.sql);
+            getChatID.Parameters.Add(new SqlParameter("@chatTitle", chatTitle));
+            SqlDataReader reader = getChatID.ExecuteReader();
+            reader.Read();
+            int chatId = reader.GetInt32(0);
+            reader.Close();
+            #endregion
+            
+
+            #region Создание таблицы с сообщениями для только что созданного чата
+            command = new SqlCommand($"create table {String.Format("ChatMessages_{0}", chatId)} " +
+                                    "( message varbinary(MAX)," +
+                                    " message_type varchar(4) check(message_type in ('File', 'Text'))," +
+                                    " time smalldatetime," +
+                                    " message_status varchar(8) check(message_status in ('Readed', 'Sended', 'Unreaded', 'Unsended')))", Server.sql);
+            command.ExecuteNonQuery();
+            #endregion
+
+            #region Отправка добавленного контакта и уведомление сокету, что все прошло успешно
+
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                formatter.Serialize(memoryStream, new RRTemplate(RRType.AddContact, new AddRemoveContactTemplate(arContT.ContactOwnerId, arContT.TargetContactId)));
+
+                ConectedUser user = Server.conectedUsers.Find(x => x.id == arContT.ContactOwnerId);
+                if (user != null)
+                {
+                    user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                }
+            }
+
+            #endregion
+
+        }
+
         //поиск контактов вне контактов пользователя по поисковому запросу
         private void SearchOutContacts(SearchOutContactsTemplate searchOutC)
         {
-
             #region Отправка запроса на поискконтактов по паттерну вне контактов и запись их в лист contacts
             SqlCommand command = new SqlCommand("select ui.id, ui.app_name, ui.image, ui.status " +
                                                 "from Users_info as ui " +

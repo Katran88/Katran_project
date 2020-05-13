@@ -21,68 +21,73 @@
                 <Button Content="Reject" />
             </StackPanel>
         </materialDesign:DialogHost.DialogContent>
-         <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-        
-        
-        <Expander Grid.Column="0" ExpandDirection="left" HorizontalAlignment="Left" Panel.ZIndex="1" Foreground="{DynamicResource TextColor}" >
-            <Expander.Header >
-                <TextBlock Text="{DynamicResource ResourceKey=l_Menu}" Style="{DynamicResource ResourceKey=MediumTextStyle}" >
-                    <TextBlock.LayoutTransform>
-                        <RotateTransform Angle="90" />
-                    </TextBlock.LayoutTransform>
-                </TextBlock>
-            </Expander.Header>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
 
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="40" />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" >
 
-                    <RadioButton Style="{StaticResource MaterialDesignTabRadioButton}"
+            <Expander Grid.Column="0" ExpandDirection="left" HorizontalAlignment="Left" Panel.ZIndex="1" Foreground="{DynamicResource TextColor}" >
+                <Expander.Header >
+                    <TextBlock Text="{DynamicResource ResourceKey=l_Menu}" Style="{DynamicResource ResourceKey=MediumTextStyle}" >
+                        <TextBlock.LayoutTransform>
+                            <RotateTransform Angle="90" />
+                        </TextBlock.LayoutTransform>
+                    </TextBlock>
+                </Expander.Header>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" >
+
+                        <RadioButton Style="{StaticResource MaterialDesignTabRadioButton}"
                                  Margin="4"  Command="{Binding ContactsSelected}" >
-                        <materialDesign:PackIcon Kind="AccountGroup" ToolTip="{DynamicResource ResourceKey=l_ToolTipContacts}" Height="25" Width="25" Foreground="{DynamicResource TextColor}" />
-                    </RadioButton>
+                            <materialDesign:PackIcon Kind="AccountGroup" ToolTip="{DynamicResource ResourceKey=l_ToolTipContacts}" Height="25" Width="25" Foreground="{DynamicResource TextColor}" />
+                        </RadioButton>
 
-                </StackPanel>
+                    </StackPanel>
 
-                <StackPanel Grid.Row="1" Orientation="Vertical" Visibility="{Binding ContactsAndChatsTabVisibility}" >
-                    <usercontrolls:ContactsSearcher SearchFieldText="{Binding SearchTextField, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    <StackPanel Grid.Row="1" Orientation="Vertical" Visibility="{Binding ContactsAndChatsTabVisibility}" >
+                        <usercontrolls:ContactsSearcher SearchFieldText="{Binding SearchTextField, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                     SearchButtonBind="{Binding ContactsSearchButton}"
                                                     AddContact_ButtonVisibility="{Binding AddContact_ButtonVisibility}"
                                                     AddContactButtonBind="{Binding ContactAddButton}"
                                                     RemoveContact_ButtonVisibility="{Binding RemoveContact_ButtonVisibility}"
                                                     RemoveContactButtonBind="{Binding ContactRemoveButton}" />
-                    <ListView ItemsSource="{Binding Contacts}" SelectedItem="{Binding SelectedContact}" 
+                        <ListView ItemsSource="{Binding Contacts}" SelectedItem="{Binding SelectedContact}" 
                               ItemContainerStyle="{StaticResource ListViewItemStyle}" />
-                    <usercontrolls:ContactsBorder Visibility="{Binding ContactsBorderVisibility}"
+                        <usercontrolls:ContactsBorder Visibility="{Binding ContactsBorderVisibility}"
                                                   SearchOutContactsBind="{Binding SearchOutContacts}" />
-                    <ListView ItemsSource="{Binding FilteredNoUserContacts}"
-                              Visibility="{Binding NoUserContactsVisibility}"
-                              ItemContainerStyle="{StaticResource ListViewItemStyle}"
-                              SelectedItem="{Binding SelectedNoUserContact}" />
-                </StackPanel>
-                
-            </Grid>
-            
-        </Expander>
+                        <ListView ItemsSource="{Binding FilteredNoUserContacts}"
+                                  Visibility="{Binding NoUserContactsVisibility}"
+                                  ItemContainerStyle="{StaticResource ListViewItemStyle}"
+                                  SelectedItem="{Binding SelectedNoUserContact}" />
+                    </StackPanel>
 
-        <StackPanel Grid.Column="1" Orientation="Vertical" >
+                </Grid>
 
-            <ContentPresenter Grid.Row="1" x:Name="messages" Content="{Binding MessagesContentPresenter}" />
-            
-            <Grid Margin="20,5,20,5" >
+            </Expander>
+
+            <Grid Grid.Column="1" >
                 <Grid.RowDefinitions>
                     <RowDefinition />
-                    <RowDefinition />
+                    <RowDefinition Height="Auto" MaxHeight="140"  />
                 </Grid.RowDefinitions>
 
-                <TextBox Grid.Row="0"
+                <ListView ItemsSource="{Binding CurrentChat}" />
+
+
+                <Grid Margin="20,3.8,20,4.6" Grid.Row="1" >
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <TextBox Grid.Row="0"
                          Foreground="{DynamicResource TextColor}"
                          Style="{StaticResource MaterialDesignOutlinedTextFieldTextBox}"
                          VerticalAlignment="Bottom" AcceptsReturn="True"
@@ -90,18 +95,18 @@
                          VerticalScrollBarVisibility="Auto"                                           
                          materialDesign:HintAssist.Hint="{DynamicResource ResourceKey=l_YourMessage}" />
 
-                <Button Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,5,0"
+                    <Button Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,5,0"
                         Template="{DynamicResource ResourceKey=btTemplateWithoutBorder}" >
-                    <materialDesign:PackIcon Kind="Send" VerticalAlignment="Center" Height="20" Width="20" />
-                </Button>
-                
+                        <materialDesign:PackIcon Kind="Send" VerticalAlignment="Center" Height="20" Width="20" />
+                    </Button>
+
+                </Grid>
+
             </Grid>
-            
-        </StackPanel>
-            
-    </Grid>
+
+        </Grid>
     </materialDesign:DialogHost>
 
 
-   
+
 </Page>
