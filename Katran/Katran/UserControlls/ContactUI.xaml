@@ -15,7 +15,7 @@
                         <RowDefinition />
                     </Grid.RowDefinitions>
 
-                    <Image Grid.Row="0"  x:Name="Avatar" Source="{Binding ContactAvatar}" Margin="5" Width="40" Height="40" >
+                    <Image Grid.Row="0"  x:Name="Avatar" Source="{Binding ContactAvatar, ElementName=ContactUserControl, UpdateSourceTrigger=PropertyChanged}" Margin="5" Width="40" Height="40" >
                         <Image.OpacityMask>
                             <RadialGradientBrush>
                                 <GradientStop Color="Black" Offset="0.5"/>

@@ -1,6 +1,7 @@
 ﻿using KatranClassLibrary;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
@@ -82,6 +83,14 @@ namespace Katran.UserControlls
             }
         }
 
+        private ObservableCollection<MessageUI> contactMessages;
+        public ObservableCollection<MessageUI> ContactMessages
+        {
+            get { return contactMessages; }
+            set { contactMessages = value; OnPropertyChanged(); }
+        }
+
+
         public ContactUI()
         {
             InitializeComponent();
@@ -91,9 +100,10 @@ namespace Katran.UserControlls
             ContactAvatar = null;
             ContactStatus = Status.Offline;
             ContactID = -1;
+            ContactMessages = null;
         }
 
-        public ContactUI(string contactUsername, string contactLasMessage, BitmapImage bitmapImage, Status contactStatus, int contactID)
+        public ContactUI(string contactUsername, string contactLasMessage, BitmapImage bitmapImage, Status contactStatus, int contactID, ObservableCollection<MessageUI> contactMessages)
         {
             InitializeComponent();
 
@@ -101,7 +111,8 @@ namespace Katran.UserControlls
             ContactLastMessage = contactLasMessage;
             ContactAvatar = bitmapImage;
             ContactStatus = contactStatus;
-            ContactID = contactID;            
+            ContactID = contactID;
+            ContactMessages = contactMessages;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -218,8 +218,11 @@ namespace KatranServer
 
             #region Создание таблицы с сообщениями для только что созданного чата
             command = new SqlCommand($"create table {String.Format("ChatMessages_{0}", chatId)} " +
-                                    "( message varbinary(MAX)," +
+                                    "( message_id int identity(1,1) primary key," +
+                                    " sender_id int," +
+                                    " message varbinary(MAX)," +
                                     " message_type varchar(4) check(message_type in ('File', 'Text'))," +
+                                    " file_name varchar(max)," +
                                     " time smalldatetime," +
                                     " message_status varchar(8) check(message_status in ('Readed', 'Sended', 'Unreaded', 'Unsended')))", Server.sql);
             command.ExecuteNonQuery();
@@ -361,6 +364,15 @@ namespace KatranServer
             contactsCommand.Parameters.Add(new SqlParameter("@userID", refrC.ContactsOwner));
             SqlDataReader contactsReader = contactsCommand.ExecuteReader();
 
+            SqlCommand command = new SqlCommand("select chat_id from Chats where chat_title = @chatTitle_1 or chat_title = @chatTitle_2", Server.sql);
+            string chatTitle_1;
+            string chatTitle_2;
+            SqlDataReader reader;
+            SqlCommand chatMessages;
+            SqlDataReader chatMessagesReader;
+            List<Message> tempMessages; 
+            Message tempMessage;
+
             List<Contact> contacts = new List<Contact>();
             if (contactsReader.HasRows)
             {
@@ -381,6 +393,74 @@ namespace KatranServer
                         tempContact.AvatarImage = (byte[])imageObj;
                     }
                     tempContact.Status = (Status)Enum.Parse(typeof(Status), contactsReader.GetString(3));
+
+                    chatTitle_1 = String.Format("{0}_{1}", refrC.ContactsOwner, tempContact.UserId);
+                    chatTitle_2 = String.Format("{1}_{0}", refrC.ContactsOwner, tempContact.UserId);
+                    command.Parameters.Add(new SqlParameter("@chatTitle_1", chatTitle_1));
+                    command.Parameters.Add(new SqlParameter("@chatTitle_2", chatTitle_2));
+                    reader = command.ExecuteReader();
+                    int chatID = -1;
+                    if (reader.HasRows)
+                    {
+                        reader.Read();
+                        chatID = reader.GetInt32(0);
+                    }
+                    reader.Close();
+
+                    chatMessages = new SqlCommand("select top(100) message_id, sender_id, message, message_type, file_name, time, message_status " +
+                                                 $"from ChatMessages_{chatID} " +
+                                                  "order by message_id desc", Server.sql);
+                    chatMessagesReader = chatMessages.ExecuteReader();
+                    tempMessages = new List<Message>();
+
+                    if (chatMessagesReader.HasRows)
+                    {
+                        while (chatMessagesReader.Read())
+                        {
+                            tempMessage = new Message();
+
+                            tempMessage.MessageID = chatMessagesReader.GetInt32(0);
+                            tempMessage.SenderID = chatMessagesReader.GetInt32(0);
+                            tempMessage.MessageBody = (byte[])chatMessagesReader.GetValue(1);
+                            tempMessage.MessageType = (MessageType)Enum.Parse(typeof(MessageType), chatMessagesReader.GetString(2));
+
+                            switch (tempMessage.MessageType)
+                            {
+                                case MessageType.File:
+
+                                    if (tempMessage.MessageBody.Length < 1000000) //если меньше мегабайта
+                                    {
+                                        tempMessage.FileSize = Convert.ToString(((float)tempMessage.MessageBody.Length / 1000) + " Kb");
+                                    }
+                                    else
+                                    {
+                                        if (tempMessage.MessageBody.Length < 1000000000) //если меньше гигабайта
+                                        {
+                                            tempMessage.FileSize = Convert.ToString(((float)tempMessage.MessageBody.Length / 1000000000) + " Mb");
+                                        }
+                                        else
+                                        {
+                                            tempMessage.FileSize = Convert.ToString(((float)tempMessage.MessageBody.Length / 1000000000000) + " Gb");
+                                        }
+                                    }
+                                    tempMessage.FileName = chatMessagesReader.GetString(3);
+                                    break;
+                                case MessageType.Text:
+                                    tempMessage.MessageBody = new byte[1];
+                                    tempMessage.FileName = "";
+                                    tempMessage.FileSize = "";
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            tempMessage.Time = chatMessagesReader.GetDateTime(4);
+                            tempMessage.MessageState = (MessageState)Enum.Parse(typeof(MessageState), chatMessagesReader.GetString(5));
+                            
+                            tempMessages.Add(tempMessage);
+                        }
+                    }
+                    tempContact.Messages = tempMessages;
 
                     contacts.Add(tempContact);
                 }

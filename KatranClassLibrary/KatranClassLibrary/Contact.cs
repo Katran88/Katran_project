@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace KatranClassLibrary
 {
@@ -11,6 +10,7 @@ namespace KatranClassLibrary
         public byte[] AvatarImage;
         public string AppName;
         public Status Status;
+        public List<Message> Messages;
 
         public Contact()
         {
@@ -18,14 +18,16 @@ namespace KatranClassLibrary
             AvatarImage = null;
             AppName = "";
             Status = Status.Offline;
+            Messages = null;
         }
 
-        public Contact(int userId, byte[] avatarImage, string appName, Status status)
+        public Contact(int userId, byte[] avatarImage, string appName, Status status, List<Message> messages)
         {
             UserId = userId;
             AvatarImage = avatarImage;
             AppName = appName;
             Status = status;
+            Messages = messages;
         }
     }
 }

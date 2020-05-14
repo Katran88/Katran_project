@@ -47,3 +47,14 @@ create table ChatMembers
     chat_id int references Chats (chat_id),
     member_id int references Users (id)
 )
+
+command = new SqlCommand($"create table {String.Format("ChatMessages_{0}", chatId)} " +
+                                    "( message varbinary(MAX)," +
+                                    " message_type varchar(4) check(message_type in ('File', 'Text'))," +
+                                    " file_name varchar(max)," +
+                                    " time smalldatetime," +
+                                    " message_status varchar(8) check(message_status in ('Readed', 'Sended', 'Unreaded', 'Unsended')))", Server.sql);
+
+select top(100) message, message_type, file_name, time, message_status
+from ChatMessages_11
+order by time desc

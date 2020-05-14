@@ -128,6 +128,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UserControlls\MessageUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControlls\WindowStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -146,6 +150,7 @@
     </Compile>
     <Compile Include="Models\Client.cs" />
     <Compile Include="Models\ClientListener.cs" />
+    <Compile Include="Models\ContactsTab.cs" />
     <Compile Include="Models\Converters.cs" />
     <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Pages\AuhtorizationPage.xaml.cs">
@@ -174,6 +179,9 @@
     </Compile>
     <Compile Include="UserControlls\LoginField.xaml.cs">
       <DependentUpon>LoginField.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControlls\MessageUI.xaml.cs">
+      <DependentUpon>MessageUI.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControlls\WindowStyle.xaml.cs">
       <DependentUpon>WindowStyle.xaml</DependentUpon>

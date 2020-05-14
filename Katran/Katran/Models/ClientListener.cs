@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace Katran.Models
 {
@@ -47,19 +48,6 @@ namespace Katran.Models
 
         void RefreshClientConnection()
         {
-        //    if (mainPageViewModel.MainViewModel.UserInfo.Info == null)
-        //    {
-        //        FileStream fs = new FileStream(RegistrationTemplate.AuthTokenFileName, FileMode.Open, FileAccess.Read);
-
-        //        BinaryFormatter binForm = new BinaryFormatter();
-        //        RegistrationTemplate regTempl = binForm.Deserialize(fs) as RegistrationTemplate;
-        //        if (regTempl != null)
-        //        {
-        //            mainPageViewModel.MainViewModel.UserInfo.Info = regTempl;
-        //        }
-        //        fs.Close();
-        //    }
-
             RRTemplate request = new RRTemplate(RRType.RefreshUserConnection, new RefreshUserTemplate(mainPageViewModel.MainViewModel.UserInfo.Info.Id));
 
 
@@ -186,7 +174,7 @@ namespace Katran.Models
         private void RemoveContact(AddRemoveContactTemplate rContT)
         {
             ContactUI rContact = null;
-            foreach (ContactUI i in mainPageViewModel.Contacts)
+            foreach (ContactUI i in mainPageViewModel.ContactsTab.Contacts)
             {
                 if (i.ContactID == rContT.TargetContactId)
                 {
@@ -199,8 +187,8 @@ namespace Katran.Models
             {
                 Application.Current.Dispatcher.Invoke(new Action(() =>
                 {
-                    mainPageViewModel.Contacts.Remove(rContact);
-                    mainPageViewModel.SelectedContact = null;
+                    mainPageViewModel.ContactsTab.Contacts.Remove(rContact);
+                    mainPageViewModel.ContactsTab.SelectedContact = null;
                 }
                 ));
             }
@@ -209,7 +197,7 @@ namespace Katran.Models
         private void AddContact(AddRemoveContactTemplate arContT)
         {
             ContactUI newContact = null;
-            foreach (ContactUI i in mainPageViewModel.FilteredNoUserContacts)
+            foreach (ContactUI i in mainPageViewModel.ContactsTab.FilteredNoUserContacts)
             {
                 if (i.ContactID == arContT.TargetContactId)
                 {
@@ -222,10 +210,10 @@ namespace Katran.Models
             {
                 Application.Current.Dispatcher.Invoke(new Action(() =>
                 {
-                    mainPageViewModel.FilteredNoUserContacts.Remove(newContact);
-                    mainPageViewModel.Contacts.Add(newContact);
+                    mainPageViewModel.ContactsTab.FilteredNoUserContacts.Remove(newContact);
+                    mainPageViewModel.ContactsTab.Contacts.Add(newContact);
                     newContact.Visibility = Visibility.Collapsed;
-                    mainPageViewModel.SelectedNoUserContact = null;
+                    mainPageViewModel.ContactsTab.SelectedNoUserContact = null;
                 }
                 ));
             }
@@ -236,27 +224,27 @@ namespace Katran.Models
             Task.Factory.StartNew(() =>
             {
                 MemoryStream memoryStream;
-                Bitmap avatar;
+                BitmapImage avatar;
                 List<ContactUI> OutContacts = new List<ContactUI>();
 
                 foreach (Contact item in searchOutC.Contacts)
                 {
                     memoryStream = new MemoryStream(item.AvatarImage);
-                    avatar = new Bitmap(memoryStream);
+                    avatar = Converters.BitmapToImageSource(new Bitmap(memoryStream));
 
                     Application.Current.Dispatcher.Invoke(new Action(() =>
                     {
-                        OutContacts.Add(new ContactUI(item.AppName, "", Converters.BitmapToImageSource(avatar), item.Status, item.UserId));
+                        OutContacts.Add(new ContactUI(item.AppName, "", avatar, item.Status, item.UserId, new ObservableCollection<MessageUI>()));
                     }
                     ));
                 }
 
                 Application.Current.Dispatcher.Invoke(new Action(() =>
                 {
-                    mainPageViewModel.FilteredNoUserContacts.Clear();
+                    mainPageViewModel.ContactsTab.FilteredNoUserContacts.Clear();
                     foreach (ContactUI item in OutContacts)
                     {
-                        mainPageViewModel.FilteredNoUserContacts.Add(item);
+                        mainPageViewModel.ContactsTab.FilteredNoUserContacts.Add(item);
                     }
                 }
                 ));
@@ -268,27 +256,44 @@ namespace Katran.Models
             Task.Factory.StartNew(() =>
             {
                 MemoryStream memoryStream;
-                Bitmap avatar;
+                BitmapImage contactAvatar;
+                ObservableCollection<MessageUI> tempMessagesUI;
                 List<ContactUI> RefreshedContacts = new List<ContactUI>();
+                MessageUI tempMessageUI;
 
                 foreach (Contact item in refrC.Contacts)
                 {
                     memoryStream = new MemoryStream(item.AvatarImage);
-                    avatar = new Bitmap(memoryStream);
+                    contactAvatar = Converters.BitmapToImageSource(new Bitmap(memoryStream));
+                    tempMessagesUI = new ObservableCollection<MessageUI>();
 
                     Application.Current.Dispatcher.Invoke(new Action(() =>
                     {
-                        RefreshedContacts.Add(new ContactUI(item.AppName, "", Converters.BitmapToImageSource(avatar), item.Status, item.UserId));
+                        foreach (Message i in item.Messages)
+                        {
+                            tempMessageUI = new MessageUI(mainPageViewModel,
+                                                          refrC.ContactsOwner == i.SenderID,
+                                                          refrC.ContactsOwner == i.SenderID ? mainPageViewModel.MainViewModel.UserInfo.Avatar : contactAvatar,
+                                                          item.Status,
+                                                          i.MessageType,
+                                                          i.Time,
+                                                          i.MessageBody,
+                                                          i.FileName,
+                                                          i.FileSize);
+                            tempMessagesUI.Add(tempMessageUI);
+                        }
+
+                        RefreshedContacts.Add(new ContactUI(item.AppName, "", contactAvatar, item.Status, item.UserId, tempMessagesUI));
                     }
                     ));                    
                 }
 
                 Application.Current.Dispatcher.Invoke(new Action(() =>
                 {
-                    mainPageViewModel.Contacts.Clear();
+                    mainPageViewModel.ContactsTab.Contacts.Clear();
                     foreach (ContactUI item in RefreshedContacts)
                     {
-                        mainPageViewModel.Contacts.Add(item);
+                        mainPageViewModel.ContactsTab.Contacts.Add(item);
                     }
                 }
                 ));
