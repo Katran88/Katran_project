@@ -2,11 +2,11 @@ create database Katran
 go
 use Katran
 
-drop table Users_info
-drop table Users
-drop table Chats
-drop table Contacts
-drop table ChatMembers
+--drop table Users_info
+--drop table Users
+--drop table Chats
+--drop table Contacts
+--drop table ChatMembers
 
 create table Users
 (
@@ -30,8 +30,8 @@ go
 
 create table Contacts
 (
-	contact_owner int,
-	contact int
+	contact_owner int references Users(id),
+	contact int references Users(id)
 )
 go
 
@@ -39,6 +39,7 @@ create table Chats
 (
     chat_id int identity(1,1) primary key,
     chat_title varchar(40) unique, --для чатов 1 на 1 паттерн названия [id]_[id], для бесед [название беседы]
+    chat_kind varchar(12) default 'Chat' check(chat_kind in('Chat', 'Conversation'))
 )
 go
 
@@ -47,14 +48,4 @@ create table ChatMembers
     chat_id int references Chats (chat_id),
     member_id int references Users (id)
 )
-
-command = new SqlCommand($"create table {String.Format("ChatMessages_{0}", chatId)} " +
-                                    "( message varbinary(MAX)," +
-                                    " message_type varchar(4) check(message_type in ('File', 'Text'))," +
-                                    " file_name varchar(max)," +
-                                    " time smalldatetime," +
-                                    " message_status varchar(8) check(message_status in ('Readed', 'Sended', 'Unreaded', 'Unsended')))", Server.sql);
-
-select top(100) message, message_type, file_name, time, message_status
-from ChatMessages_11
-order by time desc
+go

@@ -71,7 +71,7 @@
                 <RowDefinition Height="Auto" MaxHeight="140"  />
             </Grid.RowDefinitions>
 
-            <ListView ItemsSource="{Binding CurrentChat}" />
+            <ListView ItemsSource="{Binding CurrentChatMessages}" HorizontalContentAlignment="Stretch" />
 
 
             <Grid Margin="20,3.8,20,4.6" Grid.Row="1" >
@@ -80,7 +80,7 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
 
-                <TextBox Grid.Row="0"
+                <TextBox Grid.Row="0" Text="{Binding MessageText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Foreground="{DynamicResource TextColor}"
                          Style="{StaticResource MaterialDesignOutlinedTextFieldTextBox}"
                          VerticalAlignment="Bottom" AcceptsReturn="True"
@@ -89,6 +89,7 @@
                          materialDesign:HintAssist.Hint="{DynamicResource ResourceKey=l_YourMessage}" />
 
                 <Button Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,5,0"
+                        Command="{Binding SendMessage}"
                         Template="{DynamicResource ResourceKey=btTemplateWithoutBorder}" >
                     <materialDesign:PackIcon Kind="Send" VerticalAlignment="Center" Height="20" Width="20" />
                 </Button>

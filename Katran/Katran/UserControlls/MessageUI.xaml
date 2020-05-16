@@ -6,7 +6,7 @@
              Name="MessageUI_UC"
              xmlns:local="clr-namespace:Katran.UserControlls" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" >
-    <Grid>
+    <Grid Name="mainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
             <ColumnDefinition MaxWidth="210" />
@@ -24,7 +24,7 @@
                 </Grid.RowDefinitions>
 
                 <Image x:Name="Avatar" Grid.Row="0" 
-                       Source="{Binding ContactAvatar, ElementName=ContactUserControl, UpdateSourceTrigger=PropertyChanged}"
+                       Source="{Binding ContactAvatar, ElementName=MessageUI_UC, UpdateSourceTrigger=PropertyChanged}"
                        Margin="5" Width="40" Height="40" >
                     <Image.OpacityMask>
                         <RadialGradientBrush>
@@ -41,6 +41,9 @@
 
                 <TextBlock Grid.Row="1" Text="{Binding Date, ElementName=MessageUI_UC}" HorizontalAlignment="Center" FontSize="10" Foreground="{DynamicResource TextColor}"  />
                 <TextBlock Grid.Row="2" Text="{Binding Time, ElementName=MessageUI_UC}" HorizontalAlignment="Center" FontSize="10" Foreground="{DynamicResource TextColor}"  />
+                <materialDesign:PackIcon Grid.Row="2" Name="messageStatusCheck" Kind="Check" 
+                                         Height="10" Width="10" Foreground="{DynamicResource TextColor}"
+                                         VerticalAlignment="Center" HorizontalAlignment="Left" />
             </Grid>
         </Border>
 
@@ -59,7 +62,7 @@
                     <StackPanel>
                         <Button x:Name="DownloadFile" 
                                 Template="{StaticResource ResourceKey=btTemplateWithoutBorder}"
-                                Command="{Binding DownloadFileBind, ElementName=MessageUI_UC}" >
+                                Command="{Binding DownloadCommand, ElementName=MessageUI_UC}" >
                             <TextBlock Text="{Binding FileName, ElementName=MessageUI_UC}" Style="{StaticResource ResourceKey=MediumTextStyle}" TextDecorations="Underline" />
                         </Button>
                         <TextBlock Text="{Binding FileSize, ElementName=MessageUI_UC}" Style="{DynamicResource SmallTextStyle}" />

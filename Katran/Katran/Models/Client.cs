@@ -41,7 +41,8 @@ namespace Katran.Models
                         case RRType.SearchOutContacts:
                         case RRType.UserDisconected:
                         case RRType.AddContact:
-                        case RRType.RemoveContact:    
+                        case RRType.RemoveContact:
+                        case RRType.SendMessage:
                             clientStream.Close();
                             client.Close();
                             return null;

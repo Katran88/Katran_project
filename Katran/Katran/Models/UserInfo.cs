@@ -20,6 +20,13 @@ namespace Katran.Models
             set
             {
                 info = value;
+                if (info != null)
+                {
+                    MemoryStream memoryStream = new MemoryStream(info.Image);
+                    Avatar = Converters.BitmapToImageSource(new Bitmap(memoryStream));
+                }
+                
+
                 OnPropertyChanged();
             }
         }
@@ -40,9 +47,6 @@ namespace Katran.Models
         public UserInfo(RegistrationTemplate info)
         {
             this.Info = info;
-
-            MemoryStream memoryStream = new MemoryStream(Info.Image);
-            Avatar = Converters.BitmapToImageSource(new Bitmap(memoryStream));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

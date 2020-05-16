@@ -100,7 +100,16 @@ namespace KatranServer
                 refreshStatusCommand.ExecuteNonQuery();
             }
 
-            //можно реализовать оповещение юзеров, которые онлайн, о том, что пользователь сменил статус
+            foreach (ConectedUser u in conectedUsers)
+            {
+                BinaryFormatter formatter = new BinaryFormatter();
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    formatter.Serialize(memoryStream, new RRTemplate(RRType.RefreshContactStatus, new RefreshContactStatusTemplate(u.id, newStatus)));
+
+                    u.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                }
+            }
         }
     }
 }

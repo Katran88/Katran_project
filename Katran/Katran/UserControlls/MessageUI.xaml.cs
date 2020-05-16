@@ -1,6 +1,7 @@
 ﻿using Katran.Models;
 using Katran.ViewModels;
 using KatranClassLibrary;
+using MaterialDesignThemes.Wpf;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -36,10 +37,14 @@ namespace Katran.UserControlls
                 if (isOwnerMessage)
                 {
                     GridColumn = 3;
+                    messageStatusCheck.Visibility = Visibility.Visible;
+                    mainGrid.HorizontalAlignment = HorizontalAlignment.Right;
                 }
                 else
                 {
                     GridColumn = 0;
+                    messageStatusCheck.Visibility = Visibility.Collapsed;
+                    mainGrid.HorizontalAlignment = HorizontalAlignment.Left;
                 }
             }
         }
@@ -54,7 +59,7 @@ namespace Katran.UserControlls
         public BitmapImage ContactAvatar
         {
             get { return (BitmapImage)GetValue(ContactAvatarProperty); }
-            set { SetValue(ContactAvatarProperty, value); }
+            set { SetValue(ContactAvatarProperty, value); OnPropertyChanged(); }
         }
         public static readonly DependencyProperty ContactAvatarProperty =
             DependencyProperty.Register("ContactAvatar", typeof(BitmapImage), typeof(MessageUI),
@@ -175,6 +180,39 @@ namespace Katran.UserControlls
             set { mainPageViewModel = value; }
         }
 
+        private MessageState messageState;
+
+        public MessageState MessageState
+        {
+            get { return messageState; }
+            set 
+            { 
+                messageState = value;
+                OnPropertyChanged();
+
+                switch (messageState)
+                {
+                    case MessageState.Readed:
+                        messageStatusCheck.Kind = PackIconKind.CheckAll;
+                        messageStatusCheck.Foreground = (Brush)Application.Current.FindResource("Readed_MessageSatus_Brush");
+                        break;
+                    case MessageState.Unreaded:
+                    case MessageState.Sended:
+                        messageStatusCheck.Kind = PackIconKind.CheckAll;
+                        messageStatusCheck.Foreground = (Brush)Application.Current.FindResource("TextColor");
+                        break;
+                    case MessageState.Unsended:
+                        messageStatusCheck.Kind = PackIconKind.Check;
+                        messageStatusCheck.Foreground = (Brush)Application.Current.FindResource("TextColor");
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+        }
+
+
 
         public MessageUI()
         {
@@ -184,12 +222,14 @@ namespace Katran.UserControlls
             ContactStatus = Status.Offline;
             MessageType = MessageType.Text;
             MessageDateTime = DateTime.MinValue;
+            MessageState = MessageState.Unsended;
             Text = "";
             FileName = "";
             FileSize = "";
+            messageStatusCheck.Visibility = Visibility.Collapsed;
         }
 
-        public MessageUI(MainPageViewModel mainPageViewModel, bool isOwnerMessage, BitmapImage contactAvatar, Status contactStatus, MessageType messageType, DateTime messageDateTime, byte[] messageBody, string fileName = "", string fileSize = "")
+        public MessageUI(MainPageViewModel mainPageViewModel, bool isOwnerMessage, BitmapImage contactAvatar, Status contactStatus, MessageType messageType, MessageState messageState, DateTime messageDateTime, byte[] messageBody, string fileName = "", string fileSize = "")
         {
             InitializeComponent();
             MainPageViewModel = mainPageViewModel;
@@ -197,10 +237,12 @@ namespace Katran.UserControlls
             ContactAvatar = contactAvatar;
             ContactStatus = contactStatus;
             MessageType = messageType;
+            MessageState = messageState;
             MessageDateTime = messageDateTime;
             Text = Encoding.UTF8.GetString(messageBody, 0, messageBody.Length);
             FileName = fileName;
             FileSize = fileSize;
+
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -121,6 +121,20 @@ namespace Katran.Models
                                         SearchOutContacts(searchOutC);
                                     }
                                     break;
+                                case RRType.SendMessage:
+                                    SendMessageTemplate sMessT = serverResponse.RRObject as SendMessageTemplate;
+                                    if (sMessT != null)
+                                    {
+                                        SendMessageReceive(sMessT);
+                                    }
+                                    break;
+                                case RRType.RefreshContactStatus:
+                                    RefreshContactStatusTemplate refrContStT = serverResponse.RRObject as RefreshContactStatusTemplate;
+                                    if (refrContStT != null)
+                                    {
+                                        RefreshContactStatus(refrContStT);
+                                    }
+                                    break;
                                 default:
                                     if (client.Connected)
                                     {
@@ -171,6 +185,94 @@ namespace Katran.Models
             }
         }
 
+        private void RefreshContactStatus(RefreshContactStatusTemplate refrContStT)
+        {
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                foreach (ContactUI contactUI in mainPageViewModel.ContactsTab.Contacts)
+                {
+                    if (contactUI.ContactID == refrContStT.ContactId)
+                    {
+                        contactUI.ContactStatus = refrContStT.NewContactStatus;
+                        break;
+                    }
+                }
+            }));
+        }
+
+        private void SendMessageReceive(SendMessageTemplate sMessT)
+        {
+            Task.Factory.StartNew(() =>
+            {
+                if (sMessT.Message.SenderID == mainPageViewModel.MainViewModel.UserInfo.Info.Id)
+                {
+                    foreach (ContactUI contactUI in mainPageViewModel.ContactsTab.Contacts)
+                    {
+                        if (contactUI.ChatId == sMessT.ReceiverChatID)
+                        {
+                            foreach (MessageUI m in contactUI.ContactMessages)
+                            {
+                                if (m.MessageDateTime == sMessT.Message.Time && m.IsOwnerMessage)
+                                {
+                                    Application.Current.Dispatcher.Invoke(new Action(() =>
+                                    {
+                                        m.MessageState = MessageState.Sended;
+                                    }
+                                    ));
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    ContactUI sender = null;
+
+                    foreach (ContactUI c in mainPageViewModel.ContactsTab.Contacts)
+                    {
+                        if (c.ContactID == sMessT.Message.SenderID)
+                        {
+                            sender = c;
+                            break;
+                        }
+                    }
+                    if (sender != null)
+                    {
+                        MessageUI messageUI = new MessageUI(mainPageViewModel,
+                                                        false,
+                                                        sender.ContactAvatar,
+                                                        sender.ContactStatus,
+                                                        sMessT.Message.MessageType,
+                                                        sMessT.Message.MessageState,
+                                                        sMessT.Message.Time,
+                                                        sMessT.Message.MessageBody,
+                                                        sMessT.Message.FileName,
+                                                        sMessT.Message.FileSize);
+
+                        foreach (ContactUI contactUI in mainPageViewModel.ContactsTab.Contacts)
+                        {
+                            if (contactUI.ChatId == sMessT.ReceiverChatID)
+                            {
+                                Application.Current.Dispatcher.Invoke(new Action(() =>
+                                {
+                                    contactUI.ContactMessages.Add(messageUI);
+                                }
+                                ));
+                                break;
+                            }
+                        }
+
+                    }
+                    
+                }
+            }
+            );
+
+            
+        }
+
         private void RemoveContact(AddRemoveContactTemplate rContT)
         {
             ContactUI rContact = null;
@@ -213,6 +315,7 @@ namespace Katran.Models
                     mainPageViewModel.ContactsTab.FilteredNoUserContacts.Remove(newContact);
                     mainPageViewModel.ContactsTab.Contacts.Add(newContact);
                     newContact.Visibility = Visibility.Collapsed;
+                    newContact.ChatId = arContT.ChatId;
                     mainPageViewModel.ContactsTab.SelectedNoUserContact = null;
                 }
                 ));
@@ -223,18 +326,16 @@ namespace Katran.Models
         {
             Task.Factory.StartNew(() =>
             {
-                MemoryStream memoryStream;
-                BitmapImage avatar;
                 List<ContactUI> OutContacts = new List<ContactUI>();
 
                 foreach (Contact item in searchOutC.Contacts)
                 {
-                    memoryStream = new MemoryStream(item.AvatarImage);
-                    avatar = Converters.BitmapToImageSource(new Bitmap(memoryStream));
-
                     Application.Current.Dispatcher.Invoke(new Action(() =>
                     {
-                        OutContacts.Add(new ContactUI(item.AppName, "", avatar, item.Status, item.UserId, new ObservableCollection<MessageUI>()));
+                        MemoryStream memoryStream = new MemoryStream(item.AvatarImage);
+                        BitmapImage avatar = Converters.BitmapToImageSource(new Bitmap(memoryStream));
+
+                        OutContacts.Add(new ContactUI(item.AppName, "", avatar, item.Status, item.UserId, item.ChatId, new ObservableCollection<MessageUI>()));
                     }
                     ));
                 }
@@ -255,35 +356,35 @@ namespace Katran.Models
         {
             Task.Factory.StartNew(() =>
             {
-                MemoryStream memoryStream;
-                BitmapImage contactAvatar;
                 ObservableCollection<MessageUI> tempMessagesUI;
                 List<ContactUI> RefreshedContacts = new List<ContactUI>();
                 MessageUI tempMessageUI;
 
-                foreach (Contact item in refrC.Contacts)
+                foreach (Contact contact in refrC.Contacts)
                 {
-                    memoryStream = new MemoryStream(item.AvatarImage);
-                    contactAvatar = Converters.BitmapToImageSource(new Bitmap(memoryStream));
                     tempMessagesUI = new ObservableCollection<MessageUI>();
 
                     Application.Current.Dispatcher.Invoke(new Action(() =>
                     {
-                        foreach (Message i in item.Messages)
+                        MemoryStream memoryStream = new MemoryStream(contact.AvatarImage);
+                        BitmapImage contactAvatar = Converters.BitmapToImageSource(new Bitmap(memoryStream));
+
+                        foreach (Message i in contact.Messages)
                         {
                             tempMessageUI = new MessageUI(mainPageViewModel,
                                                           refrC.ContactsOwner == i.SenderID,
                                                           refrC.ContactsOwner == i.SenderID ? mainPageViewModel.MainViewModel.UserInfo.Avatar : contactAvatar,
-                                                          item.Status,
+                                                          refrC.ContactsOwner == i.SenderID ? mainPageViewModel.MainViewModel.UserInfo.Info.Status : contact.Status,
                                                           i.MessageType,
+                                                          i.MessageState,
                                                           i.Time,
                                                           i.MessageBody,
                                                           i.FileName,
                                                           i.FileSize);
-                            tempMessagesUI.Add(tempMessageUI);
+                            tempMessagesUI.Insert(0, tempMessageUI);
                         }
 
-                        RefreshedContacts.Add(new ContactUI(item.AppName, "", contactAvatar, item.Status, item.UserId, tempMessagesUI));
+                        RefreshedContacts.Add(new ContactUI(contact.AppName, "", contactAvatar, contact.Status, contact.UserId, contact.ChatId, tempMessagesUI));
                     }
                     ));                    
                 }

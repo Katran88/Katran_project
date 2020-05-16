@@ -83,6 +83,15 @@ namespace Katran.UserControlls
             }
         }
 
+        private int chatId;
+
+        public int ChatId
+        {
+            get { return  chatId; }
+            set { chatId = value; }
+        }
+
+
         private ObservableCollection<MessageUI> contactMessages;
         public ObservableCollection<MessageUI> ContactMessages
         {
@@ -100,10 +109,11 @@ namespace Katran.UserControlls
             ContactAvatar = null;
             ContactStatus = Status.Offline;
             ContactID = -1;
+            ChatId = -1;
             ContactMessages = null;
         }
 
-        public ContactUI(string contactUsername, string contactLasMessage, BitmapImage bitmapImage, Status contactStatus, int contactID, ObservableCollection<MessageUI> contactMessages)
+        public ContactUI(string contactUsername, string contactLasMessage, BitmapImage bitmapImage, Status contactStatus, int contactID, int chatId, ObservableCollection<MessageUI> contactMessages)
         {
             InitializeComponent();
 
@@ -112,6 +122,7 @@ namespace Katran.UserControlls
             ContactAvatar = bitmapImage;
             ContactStatus = contactStatus;
             ContactID = contactID;
+            ChatId = chatId;
             ContactMessages = contactMessages;
         }
 

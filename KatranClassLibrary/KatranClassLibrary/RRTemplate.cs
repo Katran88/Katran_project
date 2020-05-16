@@ -15,7 +15,9 @@ namespace KatranClassLibrary
         UserDisconected,
         SearchOutContacts,
         AddContact,
-        RemoveContact
+        RemoveContact,
+        SendMessage,
+        RefreshContactStatus
     }
 
     [Serializable]

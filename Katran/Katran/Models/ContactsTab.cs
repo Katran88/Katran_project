@@ -63,6 +63,8 @@ namespace Katran.Models
                 selectedContact = value;
                 OnPropertyChanged();
 
+                mainPageViewModel.CurrentChatMessages = selectedContact.ContactMessages;
+
                 if (selectedContact != null)
                 {
                     if (!isSearchOutsideContacts)
@@ -271,7 +273,7 @@ namespace Katran.Models
                     {
                         Task.Factory.StartNew(() =>
                         {
-                            Client.ServerRequest(new RRTemplate(RRType.AddContact, new AddRemoveContactTemplate(MainPageViewModel.MainViewModel.UserInfo.Info.Id, selectedNoUserContact.ContactID)));
+                            Client.ServerRequest(new RRTemplate(RRType.AddContact, new AddRemoveContactTemplate(MainPageViewModel.MainViewModel.UserInfo.Info.Id, selectedNoUserContact.ContactID, -1)));
                         });
                     }
                 }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
@@ -288,7 +290,7 @@ namespace Katran.Models
 
                     if (dialog.ShowDialog() == true)
                     {
-                        Client.ServerRequest(new RRTemplate(RRType.RemoveContact, new AddRemoveContactTemplate(MainPageViewModel.MainViewModel.UserInfo.Info.Id, selectedContact.ContactID)));
+                        Client.ServerRequest(new RRTemplate(RRType.RemoveContact, new AddRemoveContactTemplate(MainPageViewModel.MainViewModel.UserInfo.Info.Id, selectedContact.ContactID, selectedContact.ChatId)));
                     }
                 }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
             }

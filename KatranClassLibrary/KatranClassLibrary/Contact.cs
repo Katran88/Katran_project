@@ -10,6 +10,7 @@ namespace KatranClassLibrary
         public byte[] AvatarImage;
         public string AppName;
         public Status Status;
+        public int ChatId;
         public List<Message> Messages;
 
         public Contact()
@@ -18,15 +19,17 @@ namespace KatranClassLibrary
             AvatarImage = null;
             AppName = "";
             Status = Status.Offline;
+            ChatId = -1;
             Messages = null;
         }
 
-        public Contact(int userId, byte[] avatarImage, string appName, Status status, List<Message> messages)
+        public Contact(int userId, byte[] avatarImage, string appName, Status status, int chatId, List<Message> messages)
         {
             UserId = userId;
             AvatarImage = avatarImage;
             AppName = appName;
             Status = status;
+            ChatId = chatId;
             Messages = messages;
         }
     }
