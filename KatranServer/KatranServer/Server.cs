@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -34,7 +35,7 @@ namespace KatranServer
         {
             conectedUsers = new List<ConectedUser>();
             TimerCallback tm = new TimerCallback(RefreshForOnlineUsers);
-            Timer timer = new Timer(tm, null, TimeSpan.FromMinutes(0.5), TimeSpan.FromMinutes(0.5));
+            Timer timer = new Timer(tm, null, TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(5));
 
 
             TcpListener server = null;
@@ -91,23 +92,50 @@ namespace KatranServer
             }
         }
 
+        private static object locker = new object();
         internal static void ChangeStatus(int userID, Status newStatus)
         {
-            using (SqlCommand refreshStatusCommand = new SqlCommand("update Users_info set status = @status where id = @id", DBConnection.getInstance()))
+            lock (locker)
             {
-                refreshStatusCommand.Parameters.Add(new SqlParameter("@id", userID));
-                refreshStatusCommand.Parameters.Add(new SqlParameter("@status", newStatus.ToString()));
-                refreshStatusCommand.ExecuteNonQuery();
-            }
-
-            foreach (ConectedUser u in conectedUsers)
-            {
-                BinaryFormatter formatter = new BinaryFormatter();
-                using (MemoryStream memoryStream = new MemoryStream())
+                using (SqlCommand refreshStatusCommand = new SqlCommand("update Users_info set status = @status where id = @id", DBConnection.getInstance()))
                 {
-                    formatter.Serialize(memoryStream, new RRTemplate(RRType.RefreshContactStatus, new RefreshContactStatusTemplate(u.id, newStatus)));
+                    refreshStatusCommand.Parameters.Add(new SqlParameter("@id", userID));
+                    refreshStatusCommand.Parameters.Add(new SqlParameter("@status", newStatus.ToString()));
+                    refreshStatusCommand.ExecuteNonQuery();
+                }
 
-                    u.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                if (newStatus == Status.Offline)
+                {
+                    conectedUsers.Remove(conectedUsers.Find((x) => x.id == userID));
+                }
+                    
+
+                foreach (ConectedUser u in conectedUsers)
+                {
+                    try
+                    {
+                        if (u.id != userID)
+                        {
+                            if (u.userSocket.Connected)
+                            {
+                                BinaryFormatter formatter = new BinaryFormatter();
+                                using (MemoryStream memoryStream = new MemoryStream())
+                                {
+                                    formatter.Serialize(memoryStream, new RRTemplate(RRType.RefreshContactStatus, new RefreshContactStatusTemplate(userID, newStatus)));
+
+                                    u.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                                }
+                            }
+                            else
+                            {
+                                ChangeStatus(u.id, Status.Offline);
+                            }
+                        }
+                    }
+                    catch (IOException ioEx)
+                    {
+                        ChangeStatus(u.id, Status.Offline);
+                    }
                 }
             }
         }

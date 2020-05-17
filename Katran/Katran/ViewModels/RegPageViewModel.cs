@@ -183,8 +183,11 @@ namespace Katran.ViewModels
                                             RegistrationTemplate regResponseObj = response.RRObject as RegistrationTemplate;
                                             if (regResponseObj != null)
                                             {
-                                                this.mainViewModel.UserInfo.Info = regResponseObj;
-                                                Application.Current.Dispatcher.Invoke((Action)delegate { this.mainViewModel.TryAuthtorizait(false); });
+                                                Application.Current.Dispatcher.Invoke((Action)delegate 
+                                                {
+                                                    this.mainViewModel.UserInfo.Info = regResponseObj;
+                                                    this.mainViewModel.TryAuthtorizait(false);
+                                                });
                                             }
                                             else
                                             {

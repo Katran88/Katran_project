@@ -43,6 +43,10 @@ namespace Katran.Models
                         case RRType.AddContact:
                         case RRType.RemoveContact:
                         case RRType.SendMessage:
+                        case RRType.AddContactTarget:
+                        case RRType.RemoveContactTarget:
+                        case RRType.RefreshContactStatus:
+                        case RRType.RefreshMessageState:
                             clientStream.Close();
                             client.Close();
                             return null;
@@ -79,6 +83,20 @@ namespace Katran.Models
                                             return serverResponse;
                                         }
                                         break;
+                                    case RRType.DownloadFile:
+                                        DownloadFileTemplate dfileT = serverResponse.RRObject as DownloadFileTemplate;
+                                        if (dfileT != null)
+                                        {
+                                            return serverResponse;
+                                        }
+                                        break;
+                                    //case RRType.RefreshMessageState:
+                                    //    RefreshMessageStateTemplate rmessT = serverResponse.RRObject as RefreshMessageStateTemplate;
+                                    //    if (rmessT != null)
+                                    //    {
+                                    //        return serverResponse;
+                                    //    }
+                                    //    break;
                                     case RRType.Error:
                                         ErrorReportTemplate error = serverResponse.RRObject as ErrorReportTemplate;
                                         if (error != null)

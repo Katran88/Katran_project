@@ -124,6 +124,20 @@ namespace KatranServer
                                     SendMessage(sMessT);
                                 }
                                 break;
+                            case RRType.DownloadFile:
+                                DownloadFileTemplate dfileT = clientRequest.RRObject as DownloadFileTemplate;
+                                if (dfileT != null)
+                                {
+                                    DownloatFile(dfileT);
+                                }
+                                break;
+                            case RRType.RefreshMessageState:
+                                RefreshMessageStateTemplate rmessT = clientRequest.RRObject as RefreshMessageStateTemplate;
+                                if (rmessT != null)
+                                {
+                                    RefreshMessageState(rmessT);
+                                }
+                                break;
                             default:
                                 ErrorResponse(ErrorType.Other, new Exception("Получен необработанный запрос"));
                                 break;
@@ -148,6 +162,91 @@ namespace KatranServer
             }
         }
 
+        private void RefreshMessageState(RefreshMessageStateTemplate rmessT)
+        {
+            #region Изменение состояния сообщения на прочитанное
+            using (SqlCommand command = new SqlCommand($"update ChatMessages_{rmessT.ChatId} set message_status = @status where message_id = @id", DBConnection.getInstance()))
+            {
+                if(rmessT.MessageState == MessageState.Sended)
+                {
+                    rmessT.MessageState = MessageState.Readed;
+                }
+
+                command.Parameters.Add(new SqlParameter("@status", rmessT.MessageState.ToString()));
+                command.Parameters.Add(new SqlParameter("@id", rmessT.messageId));
+                command.ExecuteNonQuery();
+            }
+            #endregion
+            
+
+            #region Ответ об успешной смене состояния сообщения
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (MemoryStream memoryStream = new MemoryStream()) //отправка владельцу сообщения новое состояние
+            {
+                formatter.Serialize(memoryStream, new RRTemplate(RRType.RefreshMessageState, rmessT));
+
+                client.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+            }
+
+            // отправка всем членам чата уведомления о смене состояния сообщения
+            using (SqlCommand command = new SqlCommand($"select cm.member_id from ChatMembers as cm where cm.chat_id = @chat_id", DBConnection.getInstance()))
+            {
+                command.Parameters.Add(new SqlParameter("@chat_id", rmessT.ChatId));
+                SqlDataReader reader = command.ExecuteReader();
+
+
+                if (reader.HasRows)
+                {
+                    ConectedUser user;
+                    int chatMemberId;
+
+                    while (reader.Read())
+                    {
+                        chatMemberId = reader.GetInt32(0);
+
+                        user = Server.conectedUsers.Find((x) => x.id == chatMemberId);
+                        if (user != null)
+                        {
+                            using (MemoryStream memoryStream = new MemoryStream())
+                            {
+                                formatter.Serialize(memoryStream, new RRTemplate(RRType.RefreshMessageState, rmessT));
+                                user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                            }
+                            
+                        }
+
+                    }
+                    reader.Close();
+                }
+
+                
+            }
+            #endregion
+        }
+
+        private void DownloatFile(DownloadFileTemplate dfileT)
+        {
+            SqlCommand command = new SqlCommand($"select message, file_name from ChatMessages_{dfileT.ChatId} where message_id = {dfileT.messageId}", Server.sql);
+            SqlDataReader reader = command.ExecuteReader();
+            dfileT.Message = new Message();
+            if (reader.HasRows)
+            {
+                reader.Read();
+                dfileT.Message.MessageBody = (byte[])reader.GetValue(0);
+                dfileT.Message.FileName = reader.GetString(1);
+
+                BinaryFormatter formatter = new BinaryFormatter();
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    formatter.Serialize(memoryStream, new RRTemplate(RRType.DownloadFile, dfileT));
+
+                    client.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                }
+
+            }
+            reader.Close();
+        }
+
         private void SendMessage(SendMessageTemplate sMessT)
         {
             #region Получаем ID всех членов чата
@@ -167,7 +266,7 @@ namespace KatranServer
 
             #region Отправляем сообщение в бд и обновляем его messageID and MessageState 
             command = new SqlCommand($"insert into ChatMessages_{sMessT.ReceiverChatID} (sender_id, message, message_type, file_name, time, message_status) " +
-                                          "values(@sender_id, @message, @message_type, @file_name, @time, @message_status)", Server.sql);
+                                      "values(@sender_id, @message, @message_type, @file_name, @time, @message_status)", Server.sql);
             command.Parameters.Add(new SqlParameter("@sender_id", sMessT.Message.SenderID));
             command.Parameters.Add(new SqlParameter("@message", sMessT.Message.MessageBody));
             command.Parameters.Add(new SqlParameter("@message_type", sMessT.Message.MessageType.ToString()));
@@ -180,14 +279,29 @@ namespace KatranServer
             switch (sMessT.Message.MessageType)
             {
                 case MessageType.File:
+                    if (sMessT.Message.MessageBody.Length < 1000000) //если меньше мегабайта
+                    {
+                        sMessT.Message.FileSize = Convert.ToString(((float)sMessT.Message.MessageBody.Length / 1000) + " Kb");
+                    }
+                    else
+                    {
+                        if (sMessT.Message.MessageBody.Length < 1000000000) //если меньше гигабайта
+                        {
+                            sMessT.Message.FileSize = Convert.ToString(((float)sMessT.Message.MessageBody.Length / 1000000) + " Mb");
+                        }
+                        else
+                        {
+                            sMessT.Message.FileSize = Convert.ToString(((float)sMessT.Message.MessageBody.Length / 1000000000) + " Gb");
+                        }
+                    }
                     sMessT.Message.MessageBody = new byte[1];
                     break;
                 default:
                     break;
             }
 
-            command = new SqlCommand("select message_id " +
-                                    $"from ChatMessages_{sMessT.ReceiverChatID} " +
+            command = new SqlCommand("select message_id, app_name " +
+                                    $"from ChatMessages_{sMessT.ReceiverChatID} as c join Users_info as u on c.sender_id = u.id " +
                                     $"where sender_id = @sender_id and time = @time", Server.sql);
             command.Parameters.Add(new SqlParameter("@sender_id", sMessT.Message.SenderID));
             command.Parameters.Add(new SqlParameter("@time", sMessT.Message.Time));
@@ -197,6 +311,7 @@ namespace KatranServer
             {
                 reader.Read();
                 sMessT.Message.MessageID = reader.GetInt32(0);
+                sMessT.Message.SenderName = reader.GetString(1);
                 sMessT.Message.MessageState = MessageState.Sended;
             }
             reader.Close();
@@ -254,6 +369,19 @@ namespace KatranServer
                     user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
                 }
             }
+
+
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                ConectedUser user = Server.conectedUsers.Find(x => x.id == rContT.TargetContactId); //удаление контакта у другого юзера
+                if (user != null)
+                {
+                    Contact rContact = new Contact();
+                    rContact.UserId = rContT.ContactOwnerId;
+                    formatter.Serialize(memoryStream, new RRTemplate(RRType.RemoveContactTarget, new AddRemoveContactTargetTemplate(rContact)));
+                    user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                }
+            }
             #endregion
 
         }
@@ -293,7 +421,7 @@ namespace KatranServer
             command.ExecuteNonQuery();
             #endregion
 
-            #region Создание таблицы с сообщениями для только что созданного чата
+            #region Создание таблицу с сообщениями для только что созданного чата
             command = new SqlCommand($"create table ChatMessages_{arContT.ChatId} " +
                                     "( message_id int identity(1,1) primary key," +
                                     " sender_id int," +
@@ -305,7 +433,7 @@ namespace KatranServer
             command.ExecuteNonQuery();
             #endregion
 
-            #region Отправка добавленного контакта и уведомление сокету, что все прошло успешно
+            #region Отправка добавленного контакта
 
             BinaryFormatter formatter = new BinaryFormatter();
             using (MemoryStream memoryStream = new MemoryStream())
@@ -319,6 +447,39 @@ namespace KatranServer
                 }
             }
 
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                ConectedUser user = Server.conectedUsers.Find(x => x.id == arContT.TargetContactId); //если другой юзер онлайн, то добавить контакт и ему
+                if (user != null)
+                {
+                    Contact newContact = new Contact();
+                    newContact.ChatId = arContT.ChatId;
+                    newContact.UserId = arContT.ContactOwnerId;
+                    newContact.Status = Status.Online;
+
+                    command = new SqlCommand("select ui.app_name, ui.image from Users_info as ui where ui.id = @userID", Server.sql);
+                    command.Parameters.Add(new SqlParameter("@userID", newContact.UserId));
+
+                    reader = command.ExecuteReader();
+                    reader.Read();
+
+                    newContact.AppName = reader.GetString(0);
+
+                    object imageObj = reader.GetValue(1);
+                    if (imageObj is System.DBNull)
+                    {
+                        newContact.AvatarImage = GetDefaultUserImage();
+                    }
+                    else
+                    {
+                        newContact.AvatarImage = (byte[])imageObj;
+                    }
+                    reader.Close();
+                    formatter.Serialize(memoryStream, new RRTemplate(RRType.AddContactTarget, new AddRemoveContactTargetTemplate(newContact)));
+                    user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                }
+
+            }
             #endregion
 
         }
@@ -500,21 +661,20 @@ namespace KatranServer
 
                 foreach (Contact contact in contacts)
                 {
-                    chatMessages = new SqlCommand("select top(100) message_id, sender_id, message, message_type, file_name, time, message_status " +
-                                                 $"from ChatMessages_{contact.ChatId} " +
+                    chatMessages = new SqlCommand("select top(100) message_id, sender_id, message, message_type, file_name, time, message_status, app_name " +
+                                                 $"from ChatMessages_{contact.ChatId} as c join Users_info as u on c.sender_id = u.id " +
                                                   "order by message_id desc", Server.sql);
                     chatMessagesReader = chatMessages.ExecuteReader();
                     tempMessages = new List<Message>();
                     if (chatMessagesReader.HasRows)
                     {
-                        
-
                         while (chatMessagesReader.Read())
                         {
                             tempMessage = new Message();
 
                             tempMessage.MessageID = chatMessagesReader.GetInt32(0);
                             tempMessage.SenderID = chatMessagesReader.GetInt32(1);
+                            //tempMessage.SenderName = contact.AppName;
                             tempMessage.MessageBody = (byte[])chatMessagesReader.GetValue(2);
                             tempMessage.MessageType = (MessageType)Enum.Parse(typeof(MessageType), chatMessagesReader.GetString(3));
 
@@ -530,11 +690,11 @@ namespace KatranServer
                                     {
                                         if (tempMessage.MessageBody.Length < 1000000000) //если меньше гигабайта
                                         {
-                                            tempMessage.FileSize = Convert.ToString(((float)tempMessage.MessageBody.Length / 1000000000) + " Mb");
+                                            tempMessage.FileSize = Convert.ToString(((float)tempMessage.MessageBody.Length / 1000000) + " Mb");
                                         }
                                         else
                                         {
-                                            tempMessage.FileSize = Convert.ToString(((float)tempMessage.MessageBody.Length / 1000000000000) + " Gb");
+                                            tempMessage.FileSize = Convert.ToString(((float)tempMessage.MessageBody.Length / 1000000000) + " Gb");
                                         }
                                     }
                                     tempMessage.FileName = chatMessagesReader.GetString(4);
@@ -550,6 +710,7 @@ namespace KatranServer
 
                             tempMessage.Time = chatMessagesReader.GetDateTime(5);
                             tempMessage.MessageState = (MessageState)Enum.Parse(typeof(MessageState), chatMessagesReader.GetString(6));
+                            tempMessage.SenderName = chatMessagesReader.GetString(7);
 
                             tempMessages.Add(tempMessage);
                         }
@@ -594,6 +755,7 @@ namespace KatranServer
             else
             {
                 user.userSocket = client;
+                Server.ChangeStatus(refrUser.UserId, Status.Online);
             }
         }
 
@@ -740,12 +902,22 @@ namespace KatranServer
         //Отправка пользователю уведомления об ошибке
         void ErrorResponse(ErrorType errorType, Exception ex)
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            using (MemoryStream memoryStream = new MemoryStream())
+            if (client.Connected)
             {
-                formatter.Serialize(memoryStream, new RRTemplate(RRType.Error, new ErrorReportTemplate(errorType, ex)));
+                BinaryFormatter formatter = new BinaryFormatter();
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    formatter.Serialize(memoryStream, new RRTemplate(RRType.Error, new ErrorReportTemplate(errorType, ex)));
 
-                client.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                    try
+                    {
+                        client.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                    }
+                    catch (Exception exc)
+                    {
+                        return;
+                    }
+                }
             }
         }
     }

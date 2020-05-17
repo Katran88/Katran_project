@@ -14,6 +14,10 @@
     <system:String x:Key="l_SearchOutContacts">Search out Contacts</system:String>
     <system:String x:Key="l_Confirm">Confirm</system:String>
     <system:String x:Key="l_Reject">Reject</system:String>
+    <system:String x:Key="l_download">Download file...</system:String>
+    <system:String x:Key="l_succsDownloaded">Succsessful download</system:String>
+    <system:String x:Key="l_upload">Upload file...</system:String>
+    <system:String x:Key="l_succsUploaded">Succsessful upload</system:String>
 
     <system:String x:Key="l_RemoveContact">Are you sure you want to remove selected user from contacts? All messages will be lost.</system:String>
     <system:String x:Key="l_AddContact">Add selected user to the contact list.</system:String>

@@ -30,7 +30,11 @@ namespace Katran.ViewModels
         l_forgotPassword,           //Type your password
         l_uncorrectEmail,           //Uncorrect email
         l_uncorrectPassword,        //Uncorrect password
-        l_notSamePasswords          //Passwords are not same
+        l_notSamePasswords,         //Passwords are not same
+        l_download,                 //Download file...
+        l_succsDownloaded,          //Succsessful download
+        l_upload,                   //Upload file...
+        l_succsUploaded             //Succsessful upload
     }
 
     public class MainViewModel : INotifyPropertyChanged
@@ -147,7 +151,6 @@ namespace Katran.ViewModels
                                 if (regResponseObj != null)
                                 {
                                     UserInfo.Info = regResponseObj;
-                                    
                                 }
                                 break;
                             default:

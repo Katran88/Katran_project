@@ -3,13 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             Name="MessageUI_UC"
+             Name="MessageUI_UC" MouseEnter="MessageUI_UC_MouseEnter"
              xmlns:local="clr-namespace:Katran.UserControlls" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" >
-    <Grid Name="mainGrid">
+    <Grid Name="mainGrid" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
-            <ColumnDefinition MaxWidth="210" />
+            <ColumnDefinition MaxWidth="350" />
             <ColumnDefinition />            
         </Grid.ColumnDefinitions>
 
@@ -23,7 +23,7 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
 
-                <Image x:Name="Avatar" Grid.Row="0" 
+                <Image x:Name="Avatar" Grid.Row="0" ToolTip="{Binding UserName}"
                        Source="{Binding ContactAvatar, ElementName=MessageUI_UC, UpdateSourceTrigger=PropertyChanged}"
                        Margin="5" Width="40" Height="40" >
                     <Image.OpacityMask>
@@ -37,7 +37,7 @@
                 <Ellipse Width="10" Height="10" Name="ContactStatusShower" Grid.Row="0"
                              VerticalAlignment="Bottom" HorizontalAlignment="Right"
                              Margin="0,0,8,8" Fill="{DynamicResource ResourceKey=OfflineBrush}" 
-                             StrokeThickness="0.25" Stroke="{DynamicResource TextColor}" />
+                             StrokeThickness="1" Stroke="{DynamicResource TextColor}" />
 
                 <TextBlock Grid.Row="1" Text="{Binding Date, ElementName=MessageUI_UC}" HorizontalAlignment="Center" FontSize="10" Foreground="{DynamicResource TextColor}"  />
                 <TextBlock Grid.Row="2" Text="{Binding Time, ElementName=MessageUI_UC}" HorizontalAlignment="Center" FontSize="10" Foreground="{DynamicResource TextColor}"  />
@@ -47,7 +47,7 @@
             </Grid>
         </Border>
 
-        <Border Grid.Column="1" Background="{DynamicResource AR_BorderBrush}" 
+        <Border Grid.Column="1" Background="{DynamicResource AR_BorderBrush}"
                 CornerRadius="5" BorderThickness="1" >
             <Grid Margin="5" >
 

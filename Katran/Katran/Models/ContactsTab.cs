@@ -63,11 +63,11 @@ namespace Katran.Models
                 selectedContact = value;
                 OnPropertyChanged();
 
-                mainPageViewModel.CurrentChatMessages = selectedContact.ContactMessages;
-
                 if (selectedContact != null)
                 {
-                    if (!isSearchOutsideContacts)
+                    mainPageViewModel.CurrentChatMessages = selectedContact.ContactMessages;
+
+                    if (!IsSearchOutsideContacts)
                     {
                         RemoveContact_ButtonVisibility = Visibility.Visible;
                         AddContact_ButtonVisibility = Visibility.Hidden;
@@ -79,6 +79,7 @@ namespace Katran.Models
                 }
                 else
                 {
+                    mainPageViewModel.CurrentChatMessages.Clear();
                     RemoveContact_ButtonVisibility = Visibility.Hidden;
                 }
             }
@@ -95,7 +96,7 @@ namespace Katran.Models
 
                 if (selectedNoUserContact != null)
                 {
-                    if (isSearchOutsideContacts)
+                    if (IsSearchOutsideContacts)
                     {
                         RemoveContact_ButtonVisibility = Visibility.Hidden;
                         AddContact_ButtonVisibility = Visibility.Visible;
@@ -136,7 +137,7 @@ namespace Katran.Models
                 searchTextField = Regex.Match(currentValue, @"[\w|@|\.]+").Value;
                 OnPropertyChanged();
 
-                if (!isSearchOutsideContacts)
+                if (!IsSearchOutsideContacts)
                 {
                     if (searchTextField.Length != 0)
                     {
@@ -165,12 +166,12 @@ namespace Katran.Models
                         {
                             item.Visibility = Visibility.Visible;
                         }
-                        isSearchOutsideContacts = false;
+                        IsSearchOutsideContacts = false;
                     }
 
                 }
 
-                if (isSearchOutsideContacts)
+                if (IsSearchOutsideContacts)
                 {
                     RemoveContact_ButtonVisibility = Visibility.Hidden;
                 }
@@ -209,7 +210,7 @@ namespace Katran.Models
             {
                 return new DelegateCommand(obj =>
                 {
-                    if (!isSearchOutsideContacts)
+                    if (!IsSearchOutsideContacts)
                     {
                         foreach (ContactUI item in Contacts)
                         {
@@ -236,7 +237,7 @@ namespace Katran.Models
             }
         }
 
-        bool isSearchOutsideContacts;
+        public bool IsSearchOutsideContacts;
 
         public ICommand SearchOutContacts
         {
@@ -251,7 +252,7 @@ namespace Katran.Models
                     ContactsBorderVisibility = Visibility.Collapsed;
                     NoUserContactsVisibility = Visibility.Visible;
                     RemoveContact_ButtonVisibility = Visibility.Hidden;
-                    isSearchOutsideContacts = true;
+                    IsSearchOutsideContacts = true;
 
                     Task.Factory.StartNew(() =>
                     {
@@ -309,7 +310,7 @@ namespace Katran.Models
             MainPageViewModel = null;
             Contacts = new ObservableCollection<ContactUI>();
             FilteredNoUserContacts = new ObservableCollection<ContactUI>();
-            isSearchOutsideContacts = false;
+            IsSearchOutsideContacts = false;
             RemoveContact_ButtonVisibility = addContact_ButtonVisibility = Visibility.Hidden;
             NoUserContactsVisibility = Visibility.Collapsed;
 
@@ -323,7 +324,7 @@ namespace Katran.Models
             Contacts = new ObservableCollection<ContactUI>();
             FilteredNoUserContacts = new ObservableCollection<ContactUI>();
             SearchTextField = "";
-            isSearchOutsideContacts = false;
+            IsSearchOutsideContacts = false;
             RemoveContact_ButtonVisibility = addContact_ButtonVisibility = Visibility.Hidden;
             NoUserContactsVisibility = Visibility.Collapsed;
 

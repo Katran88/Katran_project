@@ -16,8 +16,13 @@ namespace KatranClassLibrary
         SearchOutContacts,
         AddContact,
         RemoveContact,
+        AddContactTarget,
+        RemoveContactTarget,
         SendMessage,
-        RefreshContactStatus
+        DownloadFile,
+        RefreshContactStatus,
+        RefreshMessageState,
+        CheckUserName
     }
 
     [Serializable]

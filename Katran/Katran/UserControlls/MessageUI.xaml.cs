@@ -37,13 +37,11 @@ namespace Katran.UserControlls
                 if (isOwnerMessage)
                 {
                     GridColumn = 3;
-                    messageStatusCheck.Visibility = Visibility.Visible;
                     mainGrid.HorizontalAlignment = HorizontalAlignment.Right;
                 }
                 else
                 {
                     GridColumn = 0;
-                    messageStatusCheck.Visibility = Visibility.Collapsed;
                     mainGrid.HorizontalAlignment = HorizontalAlignment.Left;
                 }
             }
@@ -151,10 +149,12 @@ namespace Katran.UserControlls
             {
                 return new DelegateCommand(obj =>
                 {
-                    Task.Factory.StartNew(() =>
+                    System.Windows.Forms.FolderBrowserDialog folderDlg = new System.Windows.Forms.FolderBrowserDialog();
+                    System.Windows.Forms.DialogResult result = folderDlg.ShowDialog();
+                    if (result == System.Windows.Forms.DialogResult.OK)
                     {
-                        //Client.ServerRequest(new RRTemplate(RRType.RefreshContacts, new RefreshContactsTemplate(mainViewModel.UserInfo.Info.Id, null)));
-                    });
+                        mainPageViewModel.DownloadFile(folderDlg.SelectedPath, ChatId, MessageId);
+                    }
                 }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
             }
         }
@@ -212,6 +212,38 @@ namespace Katran.UserControlls
             }
         }
 
+        private int chatId;
+        public int ChatId
+        {
+            get { return chatId; }
+            set { chatId = value; }
+        }
+
+        private int messageId;
+        public int MessageId
+        {
+            get { return messageId; }
+            set { messageId = value; }
+        }
+
+        private int senderId;
+        public int SenderId
+        {
+            get { return senderId; }
+            set 
+            { 
+                senderId = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string userName; 
+
+        public string UserName
+        {
+            get { return userName; }
+            set { userName = value; OnPropertyChanged(); }
+        }
 
 
         public MessageUI()
@@ -223,13 +255,14 @@ namespace Katran.UserControlls
             MessageType = MessageType.Text;
             MessageDateTime = DateTime.MinValue;
             MessageState = MessageState.Unsended;
+            UserName = "";
             Text = "";
             FileName = "";
             FileSize = "";
             messageStatusCheck.Visibility = Visibility.Collapsed;
         }
 
-        public MessageUI(MainPageViewModel mainPageViewModel, bool isOwnerMessage, BitmapImage contactAvatar, Status contactStatus, MessageType messageType, MessageState messageState, DateTime messageDateTime, byte[] messageBody, string fileName = "", string fileSize = "")
+        public MessageUI(MainPageViewModel mainPageViewModel, bool isOwnerMessage, BitmapImage contactAvatar, Status contactStatus, MessageType messageType, MessageState messageState, DateTime messageDateTime, byte[] messageBody, string userName, int chatId, int messageId, int senderId, string fileName = "", string fileSize = "")
         {
             InitializeComponent();
             MainPageViewModel = mainPageViewModel;
@@ -240,6 +273,11 @@ namespace Katran.UserControlls
             MessageState = messageState;
             MessageDateTime = messageDateTime;
             Text = Encoding.UTF8.GetString(messageBody, 0, messageBody.Length);
+            UserName = userName;
+            ChatId = chatId;
+            MessageId = messageId;
+            SenderId = senderId;
+
             FileName = fileName;
             FileSize = fileSize;
 
@@ -249,6 +287,17 @@ namespace Katran.UserControlls
         public void OnPropertyChanged([CallerMemberName]string property = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+        }
+
+        private void MessageUI_UC_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (MessageState != MessageState.Readed && mainPageViewModel.MainViewModel.UserInfo.Info.Id != senderId)
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    Client.ServerRequest(new RRTemplate(RRType.RefreshMessageState, new RefreshMessageStateTemplate(ChatId, MessageId, MessageState)));
+                });
+            }
         }
     }
 }

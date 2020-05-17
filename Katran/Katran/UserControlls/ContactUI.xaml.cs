@@ -68,7 +68,7 @@ namespace Katran.UserControlls
             set 
             { 
                 contactStatus = value;
-
+                OnPropertyChanged();
                 switch (value)
                 {
                     case Status.Online:

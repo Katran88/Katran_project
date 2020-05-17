@@ -27,7 +27,7 @@
                     <Ellipse Width="10" Height="10" Grid.Row="0" Name="ContactStatusShower"
                              VerticalAlignment="Bottom" HorizontalAlignment="Right"
                              Margin="0,0,8,8" Fill="{DynamicResource ResourceKey=OfflineBrush}" 
-                             StrokeThickness="0.25" Stroke="{DynamicResource TextColor}" />
+                             StrokeThickness="1" Stroke="{DynamicResource TextColor}" />
 
                 </Grid>
 

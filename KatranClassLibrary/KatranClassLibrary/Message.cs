@@ -22,6 +22,7 @@ namespace KatranClassLibrary
     {
         public int MessageID;
         public int SenderID;
+        public string SenderName;
         public byte[] MessageBody;
         public MessageType MessageType;
         public string FileName;
@@ -34,16 +35,18 @@ namespace KatranClassLibrary
             MessageID = -1;
             SenderID = -1;
             MessageBody = null;
+            SenderName = "";
             MessageType = MessageType.Text;
             FileName = "";
             FileSize = "";
             MessageState = MessageState.Unsended;
         }
 
-        public Message(int messageID, int senderID, byte[] messageBody, MessageType messageType, string fileName, string fileSize, DateTime time, MessageState messageState)
+        public Message(int messageID, int senderID, string senderName, byte[] messageBody, MessageType messageType, string fileName, string fileSize, DateTime time, MessageState messageState)
         {
             MessageID = messageID;
             SenderID = senderID;
+            SenderName = senderName;
             MessageBody = messageBody;
             MessageType = messageType;
             FileName = fileName;
