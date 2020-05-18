@@ -25,13 +25,6 @@ namespace Katran.ViewModels
 {
     public class MainPageViewModel : INotifyPropertyChanged
     {
-        private Visibility createChatTabVisibility;
-        public Visibility CreateChatTabVisibility
-        {
-            get { return createChatTabVisibility; }
-            set { createChatTabVisibility = value; OnPropertyChanged(); }
-        }
-
         private Visibility settingsTabVisibility;
         public Visibility SettingsTabVisibility
         {
@@ -48,11 +41,17 @@ namespace Katran.ViewModels
 
         MainPage mainPage;
         private ContactsTab contactsTab;
-
         public ContactsTab ContactsTab
         {
             get { return contactsTab; }
             set { contactsTab = value; OnPropertyChanged(); }
+        }
+
+        private CreateConversationTab conversationTab;
+        public CreateConversationTab CreateConversationTab
+        {
+            get { return conversationTab; }
+            set { conversationTab = value; OnPropertyChanged(); }
         }
 
         private string messageText;
@@ -68,9 +67,9 @@ namespace Katran.ViewModels
             this.mainViewModel = null;
             this.mainPage = null;
             ContactsTab = new ContactsTab();
+            CreateConversationTab = new CreateConversationTab();
             MessageText = "";
 
-            CreateChatTabVisibility = Visibility.Collapsed;
             settingsTabVisibility = Visibility.Collapsed;
         }
 
@@ -81,8 +80,8 @@ namespace Katran.ViewModels
             MessageText = "";
 
             ContactsTab = new ContactsTab(this);
+            CreateConversationTab = new CreateConversationTab(this);
 
-            CreateChatTabVisibility = Visibility.Collapsed;
             settingsTabVisibility = Visibility.Collapsed;
 
             MainPageViewModel.clientListener = new ClientListener(this);
@@ -97,13 +96,34 @@ namespace Katran.ViewModels
                     if (ContactsTab.TabVisibility != Visibility.Visible)
                     {
                         ContactsTab.TabVisibility = Visibility.Visible;
-                        CreateChatTabVisibility = Visibility.Collapsed;
+                        CreateConversationTab.TabVisibility = Visibility.Collapsed;
                         SettingsTabVisibility = Visibility.Collapsed;
 
                         Task.Factory.StartNew(() =>
                         {
                             Client.ServerRequest(new RRTemplate(RRType.RefreshContacts, new RefreshContactsTemplate(mainViewModel.UserInfo.Info.Id, null)));
                         });
+                    }
+                }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
+            }
+        }
+
+        public ICommand CreateСonversationSelected
+        {
+            get
+            {
+                return new DelegateCommand(obj =>
+                {
+                    if (CreateConversationTab.TabVisibility != Visibility.Visible)
+                    {
+                        CreateConversationTab.TabVisibility = Visibility.Visible;
+                        ContactsTab.TabVisibility = Visibility.Collapsed;
+                        SettingsTabVisibility = Visibility.Collapsed;
+
+                        //Task.Factory.StartNew(() =>
+                        //{
+                        //    Client.ServerRequest(new RRTemplate(RRType.RefreshContacts, new RefreshContactsTemplate(mainViewModel.UserInfo.Info.Id, null)));
+                        //});
                     }
                 }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
             }

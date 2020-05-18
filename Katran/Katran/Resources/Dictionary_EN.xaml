@@ -5,7 +5,8 @@
     
     <system:String x:Key="l_Title">Katran</system:String>
     <system:String x:Key="l_Menu">Menu</system:String>
-    <system:String x:Key="l_ToolTipContacts">Contacts and Chats</system:String>
+    <system:String x:Key="l_ToolTipContacts">Contacts and Conversations</system:String>
+    <system:String x:Key="l_ToolTipCreateConversation">Create Conversation</system:String>
     <system:String x:Key="l_YourMessage">Your message</system:String>
     <system:String x:Key="l_SearchForContact">Search for contact</system:String>
     <system:String x:Key="l_Search">Search</system:String>
@@ -18,6 +19,7 @@
     <system:String x:Key="l_succsDownloaded">Succsessful download</system:String>
     <system:String x:Key="l_upload">Upload file...</system:String>
     <system:String x:Key="l_succsUploaded">Succsessful upload</system:String>
+    
 
     <system:String x:Key="l_RemoveContact">Are you sure you want to remove selected user from contacts? All messages will be lost.</system:String>
     <system:String x:Key="l_AddContact">Add selected user to the contact list.</system:String>

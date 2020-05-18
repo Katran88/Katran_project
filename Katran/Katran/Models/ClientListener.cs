@@ -224,6 +224,13 @@ namespace Katran.Models
                         Application.Current.Dispatcher.Invoke(new Action(() =>
                         {
                             m.MessageState = refrmsT.MessageState;
+
+                            if (m.MessageState == MessageState.Readed)
+                            {
+                                if(m.SenderId != mainPageViewModel.MainViewModel.UserInfo.Info.Id)
+                                    contact.MessageCounter--;
+                            }
+
                         }));
 
                         break;
@@ -358,120 +365,26 @@ namespace Katran.Models
                     Application.Current.Dispatcher.Invoke(new Action(() =>
                     {
                         MessageUI messageUI = new MessageUI(mainPageViewModel,
-                                                    false,
-                                                    sender.ContactAvatar,
-                                                    sender.ContactStatus,
-                                                    sMessT.Message.MessageType,
-                                                    sMessT.Message.MessageState,
-                                                    sMessT.Message.Time,
-                                                    sMessT.Message.MessageBody,
-                                                    sMessT.Message.SenderName,
-                                                    sMessT.ReceiverChatID,
-                                                    sMessT.Message.MessageID,
-                                                    sender.ContactID,
-                                                    sMessT.Message.FileName,
-                                                    sMessT.Message.FileSize);
+                                                            false,
+                                                            sender.ContactAvatar,
+                                                            sender.ContactStatus,
+                                                            sMessT.Message.MessageType,
+                                                            sMessT.Message.MessageState,
+                                                            sMessT.Message.Time,
+                                                            sMessT.Message.MessageBody,
+                                                            sMessT.Message.SenderName,
+                                                            sMessT.ReceiverChatID,
+                                                            sMessT.Message.MessageID,
+                                                            sender.ContactID,
+                                                            sMessT.Message.FileName,
+                                                            sMessT.Message.FileSize);
 
-                        foreach (ContactUI contactUI in mainPageViewModel.ContactsTab.Contacts)
-                        {
-                            if (contactUI.ChatId == sMessT.ReceiverChatID)
-                            {
-                                Application.Current.Dispatcher.Invoke(new Action(() =>
-                                {
-                                    contactUI.ContactMessages.Add(messageUI);
-                                }
-                                ));
-                                break;
-                            }
-                        }
+                        sender.ContactMessages.Add(messageUI);
+                        sender.MessageCounter++;
                     }));
                 }
 
             }
-
-            Task.Factory.StartNew(() =>
-            {
-                //if (sMessT.Message.SenderID == mainPageViewModel.MainViewModel.UserInfo.Info.Id)
-                //{
-                //    foreach (ContactUI contactUI in mainPageViewModel.ContactsTab.Contacts)
-                //    {
-                //        if (contactUI.ChatId == sMessT.ReceiverChatID)
-                //        {
-                //            foreach (MessageUI m in contactUI.ContactMessages)
-                //            {
-                //                if (m.MessageDateTime == sMessT.Message.Time && m.IsOwnerMessage)
-                //                {
-                //                    Application.Current.Dispatcher.Invoke(new Action(() =>
-                //                    {
-                //                        m.MessageState = MessageState.Sended;
-
-                //                        if (m.MessageType == MessageType.File)
-                //                        {
-                //                            m.FileSize = sMessT.Message.FileSize;
-                //                            m.ChatId = sMessT.ReceiverChatID;
-                //                            m.MessageId = sMessT.Message.MessageID;
-                //                            mainPageViewModel.MainViewModel.NotifyUserByRowState(RowStateResourcesName.l_succsUploaded);
-                //                        }
-                //                    }
-                //                    ));
-                //                    break;
-                //                }
-                //            }
-                //            break;
-                //        }
-                //    }
-                //}
-                //else
-                //{
-                //    ContactUI sender = null;
-
-                //    foreach (ContactUI c in mainPageViewModel.ContactsTab.Contacts)
-                //    {
-                //        if (c.ContactID == sMessT.Message.SenderID)
-                //        {
-                //            sender = c;
-                //            break;
-                //        }
-                //    }
-                //    if (sender != null)
-                //    {
-                //        Application.Current.Dispatcher.Invoke(new Action(() =>
-                //        {
-                //            MessageUI messageUI = new MessageUI(mainPageViewModel,
-                //                                        false,
-                //                                        sender.ContactAvatar,
-                //                                        sender.ContactStatus,
-                //                                        sMessT.Message.MessageType,
-                //                                        sMessT.Message.MessageState,
-                //                                        sMessT.Message.Time,
-                //                                        sMessT.Message.MessageBody,
-                //                                        sMessT.Message.SenderName,
-                //                                        sMessT.ReceiverChatID,
-                //                                        sMessT.Message.MessageID,
-                //                                        sender.ContactID,
-                //                                        sMessT.Message.FileName,
-                //                                        sMessT.Message.FileSize);
-
-                //            foreach (ContactUI contactUI in mainPageViewModel.ContactsTab.Contacts)
-                //            {
-                //                if (contactUI.ChatId == sMessT.ReceiverChatID)
-                //                {
-                //                    Application.Current.Dispatcher.Invoke(new Action(() =>
-                //                    {
-                //                        contactUI.ContactMessages.Add(messageUI);
-                //                    }
-                //                    ));
-                //                    break;
-                //                }
-                //            }
-                //        }));
-                //    }
-
-                //}
-            }
-            );
-
-
         }
 
         private void RemoveContact(AddRemoveContactTemplate rContT)

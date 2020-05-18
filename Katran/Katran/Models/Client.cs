@@ -90,13 +90,6 @@ namespace Katran.Models
                                             return serverResponse;
                                         }
                                         break;
-                                    //case RRType.RefreshMessageState:
-                                    //    RefreshMessageStateTemplate rmessT = serverResponse.RRObject as RefreshMessageStateTemplate;
-                                    //    if (rmessT != null)
-                                    //    {
-                                    //        return serverResponse;
-                                    //    }
-                                    //    break;
                                     case RRType.Error:
                                         ErrorReportTemplate error = serverResponse.RRObject as ErrorReportTemplate;
                                         if (error != null)

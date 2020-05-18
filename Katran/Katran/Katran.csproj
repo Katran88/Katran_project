@@ -188,6 +188,7 @@
       <DependentUpon>WindowStyle.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\AuthPageViewModel.cs" />
+    <Compile Include="Models\CreateConversationTab.cs" />
     <Compile Include="ViewModels\DelegateCommand.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />

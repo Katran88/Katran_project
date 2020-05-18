@@ -39,7 +39,7 @@ namespace Katran.ViewModels
 
     public class MainViewModel : INotifyPropertyChanged
     {
-        private UserInfo userInfo;
+        internal static UserInfo userInfo;
         public UserInfo UserInfo
         {
             get

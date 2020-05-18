@@ -817,6 +817,7 @@ namespace KatranServer
             BinaryFormatter formatter = new BinaryFormatter();
             using (MemoryStream memoryStream = new MemoryStream())
             {
+                reg.Status = Status.Online;
                 formatter.Serialize(memoryStream, new RRTemplate(RRType.Authorization, reg));
 
                 client.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
@@ -873,6 +874,7 @@ namespace KatranServer
                 BinaryFormatter formatter = new BinaryFormatter();
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
+                    regTempl.Status = Status.Online;
                     formatter.Serialize(memoryStream, new RRTemplate(RRType.Authorization, regTempl));
 
                     client.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);

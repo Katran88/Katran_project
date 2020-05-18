@@ -41,6 +41,11 @@
                         <materialDesign:PackIcon Kind="AccountGroup" ToolTip="{DynamicResource ResourceKey=l_ToolTipContacts}" Height="25" Width="25" Foreground="{DynamicResource TextColor}" />
                     </RadioButton>
 
+                    <RadioButton Style="{StaticResource MaterialDesignTabRadioButton}"
+                                 Margin="4"  Command="{Binding CreateСonversationSelected}" >
+                        <materialDesign:PackIcon Kind="ChatPlus" ToolTip="{DynamicResource ResourceKey=l_ToolTipCreateConversation}" Height="25" Width="25" Foreground="{DynamicResource TextColor}" />
+                    </RadioButton>
+
                 </StackPanel>
 
                 <StackPanel Grid.Row="1" Orientation="Vertical" Visibility="{Binding ContactsTab.TabVisibility}" >
@@ -60,6 +65,10 @@
                                   SelectedItem="{Binding ContactsTab.SelectedNoUserContact}" />
                 </StackPanel>
 
+                <StackPanel Grid.Row="1" Visibility="{Binding CreateConversationTab.TabVisibility}" >
+                    <TextBlock Margin="0,100,0,0"  Text="Hello" ></TextBlock>
+                </StackPanel>
+                
             </Grid>
 
         </Expander>

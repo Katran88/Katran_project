@@ -1,4 +1,5 @@
-﻿using KatranClassLibrary;
+﻿using Katran.ViewModels;
+using KatranClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -99,6 +100,35 @@ namespace Katran.UserControlls
             set { contactMessages = value; OnPropertyChanged(); }
         }
 
+        private Visibility messageCounterVisibility;
+        public Visibility MessageCounterVisibility
+        {
+            get { return messageCounterVisibility; }
+            set { messageCounterVisibility = value; OnPropertyChanged(); }
+        }
+
+        private int messageCounter;
+        public int MessageCounter
+        {
+            get { return messageCounter; }
+            set 
+            { 
+                messageCounter = value;
+
+                if (messageCounter > 0)
+                {
+                    MessageCounterField.Text = messageCounter.ToString();
+                    MessageCounterVisibility = Visibility.Visible;
+                }
+                else
+                {
+                    MessageCounterVisibility = Visibility.Hidden;
+                }
+
+
+            }
+        }
+
 
         public ContactUI()
         {
@@ -111,6 +141,8 @@ namespace Katran.UserControlls
             ContactID = -1;
             ChatId = -1;
             ContactMessages = null;
+            MessageCounter = 0;
+            MessageCounterVisibility = Visibility.Hidden;
         }
 
         public ContactUI(string contactUsername, string contactLasMessage, BitmapImage bitmapImage, Status contactStatus, int contactID, int chatId, ObservableCollection<MessageUI> contactMessages)
@@ -124,6 +156,16 @@ namespace Katran.UserControlls
             ContactID = contactID;
             ChatId = chatId;
             ContactMessages = contactMessages;
+            MessageCounterVisibility = Visibility.Hidden;
+
+            foreach (MessageUI i in ContactMessages)
+            {
+                if (i.SenderId != MainViewModel.userInfo.Info.Id && i.MessageState != MessageState.Readed)
+                {
+                    MessageCounter++;
+                }
+            }
+
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

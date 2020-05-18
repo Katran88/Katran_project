@@ -13,9 +13,9 @@
     <system:Double x:Key="SmallFontSize">14</system:Double>
     <system:Double x:Key="MediumFontSize">18</system:Double>
     <system:Double x:Key="HighFontSize">24</system:Double>
-    
-    <SolidColorBrush x:Key="Readed_MessageSatus_Brush" Color="LightGreen" />
-    <Color x:Key="Readed_MessageSatus_Color" >LightGreen</Color>
+
+    <SolidColorBrush x:Key="Readed_MessageSatus_Brush" Color="#FF34D0FF" />
+    <Color x:Key="Readed_MessageSatus_Color" >#FF34D0FF</Color>
 
     <SolidColorBrush x:Key="OutlineBrush" Color="#FF34D0FF" />
     <Color x:Key="OutlineColor" >#FF34D0FF</Color>
@@ -23,8 +23,8 @@
     <SolidColorBrush x:Key="InteractBrush" Color="#FF064F65" />
     <Color x:Key="InteractColor" >#FF064F65</Color>
 
-    <SolidColorBrush x:Key="OnlineBrush" Color="#FF32FC32" />
-    <Color x:Key="OnlineColor" >#FF32FC32</Color>
+    <SolidColorBrush x:Key="OnlineBrush" Color="LightGreen" />
+    <Color x:Key="OnlineColor" >LightGreen</Color>
 
     <SolidColorBrush x:Key="OfflineBrush" Color="Transparent" />
     <Color x:Key="OfflineColor" >Transparent</Color>
