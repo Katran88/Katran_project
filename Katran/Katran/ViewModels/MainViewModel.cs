@@ -34,7 +34,9 @@ namespace Katran.ViewModels
         l_download,                 //Download file...
         l_succsDownloaded,          //Succsessful download
         l_upload,                   //Upload file...
-        l_succsUploaded             //Succsessful upload
+        l_succsUploaded,            //Succsessful upload
+        l_forgotConvTitle,          //Type conversation title
+        l_convCreated               //Conversation has been created, check your Contacts Tab
     }
 
     public class MainViewModel : INotifyPropertyChanged
@@ -103,30 +105,8 @@ namespace Katran.ViewModels
         {
             UserInfo = new UserInfo(null);
             CultureTag = "EN";
-            //ServerRequest(new RRTemplate(RRType.Registration, new RegistrationTemplate(-1,
-            //                                                                           "Vasya",
-            //                                                                           "vasyaEmail@gmail.com",
-            //                                                                           "Hello everyone!",
-            //                                                                           null,
-            //                                                                           Status.Online,
-            //                                                                           LawStatus.User,
-            //                                                                           "VasyaL",
-            //                                                                           "vasya1234")));
-
-            //ServerRequest(new RRTemplate(RRType.Authorization, new AuthtorizationTemplate("Katran", "12345"))); //для теста 
 
             TryAuthtorizait(true);
-        }
-
-        public ICommand commandExample
-        {
-            get 
-            {
-                return new DelegateCommand(obj =>
-                {
-                    //что будет происходить при вызове команды
-                }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
-            }
         }
 
         public void TryAuthtorizait(bool isNeedRefreshUserData)

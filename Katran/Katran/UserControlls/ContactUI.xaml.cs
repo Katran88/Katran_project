@@ -158,14 +158,16 @@ namespace Katran.UserControlls
             ContactMessages = contactMessages;
             MessageCounterVisibility = Visibility.Hidden;
 
-            foreach (MessageUI i in ContactMessages)
+            if (contactMessages != null)
             {
-                if (i.SenderId != MainViewModel.userInfo.Info.Id && i.MessageState != MessageState.Readed)
+                foreach (MessageUI i in ContactMessages)
                 {
-                    MessageCounter++;
+                    if (i.SenderId != MainViewModel.userInfo.Info.Id && i.MessageState != MessageState.Readed)
+                    {
+                        MessageCounter++;
+                    }
                 }
             }
-
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

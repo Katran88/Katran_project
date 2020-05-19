@@ -30,7 +30,7 @@
 
         <UserControlls:WindowStyle x:Name="WindowStyle" Background="{DynamicResource ChromeBrush}" />
 
-        <Frame Grid.Row="1" x:Name="Frame" Content="{Binding CurrentPage}" NavigationUIVisibility="Hidden" Margin="0,0,-0.4,2.2" />
+        <Frame Grid.Row="1" x:Name="Frame" Content="{Binding CurrentPage}" NavigationUIVisibility="Hidden" />
      
         <Border Grid.Row="2" Style="{DynamicResource ResourceKey=Underline_LostFocus}" VerticalAlignment="Top" Margin="15,1,10,0" />
 

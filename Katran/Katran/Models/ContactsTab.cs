@@ -308,14 +308,14 @@ namespace Katran.Models
         public ContactsTab()
         {
             MainPageViewModel = null;
-            Contacts = new ObservableCollection<ContactUI>();
-            FilteredNoUserContacts = new ObservableCollection<ContactUI>();
+            Contacts = null;
+            FilteredNoUserContacts = null;
             IsSearchOutsideContacts = false;
             RemoveContact_ButtonVisibility = addContact_ButtonVisibility = Visibility.Hidden;
             NoUserContactsVisibility = Visibility.Collapsed;
 
             TabVisibility = Visibility.Collapsed;
-            SearchTextField = "";
+            searchTextField = "";
         }
 
         public ContactsTab(MainPageViewModel mainPageViewModel)

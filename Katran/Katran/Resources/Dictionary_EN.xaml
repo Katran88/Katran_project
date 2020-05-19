@@ -4,6 +4,7 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     
     <system:String x:Key="l_Title">Katran</system:String>
+    <system:String x:Key="l_ConversationTitle">Title:</system:String>
     <system:String x:Key="l_Menu">Menu</system:String>
     <system:String x:Key="l_ToolTipContacts">Contacts and Conversations</system:String>
     <system:String x:Key="l_ToolTipCreateConversation">Create Conversation</system:String>
@@ -19,8 +20,10 @@
     <system:String x:Key="l_succsDownloaded">Succsessful download</system:String>
     <system:String x:Key="l_upload">Upload file...</system:String>
     <system:String x:Key="l_succsUploaded">Succsessful upload</system:String>
+    <system:String x:Key="l_CreateNewConversation">Create New Conversation</system:String>
+    <system:String x:Key="l_Create">Create</system:String>
+    <system:String x:Key="l_Members">Members:</system:String>
     
-
     <system:String x:Key="l_RemoveContact">Are you sure you want to remove selected user from contacts? All messages will be lost.</system:String>
     <system:String x:Key="l_AddContact">Add selected user to the contact list.</system:String>
 
@@ -35,6 +38,7 @@
     <system:String x:Key="l_Username">Username:</system:String>
     <system:String x:Key="l_Email">Email:</system:String>
     <system:String x:Key="l_Avatar">Avatar:</system:String>
+    <system:String x:Key="l_Image">Image:</system:String>
 
     
     <!--Уведомления для строки состояния (при добавлении нового уведомления не забывай добавлять ее в enum в MainViewModel.cs)-->
@@ -50,6 +54,8 @@
     <system:String x:Key="l_forgotUsername">Type your username</system:String>
     <system:String x:Key="l_forgotEmail">Type your email</system:String>
     <system:String x:Key="l_forgotPassword">Type your password</system:String>
+    <system:String x:Key="l_forgotConvTitle">Type conversation title</system:String>
+    <system:String x:Key="l_convCreated">Conversation has been created, check your Contacts Tab</system:String>
     
     <system:String x:Key="l_uncorrectEmail">Uncorrect email</system:String>
     <system:String x:Key="l_uncorrectPassword">Uncorrect password</system:String>

@@ -172,7 +172,7 @@
 
     <ControlTemplate TargetType="Button" x:Key="FilePicker" >
         <Grid Width="19" Height="13">
-            <Path x:Name="polygon" Data="M11.0603 12.0542C10.2597 13.0526 8.74031 13.0526 7.93969 12.0542L1.28172 3.75117C0.231936 2.44201 1.16395 0.5 2.84203 0.5L16.158 0.5C17.836 0.5 18.7681 2.44202 17.7183 3.75117L11.0603 12.0542Z" Fill="Black" StrokeThickness="0" />
+            <Path x:Name="polygon" Data="M11.0603 12.0542C10.2597 13.0526 8.74031 13.0526 7.93969 12.0542L1.28172 3.75117C0.231936 2.44201 1.16395 0.5 2.84203 0.5L16.158 0.5C17.836 0.5 18.7681 2.44202 17.7183 3.75117L11.0603 12.0542Z" Fill="{DynamicResource TextColor}" StrokeThickness="0" />
         </Grid>
         <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="true">

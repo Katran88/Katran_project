@@ -70,6 +70,7 @@ namespace Katran.ViewModels
             CreateConversationTab = new CreateConversationTab();
             MessageText = "";
 
+            
             settingsTabVisibility = Visibility.Collapsed;
         }
 
@@ -99,10 +100,14 @@ namespace Katran.ViewModels
                         CreateConversationTab.TabVisibility = Visibility.Collapsed;
                         SettingsTabVisibility = Visibility.Collapsed;
 
-                        Task.Factory.StartNew(() =>
+                        if (ContactsTab.Contacts.Count == 0)
                         {
-                            Client.ServerRequest(new RRTemplate(RRType.RefreshContacts, new RefreshContactsTemplate(mainViewModel.UserInfo.Info.Id, null)));
-                        });
+                           Task.Factory.StartNew(() =>
+                           {
+                                Client.ServerRequest(new RRTemplate(RRType.RefreshContacts, new RefreshContactsTemplate(mainViewModel.UserInfo.Info.Id, null)));
+                           }); 
+                        }
+                        
                     }
                 }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
             }
@@ -120,10 +125,17 @@ namespace Katran.ViewModels
                         ContactsTab.TabVisibility = Visibility.Collapsed;
                         SettingsTabVisibility = Visibility.Collapsed;
 
-                        //Task.Factory.StartNew(() =>
-                        //{
-                        //    Client.ServerRequest(new RRTemplate(RRType.RefreshContacts, new RefreshContactsTemplate(mainViewModel.UserInfo.Info.Id, null)));
-                        //});
+                        CreateConversationTab.Contacts.Clear();
+                        foreach (ContactUI c in ContactsTab.Contacts)
+                        {
+                            CreateConversationTab.Contacts.Add(new ContactUI(c.ContactUsername,
+                                                                             c.ContactLastMessage,
+                                                                             c.ContactAvatar,
+                                                                             c.ContactStatus,
+                                                                             c.ContactID,
+                                                                             c.ChatId,
+                                                                             null));
+                        }
                     }
                 }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
             }
