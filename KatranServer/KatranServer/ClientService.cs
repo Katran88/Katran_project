@@ -138,6 +138,20 @@ namespace KatranServer
                                     RefreshMessageState(rmessT);
                                 }
                                 break;
+                            case RRType.CreateConv:
+                                CreateConvTemplate crconvT = clientRequest.RRObject as CreateConvTemplate;
+                                if (crconvT != null)
+                                {
+                                    CreateConv(crconvT);
+                                }
+                                break;
+                            case RRType.RemoveConv:
+                                RemoveConvTemplate rconvT = clientRequest.RRObject as RemoveConvTemplate;
+                                if (rconvT != null)
+                                {
+                                    RemoveConv(rconvT);
+                                }
+                                break;
                             default:
                                 ErrorResponse(ErrorType.Other, new Exception("Получен необработанный запрос"));
                                 break;
@@ -160,6 +174,151 @@ namespace KatranServer
                 }
                 
             }
+        }
+
+        private void RemoveConv(RemoveConvTemplate rconvT)
+        {
+            #region Удаление из таблицы chatMembers юзера у беседы
+            SqlCommand command = new SqlCommand("delete from ChatMembers where chat_id = @chatId and member_id = @memberId ", Server.sql);
+            command.Parameters.Add(new SqlParameter("@chatId", rconvT.ChatId));
+            command.Parameters.Add(new SqlParameter("@memberId", rconvT.OwnerId));
+            command.ExecuteNonQuery();
+            #endregion
+
+            #region Удаление чата и сообщений если участников беседы больше нет
+            command = new SqlCommand("select member_id from ChatMembers where chat_id = @chatId", Server.sql);
+            command.Parameters.Add(new SqlParameter("@chatId", rconvT.ChatId));
+            SqlDataReader reader = command.ExecuteReader();
+            if (!reader.HasRows)
+            {
+                reader.Close();
+                command = new SqlCommand($"drop table ChatMessages_{rconvT.ChatId} " +
+                                          "delete from Chats where chat_id = @chatID", Server.sql);
+                command.Parameters.Add(new SqlParameter("@chatID", rconvT.ChatId));
+                command.ExecuteNonQuery();
+            }
+            #endregion
+
+            #region Ответ об успешном удалении юзера беседы
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                formatter.Serialize(memoryStream, new RRTemplate(RRType.RemoveConv, rconvT));
+
+                ConectedUser user = Server.conectedUsers.Find(x => x.id == rconvT.OwnerId);
+                if (user != null)
+                {
+                    user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                }
+            }
+
+            using (MemoryStream memoryStream = new MemoryStream()) //Уведомление других юзеров о его выходе
+            {
+                formatter.Serialize(memoryStream, new RRTemplate(RRType.RemoveConvTarget, rconvT));
+                ConectedUser user;
+                while (reader.Read())
+                {
+                    user = Server.conectedUsers.Find(x => x.id == reader.GetInt32(0));
+                    if (user != null)
+                    {
+                        user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                    }
+                }
+            }
+
+            reader.Close();
+            #endregion
+        }
+
+        private void CreateConv(CreateConvTemplate crconvT)
+        {
+            #region Добавление чата в бд для беседы
+            SqlCommand command = new SqlCommand("insert into Chats (chat_title, chat_kind, chat_avatar) values (@chatTitle, @chatKind, @chatAvatar)", Server.sql);
+            command.Parameters.Add(new SqlParameter("@chatTitle", crconvT.Title));
+            command.Parameters.Add(new SqlParameter("@chatKind", ContactType.Conversation.ToString()));
+
+            if (crconvT.Image == null || crconvT.Image.Length == 0)
+                command.Parameters.Add("@chatAvatar", SqlDbType.VarBinary).Value = DBNull.Value;
+            else
+                command.Parameters.Add(new SqlParameter("@chatAvatar", crconvT.Image));
+
+            command.ExecuteNonQuery();
+            #endregion
+
+            #region Получаем Id только что добавленного чата и записываем в chatId
+            SqlCommand getChatID = new SqlCommand("select chat_id from Chats where chat_title = @chatTitle", Server.sql);
+            getChatID.Parameters.Add(new SqlParameter("@chatTitle", crconvT.Title));
+            SqlDataReader reader = getChatID.ExecuteReader();
+            reader.Read();
+            crconvT.ChatId = reader.GetInt32(0);
+            reader.Close();
+            #endregion
+
+            #region Добавляем в таблицу ChatMembers участников беседы
+            command = new SqlCommand("insert into ChatMembers (chat_id, member_id) values (@chatId, @member)", Server.sql);
+            foreach (Contact c in crconvT.ConvMembers)
+            {
+                command.Parameters.Add(new SqlParameter("@chatId", crconvT.ChatId));
+                command.Parameters.Add(new SqlParameter("@member", c.UserId));
+                command.ExecuteNonQuery();
+                command.Parameters.Clear();
+            }
+            #endregion
+
+            #region Создание таблицу с сообщениями для только что созданного чата
+            command = new SqlCommand($"create table ChatMessages_{crconvT.ChatId} " +
+                                    "( message_id int identity(1,1) primary key," +
+                                    " sender_id int," +
+                                    " message varbinary(MAX)," +
+                                    " message_type varchar(4) check(message_type in ('File', 'Text'))," +
+                                    " file_name varchar(max)," +
+                                    " time datetime," +
+                                    " message_status varchar(8) check(message_status in ('Readed', 'Sended', 'Unreaded', 'Unsended')))", Server.sql);
+            command.ExecuteNonQuery();
+            #endregion
+
+            #region Отправка созданной беседы всем ее участникам
+            command = new SqlCommand("select ui.app_name, ui.image, ui.status from Users_info as ui where ui.id = @userID", Server.sql);
+            foreach (Contact c in crconvT.ConvMembers)
+            {
+                command.Parameters.Add(new SqlParameter("@userID", c.UserId));
+                reader = command.ExecuteReader();
+                reader.Read();
+
+                c.AppName = reader.GetString(0);
+
+                object imageObj = reader.GetValue(1);
+                if (imageObj is System.DBNull)
+                {
+                    c.AvatarImage = GetDefaultUserImage();
+                }
+                else
+                {
+                    c.AvatarImage = (byte[])imageObj;
+                }
+
+                c.Status = (Status)Enum.Parse(typeof(Status), reader.GetString(2));
+                reader.Close();
+                command.Parameters.Clear();
+            }
+
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                formatter.Serialize(memoryStream, new RRTemplate(RRType.CreateConv, crconvT));
+
+                foreach (Contact c in crconvT.ConvMembers)
+                {
+                    ConectedUser u = Server.conectedUsers.Find(x => x.id == c.UserId);
+                    if (u != null)
+                    {
+                        u.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                    }
+                }
+            }
+
+            #endregion
+
         }
 
         private void RefreshMessageState(RefreshMessageStateTemplate rmessT)
@@ -721,6 +880,10 @@ namespace KatranServer
 
                 #endregion
             }
+
+            #endregion
+
+            #region Добавление в лист контактов всех бесед
 
             #endregion
 

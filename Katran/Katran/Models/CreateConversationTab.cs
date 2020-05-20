@@ -156,7 +156,7 @@ namespace Katran.Models
             RemoveContact_ButtonVisibility = AddContact_ButtonVisibility = Visibility.Hidden;
 
             MembersCount = "1";
-            convMembers.Add(new Contact(mainPageViewModel.MainViewModel.UserInfo.Info.Id, null, "", Status.Offline, -1, null)); //сразу добавляем себя в чат
+            convMembers.Add(new Contact(mainPageViewModel.MainViewModel.UserInfo.Info.Id, null, "", Status.Offline, -1, null, ContactType.Chat)); //сразу добавляем себя в чат
         }
 
         public ICommand ContactSearchButton
@@ -187,7 +187,7 @@ namespace Katran.Models
             {
                 return new DelegateCommand(obj =>
                 {
-                    convMembers.Add(new Contact(SelectedContact.ContactID, null, "", Status.Offline, -1, null)); //нужен только id для добавления
+                    convMembers.Add(new Contact(SelectedContact.ContactID, null, "", Status.Offline, -1, null, ContactType.Chat)); //нужен только id для добавления
                     MembersCount = convMembers.Count.ToString();
                     SelectedContact = null;
                 }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
@@ -220,6 +220,7 @@ namespace Katran.Models
                     }
                     else
                     {
+                        Client.ServerRequest(new RRTemplate(RRType.CreateConv, new CreateConvTemplate(-1, ConversationTitle, conversationAvatar, convMembers)));
                         mainPageViewModel.MainViewModel.NotifyUserByRowState(RowStateResourcesName.l_convCreated);
                         ResetFields();
                     }

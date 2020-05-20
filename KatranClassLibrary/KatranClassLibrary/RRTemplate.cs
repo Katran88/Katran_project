@@ -22,7 +22,9 @@ namespace KatranClassLibrary
         DownloadFile,
         RefreshContactStatus,
         RefreshMessageState,
-        CheckUserName
+        CreateConv,
+        RemoveConv,
+        RemoveConvTarget
     }
 
     [Serializable]

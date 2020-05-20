@@ -47,6 +47,8 @@ namespace Katran.Models
                         case RRType.RemoveContactTarget:
                         case RRType.RefreshContactStatus:
                         case RRType.RefreshMessageState:
+                        case RRType.CreateConv:
+                        case RRType.RemoveConv:
                             clientStream.Close();
                             client.Close();
                             return null;

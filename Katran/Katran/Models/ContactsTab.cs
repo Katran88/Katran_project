@@ -291,7 +291,17 @@ namespace Katran.Models
 
                     if (dialog.ShowDialog() == true)
                     {
-                        Client.ServerRequest(new RRTemplate(RRType.RemoveContact, new AddRemoveContactTemplate(MainPageViewModel.MainViewModel.UserInfo.Info.Id, selectedContact.ContactID, selectedContact.ChatId)));
+                        switch (selectedContact.ContactType)
+                        {
+                            case ContactType.Chat:
+                                Client.ServerRequest(new RRTemplate(RRType.RemoveContact, new AddRemoveContactTemplate(MainPageViewModel.MainViewModel.UserInfo.Info.Id, selectedContact.ContactID, selectedContact.ChatId)));
+                                break;
+                            case ContactType.Conversation:
+                                Client.ServerRequest(new RRTemplate(RRType.RemoveConv, new RemoveConvTemplate(MainPageViewModel.MainViewModel.UserInfo.Info.Id, selectedContact.ChatId)));
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
             }

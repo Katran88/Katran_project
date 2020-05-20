@@ -153,6 +153,27 @@ namespace Katran.Models
                                         RefreshMessageState(refrmsT);
                                     }
                                     break;
+                                case RRType.CreateConv:
+                                    CreateConvTemplate crconvT = serverResponse.RRObject as CreateConvTemplate;
+                                    if (crconvT != null)
+                                    {
+                                        AddConv(crconvT);
+                                    }
+                                    break;
+                                case RRType.RemoveConv:
+                                    RemoveConvTemplate rconvT = serverResponse.RRObject as RemoveConvTemplate;
+                                    if (rconvT != null)
+                                    {
+                                        RemoveConv(rconvT);
+                                    }
+                                    break;
+                                case RRType.RemoveConvTarget:
+                                    RemoveConvTemplate rconvtT = serverResponse.RRObject as RemoveConvTemplate;
+                                    if (rconvtT != null)
+                                    {
+                                        RemoveConvTarget(rconvtT);
+                                    }
+                                    break;
                                 default:
                                     if (client.Connected)
                                     {
@@ -201,6 +222,87 @@ namespace Katran.Models
                     }
                 }
             }
+        }
+
+        private void RemoveConvTarget(RemoveConvTemplate rconvtT)
+        {
+            ContactUI rConv = null;
+            foreach (ContactUI i in mainPageViewModel.ContactsTab.Contacts)
+            {
+                if (i.ChatId == rconvtT.ChatId)
+                {
+                    rConv = i;
+                    break;
+                }
+            }
+
+            if (rConv != null)
+            {
+                Application.Current.Dispatcher.Invoke(new Action(() =>
+                {
+                    rConv.ContactLastMessage = rConv.ConvMembers.Count.ToString() + ' ' + (string)Application.Current.FindResource("l_Members");
+                }
+                ));
+            }
+        }
+
+        private void RemoveConv(RemoveConvTemplate rconvT)
+        {
+            ContactUI rConv = null;
+            foreach (ContactUI i in mainPageViewModel.ContactsTab.Contacts)
+            {
+                if (i.ChatId == rconvT.ChatId)
+                {
+                    rConv = i;
+                    break;
+                }
+            }
+
+            if (rConv != null)
+            {
+                Application.Current.Dispatcher.Invoke(new Action(() =>
+                {
+                    if (mainPageViewModel.ContactsTab.SelectedContact != null &&
+                        mainPageViewModel.ContactsTab.SelectedContact.Equals(rConv))
+                    {
+                        mainPageViewModel.CurrentChatMessages.Clear();
+                        mainPageViewModel.ContactsTab.SelectedContact = null;
+                    }
+
+                    mainPageViewModel.ContactsTab.Contacts.Remove(rConv);
+                }
+                ));
+            }
+        }
+
+        private void AddConv(CreateConvTemplate crconvT)
+        {
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                MemoryStream memoryStream = new MemoryStream(crconvT.Image);
+                BitmapImage avatar = Converters.BitmapToImageSource(new Bitmap(memoryStream));
+
+                ContactUI newConv = new ContactUI(crconvT.Title,
+                                                  crconvT.ConvMembers.Count.ToString() + ' ' + (string)Application.Current.FindResource("l_Members"),
+                                                  avatar,
+                                                  Status.Offline,
+                                                  -1,
+                                                  crconvT.ChatId,
+                                                  new ObservableCollection<MessageUI>(),
+                                                  ContactType.Conversation,
+                                                  new ObservableCollection<Contact>(crconvT.ConvMembers));
+
+                mainPageViewModel.ContactsTab.Contacts.Add(newConv);
+                if (mainPageViewModel.ContactsTab.SearchTextField.Length != 0 || mainPageViewModel.ContactsTab.IsSearchOutsideContacts)
+                {
+                    newConv.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    newConv.Visibility = Visibility.Visible;
+                }
+            }
+            ));
         }
 
         private void RefreshMessageState(RefreshMessageStateTemplate refrmsT)
@@ -255,14 +357,14 @@ namespace Katran.Models
             {
                 Application.Current.Dispatcher.Invoke(new Action(() =>
                 {
-                    mainPageViewModel.ContactsTab.Contacts.Remove(rContact);
-
                     if (mainPageViewModel.ContactsTab.SelectedContact != null &&
                         mainPageViewModel.ContactsTab.SelectedContact.Equals(rContact))
                     {
                         mainPageViewModel.CurrentChatMessages.Clear();
                         mainPageViewModel.ContactsTab.SelectedContact = null;
                     }
+
+                    mainPageViewModel.ContactsTab.Contacts.Remove(rContact);
                 }
                 ));
             }
@@ -302,17 +404,44 @@ namespace Katran.Models
             {
                 foreach (ContactUI contactUI in mainPageViewModel.ContactsTab.Contacts)
                 {
-                    if (contactUI.ContactID == refrContStT.ContactId)
+                    switch (contactUI.ContactType)
                     {
-                        contactUI.ContactStatus = refrContStT.NewContactStatus;
-                        foreach (MessageUI m in contactUI.ContactMessages)
-                        {
-                            if (m.SenderId == refrContStT.ContactId)
+                        case ContactType.Chat:
+                            if (contactUI.ContactID == refrContStT.ContactId)
                             {
-                                m.ContactStatus = refrContStT.NewContactStatus;
+                                contactUI.ContactStatus = refrContStT.NewContactStatus;
+                                foreach (MessageUI m in contactUI.ContactMessages)
+                                {
+                                    if (m.SenderId == refrContStT.ContactId)
+                                    {
+                                        m.ContactStatus = refrContStT.NewContactStatus;
+                                    }
+                                }
+                                break;
                             }
-                        }
-                        break;
+                            break;
+                        case ContactType.Conversation:
+
+                            foreach (Contact m in contactUI.ConvMembers)
+                            {
+                                if (m.UserId == refrContStT.ContactId)
+                                {
+                                    m.Status = refrContStT.NewContactStatus;
+                                    break;
+                                }
+                            }
+
+                            foreach (MessageUI m in contactUI.ContactMessages)
+                            {
+                                if (m.SenderId == refrContStT.ContactId)
+                                {
+                                    m.ContactStatus = refrContStT.NewContactStatus;
+                                }
+                            }
+
+                            break;
+                        default:
+                            break;
                     }
                 }
             }));
@@ -350,38 +479,80 @@ namespace Katran.Models
             }
             else
             {
-                ContactUI sender = null;
+                ContactUI chat = null;
 
                 foreach (ContactUI c in mainPageViewModel.ContactsTab.Contacts)
                 {
-                    if (c.ContactID == sMessT.Message.SenderID)
+                    if (c.ChatId == sMessT.ReceiverChatID)
                     {
-                        sender = c;
+                        chat = c;
                         break;
                     }
                 }
-                if (sender != null)
+                if (chat != null)
                 {
-                    Application.Current.Dispatcher.Invoke(new Action(() =>
+                    switch (chat.ContactType)
                     {
-                        MessageUI messageUI = new MessageUI(mainPageViewModel,
-                                                            false,
-                                                            sender.ContactAvatar,
-                                                            sender.ContactStatus,
-                                                            sMessT.Message.MessageType,
-                                                            sMessT.Message.MessageState,
-                                                            sMessT.Message.Time,
-                                                            sMessT.Message.MessageBody,
-                                                            sMessT.Message.SenderName,
-                                                            sMessT.ReceiverChatID,
-                                                            sMessT.Message.MessageID,
-                                                            sender.ContactID,
-                                                            sMessT.Message.FileName,
-                                                            sMessT.Message.FileSize);
+                        case ContactType.Chat:
 
-                        sender.ContactMessages.Add(messageUI);
-                        sender.MessageCounter++;
-                    }));
+                            Application.Current.Dispatcher.Invoke(new Action(() =>
+                            {
+                                MessageUI messageUI = new MessageUI(mainPageViewModel,
+                                                                    false,
+                                                                    chat.ContactAvatar,
+                                                                    chat.ContactStatus,
+                                                                    sMessT.Message.MessageType,
+                                                                    sMessT.Message.MessageState,
+                                                                    sMessT.Message.Time,
+                                                                    sMessT.Message.MessageBody,
+                                                                    sMessT.Message.SenderName,
+                                                                    sMessT.ReceiverChatID,
+                                                                    sMessT.Message.MessageID,
+                                                                    chat.ContactID,
+                                                                    sMessT.Message.FileName,
+                                                                    sMessT.Message.FileSize);
+
+                                chat.ContactMessages.Add(messageUI);
+                                chat.MessageCounter++;
+                            }));
+
+                            break;
+                        case ContactType.Conversation:
+
+                            foreach (Contact i in chat.ConvMembers)
+                            {
+                                if (i.UserId == sMessT.Message.SenderID)
+                                {
+                                    MemoryStream memoryStream = new MemoryStream(i.AvatarImage);
+                                    BitmapImage senderAvatar = Converters.BitmapToImageSource(new Bitmap(memoryStream));
+
+                                    Application.Current.Dispatcher.Invoke(new Action(() =>
+                                    {
+                                        MessageUI messageUI = new MessageUI(mainPageViewModel,
+                                                                            false,
+                                                                            senderAvatar,
+                                                                            i.Status,
+                                                                            sMessT.Message.MessageType,
+                                                                            sMessT.Message.MessageState,
+                                                                            sMessT.Message.Time,
+                                                                            sMessT.Message.MessageBody,
+                                                                            sMessT.Message.SenderName,
+                                                                            sMessT.ReceiverChatID,
+                                                                            sMessT.Message.MessageID,
+                                                                            i.UserId,
+                                                                            sMessT.Message.FileName,
+                                                                            sMessT.Message.FileSize);
+
+                                        chat.ContactMessages.Add(messageUI);
+                                        chat.MessageCounter++;
+                                    }));
+                                }
+                            }
+
+                            break;
+                        default:
+                            break;
+                    }
                 }
 
             }
@@ -403,7 +574,7 @@ namespace Katran.Models
             {
                 Application.Current.Dispatcher.Invoke(new Action(() =>
                 {
-                    mainPageViewModel.ContactsTab.Contacts.Remove(rContact);
+                    
 
                     if (mainPageViewModel.ContactsTab.SelectedContact != null &&
                         mainPageViewModel.ContactsTab.SelectedContact.Equals(rContact))
@@ -411,6 +582,7 @@ namespace Katran.Models
                         mainPageViewModel.CurrentChatMessages = new ObservableCollection<MessageUI>();
                     }
 
+                    mainPageViewModel.ContactsTab.Contacts.Remove(rContact);
                     mainPageViewModel.ContactsTab.SelectedContact = null;
                 }
                 ));

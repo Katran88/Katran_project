@@ -85,13 +85,36 @@ namespace Katran.UserControlls
         }
 
         private int chatId;
-
         public int ChatId
         {
             get { return  chatId; }
             set { chatId = value; }
         }
 
+        private ContactType contactType;
+
+        public ContactType ContactType
+        {
+            get { return contactType; }
+            set 
+            { 
+                contactType = value; OnPropertyChanged();
+
+                if (contactType == ContactType.Conversation)
+                {
+                    ContactStatusShower.Visibility = Visibility.Collapsed;
+                }
+
+            }
+        }
+
+
+        private ObservableCollection<Contact> convMembers;
+        public ObservableCollection<Contact> ConvMembers
+        {
+            get { return convMembers; }
+            set { convMembers = value; OnPropertyChanged(); }
+        }
 
         private ObservableCollection<MessageUI> contactMessages;
         public ObservableCollection<MessageUI> ContactMessages
@@ -143,9 +166,11 @@ namespace Katran.UserControlls
             ContactMessages = null;
             MessageCounter = 0;
             MessageCounterVisibility = Visibility.Hidden;
+            ContactType = ContactType.Chat;
+            ConvMembers = null;
         }
 
-        public ContactUI(string contactUsername, string contactLasMessage, BitmapImage bitmapImage, Status contactStatus, int contactID, int chatId, ObservableCollection<MessageUI> contactMessages)
+        public ContactUI(string contactUsername, string contactLasMessage, BitmapImage bitmapImage, Status contactStatus, int contactID, int chatId, ObservableCollection<MessageUI> contactMessages, ContactType contactType = ContactType.Chat, ObservableCollection<Contact> convMembers = null)
         {
             InitializeComponent();
 
@@ -168,6 +193,16 @@ namespace Katran.UserControlls
                     }
                 }
             }
+
+            ContactType = contactType;
+            if (ContactType == ContactType.Conversation)
+            {
+                if (convMembers != null)
+                {
+                    ConvMembers = convMembers;
+                }
+            }
+
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

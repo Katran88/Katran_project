@@ -15,6 +15,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -86,6 +87,14 @@ namespace Katran.ViewModels
             settingsTabVisibility = Visibility.Collapsed;
 
             MainPageViewModel.clientListener = new ClientListener(this);
+
+            ContactsTab.TabVisibility = Visibility.Visible;
+
+            Task.Factory.StartNew(() =>
+            {
+                Thread.Sleep(100);
+                Client.ServerRequest(new RRTemplate(RRType.RefreshContacts, new RefreshContactsTemplate(mainViewModel.UserInfo.Info.Id, null)));
+            });
         }
 
         public ICommand ContactsSelected
@@ -169,18 +178,18 @@ namespace Katran.ViewModels
                         Application.Current.Dispatcher.Invoke(new Action(() =>
                         {
                             contactsTab.SelectedContact.ContactMessages.Add(new MessageUI(this,
-                                                                                      true,
-                                                                                      mainViewModel.UserInfo.Avatar,
-                                                                                      mainViewModel.UserInfo.Info.Status,
-                                                                                      message.MessageType,
-                                                                                      message.MessageState,
-                                                                                      message.Time,
-                                                                                      message.MessageBody,
-                                                                                      message.SenderName,
-                                                                                      -1,
-                                                                                      -1,
-                                                                                      message.SenderID,
-                                                                                      "", ""));
+                                                                                          true,
+                                                                                          mainViewModel.UserInfo.Avatar,
+                                                                                          mainViewModel.UserInfo.Info.Status,
+                                                                                          message.MessageType,
+                                                                                          message.MessageState,
+                                                                                          message.Time,
+                                                                                          message.MessageBody,
+                                                                                          message.SenderName,
+                                                                                          contactsTab.SelectedContact.ChatId,
+                                                                                          -1,
+                                                                                          message.SenderID,
+                                                                                          "", ""));
                         }));
 
                         Client.ServerRequest(new RRTemplate(RRType.SendMessage, new SendMessageTemplate(contactsTab.SelectedContact.ChatId, message)));
