@@ -1,4 +1,5 @@
-﻿using Katran.UserControlls;
+﻿using Katran.Properties;
+using Katran.UserControlls;
 using Katran.ViewModels;
 using KatranClassLibrary;
 using System;
@@ -240,7 +241,7 @@ namespace Katran.Models
             {
                 Application.Current.Dispatcher.Invoke(new Action(() =>
                 {
-                    rConv.ContactLastMessage = rConv.ConvMembers.Count.ToString() + ' ' + (string)Application.Current.FindResource("l_Members");
+                    rConv.ContactLastMessage = (rConv.ConvMembers.Count - 1).ToString() + ' ' + (string)Application.Current.FindResource("l_Members");
                 }
                 ));
             }
@@ -523,11 +524,11 @@ namespace Katran.Models
                             {
                                 if (i.UserId == sMessT.Message.SenderID)
                                 {
-                                    MemoryStream memoryStream = new MemoryStream(i.AvatarImage);
-                                    BitmapImage senderAvatar = Converters.BitmapToImageSource(new Bitmap(memoryStream));
-
                                     Application.Current.Dispatcher.Invoke(new Action(() =>
                                     {
+                                        MemoryStream memoryStream = new MemoryStream(i.AvatarImage);
+                                        BitmapImage senderAvatar = Converters.BitmapToImageSource(new Bitmap(memoryStream));
+
                                         MessageUI messageUI = new MessageUI(mainPageViewModel,
                                                                             false,
                                                                             senderAvatar,
@@ -660,28 +661,84 @@ namespace Katran.Models
                     Application.Current.Dispatcher.Invoke(new Action(() =>
                     {
                         MemoryStream memoryStream = new MemoryStream(contact.AvatarImage);
-                        BitmapImage contactAvatar = Converters.BitmapToImageSource(new Bitmap(memoryStream));
+                        BitmapImage chatAvatar = Converters.BitmapToImageSource(new Bitmap(memoryStream));
 
-                        foreach (Message i in contact.Messages)
+                        switch (contact.ContactType)
                         {
-                            tempMessageUI = new MessageUI(mainPageViewModel,
-                                                          refrC.ContactsOwner == i.SenderID,
-                                                          refrC.ContactsOwner == i.SenderID ? mainPageViewModel.MainViewModel.UserInfo.Avatar : contactAvatar,
-                                                          refrC.ContactsOwner == i.SenderID ? mainPageViewModel.MainViewModel.UserInfo.Info.Status : contact.Status,
-                                                          i.MessageType,
-                                                          i.MessageState,
-                                                          i.Time,
-                                                          i.MessageBody,
-                                                          i.SenderName,
-                                                          contact.ChatId,
-                                                          i.MessageID,
-                                                          i.SenderID,
-                                                          i.FileName,
-                                                          i.FileSize);
-                            tempMessagesUI.Insert(0, tempMessageUI);
+                            case ContactType.Chat:
+                                foreach (Message i in contact.Messages)
+                                {
+                                    tempMessageUI = new MessageUI(mainPageViewModel,
+                                                                  refrC.ContactsOwner == i.SenderID,
+                                                                  refrC.ContactsOwner == i.SenderID ? mainPageViewModel.MainViewModel.UserInfo.Avatar : chatAvatar,
+                                                                  refrC.ContactsOwner == i.SenderID ? mainPageViewModel.MainViewModel.UserInfo.Info.Status : contact.Status,
+                                                                  i.MessageType,
+                                                                  i.MessageState,
+                                                                  i.Time,
+                                                                  i.MessageBody,
+                                                                  i.SenderName,
+                                                                  contact.ChatId,
+                                                                  i.MessageID,
+                                                                  i.SenderID,
+                                                                  i.FileName,
+                                                                  i.FileSize);
+                                    tempMessagesUI.Insert(0, tempMessageUI);
+                                }
+                                RefreshedContacts.Add(new ContactUI(contact.AppName, "", chatAvatar, contact.Status, contact.UserId, contact.ChatId, tempMessagesUI));
+                                break;
+                            case ContactType.Conversation:
+                                foreach (Message i in contact.Messages)
+                                {
+                                    Status memberStatus = Status.Offline;
+                                    BitmapImage memberImage = null;
+                                    bool isUserLeaveConv = false;
+                                    foreach (Contact member in contact.Members)
+                                    {
+                                        if (member.UserId == i.SenderID)
+                                        {
+                                            memberStatus = member.Status;
+                                            MemoryStream ms = new MemoryStream(member.AvatarImage);
+                                            memberImage = Converters.BitmapToImageSource(new Bitmap(ms));
+                                            i.SenderName = member.AppName;
+                                            break;
+                                        }
+                                    }
+
+                                    if (memberImage == null)
+                                    {
+                                        memberImage = Converters.BitmapToImageSource(Resources.Katran);
+                                        isUserLeaveConv = true;
+                                    }
+
+                                    tempMessageUI = new MessageUI(mainPageViewModel,
+                                                                  refrC.ContactsOwner == i.SenderID,
+                                                                  refrC.ContactsOwner == i.SenderID ? mainPageViewModel.MainViewModel.UserInfo.Avatar : memberImage,
+                                                                  refrC.ContactsOwner == i.SenderID ? mainPageViewModel.MainViewModel.UserInfo.Info.Status : memberStatus,
+                                                                  i.MessageType,
+                                                                  i.MessageState,
+                                                                  i.Time,
+                                                                  i.MessageBody,
+                                                                  i.SenderName,
+                                                                  contact.ChatId,
+                                                                  i.MessageID,
+                                                                  i.SenderID,
+                                                                  i.FileName,
+                                                                  i.FileSize);
+
+                                    if (isUserLeaveConv)
+                                    {
+                                        tempMessageUI.UserName = (string)Application.Current.FindResource("l_UserLoggedOut");
+                                    }
+
+                                    tempMessagesUI.Insert(0, tempMessageUI);
+                                }
+                                RefreshedContacts.Add(new ContactUI(contact.AppName, contact.Members.Count.ToString() + ' ' + (string)Application.Current.FindResource("l_Members"), chatAvatar, contact.Status, contact.UserId, contact.ChatId, tempMessagesUI, ContactType.Conversation, new ObservableCollection<Contact>(contact.Members)));
+                                break;
+                            default:
+                                break;
                         }
 
-                        RefreshedContacts.Add(new ContactUI(contact.AppName, "", contactAvatar, contact.Status, contact.UserId, contact.ChatId, tempMessagesUI));
+                        
                     }
                     ));
                 }

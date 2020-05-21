@@ -51,4 +51,3 @@ create table ChatMembers
     member_id int references Users (id)
 )
 go
-

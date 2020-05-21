@@ -116,10 +116,12 @@ namespace Katran.Models
                     if (convMembers.Find((x) => x.UserId == selectedContact.ContactID) != null)
                     {
                         RemoveContact_ButtonVisibility = Visibility.Visible;
+                        AddContact_ButtonVisibility = Visibility.Hidden;
                     }
                     else
                     {
                         AddContact_ButtonVisibility = Visibility.Visible;
+                        RemoveContact_ButtonVisibility = Visibility.Hidden;
                     }
                     
                 }

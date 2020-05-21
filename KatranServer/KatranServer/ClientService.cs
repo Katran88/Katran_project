@@ -302,6 +302,11 @@ namespace KatranServer
                 command.Parameters.Clear();
             }
 
+            if (crconvT.Image == null)
+            {
+                crconvT.Image = GetDefaultUserImage();
+            }
+
             BinaryFormatter formatter = new BinaryFormatter();
             using (MemoryStream memoryStream = new MemoryStream())
             {
@@ -820,7 +825,7 @@ namespace KatranServer
 
                 foreach (Contact contact in contacts)
                 {
-                    chatMessages = new SqlCommand("select top(100) message_id, sender_id, message, message_type, file_name, time, message_status, app_name " +
+                    chatMessages = new SqlCommand("select message_id, sender_id, message, message_type, file_name, time, message_status, app_name " +
                                                  $"from ChatMessages_{contact.ChatId} as c join Users_info as u on c.sender_id = u.id " +
                                                   "order by message_id desc", Server.sql);
                     chatMessagesReader = chatMessages.ExecuteReader();
@@ -885,6 +890,148 @@ namespace KatranServer
 
             #region Добавление в лист контактов всех бесед
 
+            SqlCommand convCommand = new SqlCommand("select chat.chat_id, chat.chat_title, chat.chat_avatar " +
+                                                    "from Chats as chat " +
+                                                    "where chat.chat_id in (select cm.chat_id from ChatMembers cm where cm.member_id = @memberId) and chat.chat_kind = 'Conversation'", Server.sql);
+            convCommand.Parameters.Add(new SqlParameter("@memberId", refrC.ContactsOwner));
+            SqlDataReader convReader = convCommand.ExecuteReader();
+            if (convReader.HasRows)
+            {
+                List<Contact> conversations = new List<Contact>();
+
+                #region Получение основной информации о беседах
+                Contact tempConv;
+                while (convReader.Read())
+                {
+                    tempConv = new Contact();
+                    tempConv.ChatId = convReader.GetInt32(0);
+                    tempConv.AppName = convReader.GetString(1);
+
+                    object imageObj = convReader.GetValue(2);
+                    if (imageObj is System.DBNull)
+                    {
+                        tempConv.AvatarImage = GetDefaultUserImage();
+                    }
+                    else
+                    {
+                        tempConv.AvatarImage = (byte[])imageObj;
+                    }
+
+                    tempConv.ContactType = ContactType.Conversation;
+                    tempConv.Members = new List<Contact>();
+                    conversations.Add(tempConv);
+                    
+                }
+                convReader.Close();
+                #endregion
+
+                #region Получение информации о членах беседы
+                convCommand = new SqlCommand("select ui.id, ui.app_name, ui.image, ui.status " +
+                                             "from Users_info as ui " +
+                                             "join ChatMembers as cm " +
+                                             "on ui.id = cm.member_id and cm.chat_id = @chatId", Server.sql);
+
+                foreach (Contact conv in conversations)
+                {
+                    convCommand.Parameters.Add(new SqlParameter("@chatId", conv.ChatId));
+                    using (SqlDataReader convMembersReader = convCommand.ExecuteReader())
+                    {
+                        while (convMembersReader.Read())
+                        {
+                            Contact member = new Contact();
+                            member.UserId = convMembersReader.GetInt32(0);
+                            member.AppName = convMembersReader.GetString(1);
+
+                            object imageObj = convMembersReader.GetValue(2);
+                            if (imageObj is System.DBNull)
+                            {
+                                member.AvatarImage = GetDefaultUserImage();
+                            }
+                            else
+                            {
+                                member.AvatarImage = (byte[])imageObj;
+                            }
+                            member.Status = (Status)Enum.Parse(typeof(Status), convMembersReader.GetString(3));
+                            conv.Members.Add(member);
+                        }
+                    }
+
+                    convCommand.Parameters.Clear();
+                }
+
+                
+                #endregion
+
+                #region Загрузка сообщений беседы
+
+                SqlCommand chatMessages;
+                SqlDataReader chatMessagesReader;
+                List<Message> tempMessages;
+                Message tempMessage;
+
+                foreach (Contact conv in conversations)
+                {
+                    chatMessages = new SqlCommand("select message_id, sender_id, message, message_type, file_name, time, message_status " +
+                                                 $"from ChatMessages_{conv.ChatId} " +
+                                                  "order by message_id desc", Server.sql);
+                    chatMessagesReader = chatMessages.ExecuteReader();
+                    tempMessages = new List<Message>();
+                    if (chatMessagesReader.HasRows)
+                    {
+                        while (chatMessagesReader.Read())
+                        {
+                            tempMessage = new Message();
+
+                            tempMessage.MessageID = chatMessagesReader.GetInt32(0);
+                            tempMessage.SenderID = chatMessagesReader.GetInt32(1);
+                            tempMessage.MessageBody = (byte[])chatMessagesReader.GetValue(2);
+                            tempMessage.MessageType = (MessageType)Enum.Parse(typeof(MessageType), chatMessagesReader.GetString(3));
+
+                            switch (tempMessage.MessageType)
+                            {
+                                case MessageType.File:
+
+                                    if (tempMessage.MessageBody.Length < 1000000) //если меньше мегабайта
+                                    {
+                                        tempMessage.FileSize = Convert.ToString(((float)tempMessage.MessageBody.Length / 1000) + " Kb");
+                                    }
+                                    else
+                                    {
+                                        if (tempMessage.MessageBody.Length < 1000000000) //если меньше гигабайта
+                                        {
+                                            tempMessage.FileSize = Convert.ToString(((float)tempMessage.MessageBody.Length / 1000000) + " Mb");
+                                        }
+                                        else
+                                        {
+                                            tempMessage.FileSize = Convert.ToString(((float)tempMessage.MessageBody.Length / 1000000000) + " Gb");
+                                        }
+                                    }
+                                    tempMessage.FileName = chatMessagesReader.GetString(4);
+                                    tempMessage.MessageBody = new byte[1];
+                                    break;
+                                case MessageType.Text:
+                                    tempMessage.FileName = "";
+                                    tempMessage.FileSize = "";
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            tempMessage.Time = chatMessagesReader.GetDateTime(5);
+                            tempMessage.MessageState = (MessageState)Enum.Parse(typeof(MessageState), chatMessagesReader.GetString(6));
+
+                            tempMessages.Add(tempMessage);
+                        }
+                    }
+                    conv.Messages = tempMessages;
+                    chatMessagesReader.Close();
+                }
+
+                #endregion
+
+                contacts.AddRange(conversations);
+            }
+            convReader.Close();
             #endregion
 
             #region Отправка контактов юзера или пустого листа 

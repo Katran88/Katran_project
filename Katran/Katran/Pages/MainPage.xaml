@@ -125,10 +125,10 @@
                 <RowDefinition Height="Auto" MaxHeight="140"  />
             </Grid.RowDefinitions>
 
-            <ListView ItemsSource="{Binding CurrentChatMessages}" HorizontalContentAlignment="Stretch" />
+            <ListView ItemsSource="{Binding CurrentChatMessages}" HorizontalContentAlignment="Stretch" Name="messages" />
 
 
-            <Grid Margin="20,3.8,20,4.6" Grid.Row="1" >
+            <Grid Margin="20,3.8,20,4.6" Grid.Row="1" MaxHeight="210" >
                 <Grid.RowDefinitions>
                     <RowDefinition />
                     <RowDefinition />
@@ -138,7 +138,7 @@
                          Foreground="{DynamicResource TextColor}"
                          Style="{StaticResource MaterialDesignOutlinedTextFieldTextBox}"
                          VerticalAlignment="Bottom" AcceptsReturn="True"
-                         TextWrapping="Wrap" MaxHeight="200"
+                         TextWrapping="Wrap" MaxHeight="180" Margin="4"
                          VerticalScrollBarVisibility="Auto"                                           
                          materialDesign:HintAssist.Hint="{DynamicResource ResourceKey=l_YourMessage}" />
 

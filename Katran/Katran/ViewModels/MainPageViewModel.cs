@@ -137,6 +137,7 @@ namespace Katran.ViewModels
                         CreateConversationTab.Contacts.Clear();
                         foreach (ContactUI c in ContactsTab.Contacts)
                         {
+                            if(c.ContactType == ContactType.Chat)
                             CreateConversationTab.Contacts.Add(new ContactUI(c.ContactUsername,
                                                                              c.ContactLastMessage,
                                                                              c.ContactAvatar,

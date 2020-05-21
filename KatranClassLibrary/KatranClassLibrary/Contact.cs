@@ -20,6 +20,7 @@ namespace KatranClassLibrary
         public int ChatId;
         public List<Message> Messages;
         public ContactType ContactType;
+        public List<Contact> Members;
 
 
         public Contact()
@@ -31,9 +32,10 @@ namespace KatranClassLibrary
             ChatId = -1;
             Messages = null;
             ContactType = ContactType.Chat;
+            Members = null;
         }
 
-        public Contact(int userId, byte[] avatarImage, string appName, Status status, int chatId, List<Message> messages, ContactType contactType)
+        public Contact(int userId, byte[] avatarImage, string appName, Status status, int chatId, List<Message> messages, ContactType contactType, List<Contact> members = null)
         {
             UserId = userId;
             AvatarImage = avatarImage;
@@ -42,6 +44,7 @@ namespace KatranClassLibrary
             ChatId = chatId;
             Messages = messages;
             ContactType = contactType;
+            Members = members;
         }
     }
 }

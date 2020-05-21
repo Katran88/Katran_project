@@ -41,7 +41,7 @@
                            Foreground="{DynamicResource ResourceKey=TextColor}" />
 
                 <TextBlock Text="{Binding ContactLastMessage, ElementName=ContactUserControl, UpdateSourceTrigger=PropertyChanged}"
-                           Style="{StaticResource SmallTextStyle}" Margin="5,10,0,0"
+                           Style="{StaticResource SmallTextStyle}" Margin="5,2,0,0"
                            Foreground="{DynamicResource ResourceKey=TextColor}" />
 
             </StackPanel>
