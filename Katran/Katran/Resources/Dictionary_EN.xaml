@@ -24,7 +24,14 @@
     <system:String x:Key="l_Create">Create</system:String>
     <system:String x:Key="l_Members">Members</system:String>
     <system:String x:Key="l_UserLoggedOut">User logged out</system:String>
-    
+    <system:String x:Key="l_ToolTipAdminPanel">Admin Panel</system:String>
+    <system:String x:Key="l_ToolTipSettings">Settings</system:String>
+    <system:String x:Key="l_Blocked">Blocked</system:String>
+    <system:String x:Key="l_BlockUser">Block User</system:String>
+    <system:String x:Key="l_UnblockUser">Unblock User</system:String>
+    <system:String x:Key="l_YouBlocked">You has been blocked by Administator</system:String>
+    <system:String x:Key="l_OpenSignInPage">Open Sign In page?</system:String>
+
     <system:String x:Key="l_RemoveContact">Are you sure you want to remove selected user from contacts? All messages will be lost.</system:String>
     <system:String x:Key="l_AddContact">Add selected user to the contact list.</system:String>
 

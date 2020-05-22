@@ -33,6 +33,13 @@ namespace Katran.ViewModels
             set { settingsTabVisibility = value; OnPropertyChanged(); }
         }
 
+        private Visibility adminTabButtonVisibility;
+        public Visibility AdminTabButtonVisibility
+        {
+            get { return adminTabButtonVisibility; }
+            set { adminTabButtonVisibility = value; OnPropertyChanged(); }
+        }
+
         internal static ClientListener clientListener;
         private MainViewModel mainViewModel;
         public MainViewModel MainViewModel
@@ -55,6 +62,20 @@ namespace Katran.ViewModels
             set { conversationTab = value; OnPropertyChanged(); }
         }
 
+        private AdminTab adminTab;
+        public AdminTab AdminTab
+        {
+            get { return adminTab; }
+            set { adminTab = value; OnPropertyChanged(); }
+        }
+
+        private SettingsTab settingsTab;
+        public SettingsTab SettingsTab
+        {
+            get { return settingsTab; }
+            set { settingsTab = value; OnPropertyChanged(); }
+        }
+
         private string messageText;
         public string MessageText
         {
@@ -65,14 +86,17 @@ namespace Katran.ViewModels
 
         public MainPageViewModel()
         {
+            AdminTabButtonVisibility = Visibility.Collapsed;
+
             this.mainViewModel = null;
             this.mainPage = null;
+
             ContactsTab = new ContactsTab();
             CreateConversationTab = new CreateConversationTab();
-            MessageText = "";
+            AdminTab = new AdminTab();
+            SettingsTab = new SettingsTab();
 
-            
-            settingsTabVisibility = Visibility.Collapsed;
+            MessageText = "";
         }
 
         public MainPageViewModel(MainViewModel mainViewModel, MainPage mainPage)
@@ -81,10 +105,12 @@ namespace Katran.ViewModels
             this.mainPage = mainPage;
             MessageText = "";
 
+            AdminTabButtonVisibility = MainViewModel.UserInfo.Info.LawStatus == LawStatus.Admin ? Visibility.Visible : Visibility.Collapsed;
+
             ContactsTab = new ContactsTab(this);
             CreateConversationTab = new CreateConversationTab(this);
-
-            settingsTabVisibility = Visibility.Collapsed;
+            AdminTab = new AdminTab(this);
+            SettingsTab = new SettingsTab(this);
 
             MainPageViewModel.clientListener = new ClientListener(this);
 
@@ -107,7 +133,8 @@ namespace Katran.ViewModels
                     {
                         ContactsTab.TabVisibility = Visibility.Visible;
                         CreateConversationTab.TabVisibility = Visibility.Collapsed;
-                        SettingsTabVisibility = Visibility.Collapsed;
+                        AdminTab.TabVisibility = Visibility.Collapsed;
+                        SettingsTab.TabVisibility = Visibility.Collapsed;
 
                         if (ContactsTab.Contacts.Count == 0)
                         {
@@ -132,7 +159,8 @@ namespace Katran.ViewModels
                     {
                         CreateConversationTab.TabVisibility = Visibility.Visible;
                         ContactsTab.TabVisibility = Visibility.Collapsed;
-                        SettingsTabVisibility = Visibility.Collapsed;
+                        AdminTab.TabVisibility = Visibility.Collapsed;
+                        SettingsTab.TabVisibility = Visibility.Collapsed;
 
                         CreateConversationTab.Contacts.Clear();
                         foreach (ContactUI c in ContactsTab.Contacts)
@@ -144,8 +172,43 @@ namespace Katran.ViewModels
                                                                              c.ContactStatus,
                                                                              c.ContactID,
                                                                              c.ChatId,
-                                                                             null));
+                                                                             null,
+                                                                             false));
                         }
+                    }
+                }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
+            }
+        }
+
+        public ICommand AdminTabSelected
+        {
+            get
+            {
+                return new DelegateCommand(obj =>
+                {
+                    if (AdminTab.TabVisibility != Visibility.Visible)
+                    {
+                        AdminTab.TabVisibility = Visibility.Visible;
+                        CreateConversationTab.TabVisibility = Visibility.Collapsed;
+                        ContactsTab.TabVisibility = Visibility.Collapsed;
+                        SettingsTab.TabVisibility = Visibility.Collapsed;
+                    }
+                }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
+            }
+        }
+
+        public ICommand SettingsTabSelected
+        {
+            get
+            {
+                return new DelegateCommand(obj =>
+                {
+                    if (SettingsTab.TabVisibility != Visibility.Visible)
+                    {
+                        SettingsTab.TabVisibility = Visibility.Visible;
+                        AdminTab.TabVisibility = Visibility.Collapsed;
+                        CreateConversationTab.TabVisibility = Visibility.Collapsed;
+                        ContactsTab.TabVisibility = Visibility.Collapsed;
                     }
                 }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
             }

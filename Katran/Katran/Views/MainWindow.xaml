@@ -8,7 +8,7 @@
         xmlns:UserControlls="clr-namespace:Katran.UserControlls"
         x:Class="Katran.MainWindow"
         mc:Ignorable="d" 
-        MinHeight="550" MinWidth="800" BorderThickness="1" BorderBrush="{StaticResource OutlineBrush}"
+        MinHeight="550" MinWidth="850" BorderThickness="1" BorderBrush="{StaticResource OutlineBrush}"
         Icon="/Resources/Katran.png" Title="{DynamicResource l_Title}"
         WindowStyle="None"
         FontFamily="{DynamicResource ResourceKey=FontFamilyStyle}" ScrollViewer.CanContentScroll="True" Background="{StaticResource WindowBackgroundBrush}" >

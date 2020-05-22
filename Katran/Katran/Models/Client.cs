@@ -92,6 +92,20 @@ namespace Katran.Models
                                             return serverResponse;
                                         }
                                         break;
+                                    case RRType.AdminSearch:
+                                        AdminSearchTemplate admST = serverResponse.RRObject as AdminSearchTemplate;
+                                        if (admST != null)
+                                        {
+                                            return serverResponse;
+                                        }
+                                        break;
+                                    case RRType.BlockUnblockUser:
+                                        BlockUnblockUserTemplate blunblUT = serverResponse.RRObject as BlockUnblockUserTemplate;
+                                        if (blunblUT != null)
+                                        {
+                                            return serverResponse;
+                                        }
+                                        break;
                                     case RRType.Error:
                                         ErrorReportTemplate error = serverResponse.RRObject as ErrorReportTemplate;
                                         if (error != null)

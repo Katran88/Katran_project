@@ -9,7 +9,7 @@
     <Grid Name="mainGrid" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
-            <ColumnDefinition MaxWidth="350" />
+            <ColumnDefinition MaxWidth="320" />
             <ColumnDefinition />            
         </Grid.ColumnDefinitions>
 

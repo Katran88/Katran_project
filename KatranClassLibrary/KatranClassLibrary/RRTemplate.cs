@@ -24,7 +24,10 @@ namespace KatranClassLibrary
         RefreshMessageState,
         CreateConv,
         RemoveConv,
-        RemoveConvTarget
+        RemoveConvTarget,
+        BlockUnblockUser,
+        BlockUnblockUserTarget,
+        AdminSearch
     }
 
     [Serializable]

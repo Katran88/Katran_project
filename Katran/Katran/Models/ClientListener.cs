@@ -1,4 +1,5 @@
-﻿using Katran.Properties;
+﻿using Katran.Pages;
+using Katran.Properties;
 using Katran.UserControlls;
 using Katran.ViewModels;
 using KatranClassLibrary;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
@@ -175,6 +177,13 @@ namespace Katran.Models
                                         RemoveConvTarget(rconvtT);
                                     }
                                     break;
+                                case RRType.BlockUnblockUserTarget:
+                                    BlockUnblockUserTemplate bunbUT = serverResponse.RRObject as BlockUnblockUserTemplate;
+                                    if (bunbUT != null)
+                                    {
+                                        ChangeBlockUserStatusTarget(bunbUT);
+                                    }
+                                    break;
                                 default:
                                     if (client.Connected)
                                     {
@@ -220,6 +229,37 @@ namespace Katran.Models
                         {
                             return;
                         }
+                    }
+                }
+            }
+        }
+
+        private void ChangeBlockUserStatusTarget(BlockUnblockUserTemplate bunbUT)
+        {
+            if (bunbUT.UserId == mainPageViewModel.MainViewModel.UserInfo.Info.Id)
+            {
+                mainPageViewModel.MainViewModel.UserInfo.Info.IsBlocked = bunbUT.IsBlocked;
+                if (bunbUT.IsBlocked)
+                {
+                    MainPageViewModel.clientListener.CloseConnection();
+                    mainPageViewModel.MainViewModel.CurrentPage = new BlockPage(mainPageViewModel.MainViewModel);
+                }
+                else
+                {
+                    mainPageViewModel.MainViewModel.CurrentPage = new AuhtorizationPage(mainPageViewModel.MainViewModel);
+                }
+            }
+            else
+            {
+                foreach (ContactUI contactUI in mainPageViewModel.ContactsTab.Contacts)
+                {
+                    if (contactUI.ContactType == ContactType.Chat && contactUI.ContactID == bunbUT.UserId)
+                    {
+                        Application.Current.Dispatcher.Invoke(new Action(() =>
+                        {
+                            contactUI.IsBlocked = bunbUT.IsBlocked;
+                        }));
+                        break;
                     }
                 }
             }
@@ -290,6 +330,7 @@ namespace Katran.Models
                                                   -1,
                                                   crconvT.ChatId,
                                                   new ObservableCollection<MessageUI>(),
+                                                  false,
                                                   ContactType.Conversation,
                                                   new ObservableCollection<Contact>(crconvT.ConvMembers));
 
@@ -384,7 +425,8 @@ namespace Katran.Models
                                                      aconttT.NewContact.Status,
                                                      aconttT.NewContact.UserId,
                                                      aconttT.NewContact.ChatId,
-                                                     new ObservableCollection<MessageUI>());
+                                                     new ObservableCollection<MessageUI>(),
+                                                     aconttT.NewContact.IsBlocked);
 
                 mainPageViewModel.ContactsTab.Contacts.Add(newContact);
                 if (mainPageViewModel.ContactsTab.SearchTextField.Length != 0 || mainPageViewModel.ContactsTab.IsSearchOutsideContacts)
@@ -629,7 +671,7 @@ namespace Katran.Models
                         MemoryStream memoryStream = new MemoryStream(item.AvatarImage);
                         BitmapImage avatar = Converters.BitmapToImageSource(new Bitmap(memoryStream));
 
-                        OutContacts.Add(new ContactUI(item.AppName, "", avatar, item.Status, item.UserId, item.ChatId, new ObservableCollection<MessageUI>()));
+                        OutContacts.Add(new ContactUI(item.AppName, "", avatar, item.Status, item.UserId, item.ChatId, new ObservableCollection<MessageUI>(), item.IsBlocked));
                     }
                     ));
                 }
@@ -684,7 +726,7 @@ namespace Katran.Models
                                                                   i.FileSize);
                                     tempMessagesUI.Insert(0, tempMessageUI);
                                 }
-                                RefreshedContacts.Add(new ContactUI(contact.AppName, "", chatAvatar, contact.Status, contact.UserId, contact.ChatId, tempMessagesUI));
+                                RefreshedContacts.Add(new ContactUI(contact.AppName, "", chatAvatar, contact.Status, contact.UserId, contact.ChatId, tempMessagesUI, contact.IsBlocked));
                                 break;
                             case ContactType.Conversation:
                                 foreach (Message i in contact.Messages)
@@ -732,7 +774,7 @@ namespace Katran.Models
 
                                     tempMessagesUI.Insert(0, tempMessageUI);
                                 }
-                                RefreshedContacts.Add(new ContactUI(contact.AppName, contact.Members.Count.ToString() + ' ' + (string)Application.Current.FindResource("l_Members"), chatAvatar, contact.Status, contact.UserId, contact.ChatId, tempMessagesUI, ContactType.Conversation, new ObservableCollection<Contact>(contact.Members)));
+                                RefreshedContacts.Add(new ContactUI(contact.AppName, contact.Members.Count.ToString() + ' ' + (string)Application.Current.FindResource("l_Members"), chatAvatar, contact.Status, contact.UserId, contact.ChatId, tempMessagesUI, false, ContactType.Conversation, new ObservableCollection<Contact>(contact.Members)));
                                 break;
                             default:
                                 break;

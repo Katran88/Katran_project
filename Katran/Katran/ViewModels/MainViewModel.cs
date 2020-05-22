@@ -1,4 +1,5 @@
 ﻿using Katran.Models;
+using Katran.Pages;
 using KatranClassLibrary;
 using System;
 using System.ComponentModel;
@@ -139,12 +140,20 @@ namespace Katran.ViewModels
                         }
                     }
 
-                    CurrentPage = new Pages.MainPage(this);
-                    NotifyUserByRowState(RowStateResourcesName.l_sAuth);
+
+                    if (UserInfo.Info.IsBlocked)
+                    {
+                        CurrentPage = new BlockPage(this);
+                    }
+                    else
+                    {
+                        CurrentPage = new MainPage(this);
+                        NotifyUserByRowState(RowStateResourcesName.l_sAuth);
+                    }                    
                 }
                 else
                 {
-                    CurrentPage = new Pages.AuhtorizationPage(this);
+                    CurrentPage = new AuhtorizationPage(this);
                 }
             }
             catch(FileNotFoundException ex)

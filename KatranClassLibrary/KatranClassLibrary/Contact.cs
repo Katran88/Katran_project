@@ -18,6 +18,7 @@ namespace KatranClassLibrary
         public string AppName;
         public Status Status;
         public int ChatId;
+        public bool IsBlocked;
         public List<Message> Messages;
         public ContactType ContactType;
         public List<Contact> Members;
@@ -33,9 +34,10 @@ namespace KatranClassLibrary
             Messages = null;
             ContactType = ContactType.Chat;
             Members = null;
+            IsBlocked = false;
         }
 
-        public Contact(int userId, byte[] avatarImage, string appName, Status status, int chatId, List<Message> messages, ContactType contactType, List<Contact> members = null)
+        public Contact(int userId, byte[] avatarImage, string appName, Status status, int chatId, List<Message> messages, bool isBlocked, ContactType contactType, List<Contact> members = null)
         {
             UserId = userId;
             AvatarImage = avatarImage;
@@ -45,6 +47,7 @@ namespace KatranClassLibrary
             Messages = messages;
             ContactType = contactType;
             Members = members;
+            IsBlocked = isBlocked;
         }
     }
 }

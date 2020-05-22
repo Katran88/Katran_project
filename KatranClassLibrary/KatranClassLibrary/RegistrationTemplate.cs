@@ -34,6 +34,7 @@ namespace KatranClassLibrary
         private byte[]      image;
         private Status      status;
         private LawStatus   lawStatus;
+        private bool        isBlocked;
 
         #region Properties
         public string Login
@@ -161,8 +162,22 @@ namespace KatranClassLibrary
                 OnPropertyChanged();
             }
         }
+
+        public bool IsBlocked
+        {
+            get
+            {
+                return isBlocked;
+            }
+
+            set
+            {
+                isBlocked = value;
+                OnPropertyChanged();
+            }
+        }
         #endregion
-        
+
 
         private RegistrationTemplate()
         {
@@ -175,9 +190,10 @@ namespace KatranClassLibrary
             Image = null;
             Status = Status.Offline;
             LawStatus = LawStatus.User;
+            IsBlocked = false;
         }
 
-        public RegistrationTemplate(int id, string app_name, string email, string user_discription, byte[] image, Status status, LawStatus lawStatus, string login = "", string password = "")
+        public RegistrationTemplate(int id, string app_name, string email, string user_discription, byte[] image, Status status, LawStatus lawStatus, bool isBlocked, string login = "", string password = "")
         {
             Login = login;
 
@@ -200,6 +216,7 @@ namespace KatranClassLibrary
             Image = image;
             Status = status;
             LawStatus = lawStatus;
+            IsBlocked = isBlocked;
         }
 
 

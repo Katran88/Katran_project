@@ -73,6 +73,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\BlockPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -153,9 +157,14 @@
     <Compile Include="Models\ClientListener.cs" />
     <Compile Include="Models\ContactsTab.cs" />
     <Compile Include="Models\Converters.cs" />
+    <Compile Include="Models\SettingsTab.cs" />
     <Compile Include="Models\UserInfo.cs" />
+    <Compile Include="Models\AdminTab.cs" />
     <Compile Include="Pages\AuhtorizationPage.xaml.cs">
       <DependentUpon>AuhtorizationPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\BlockPage.xaml.cs">
+      <DependentUpon>BlockPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -189,6 +198,7 @@
     </Compile>
     <Compile Include="ViewModels\AuthPageViewModel.cs" />
     <Compile Include="Models\CreateConversationTab.cs" />
+    <Compile Include="ViewModels\BlockPageViewModel.cs" />
     <Compile Include="ViewModels\DelegateCommand.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />

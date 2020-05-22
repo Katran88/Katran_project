@@ -51,3 +51,5 @@ create table ChatMembers
     member_id int references Users (id)
 )
 go
+
+select ui.id, ui.app_name, ui.email, ui.user_discription, ui.image, ui.status, u.law_status, ui.is_blocked from Users_info ui join Users as u on ui.id = u.id where ui.id =

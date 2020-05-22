@@ -175,6 +175,7 @@ namespace Katran.ViewModels
                                                                                                                        userAvatar,
                                                                                                                        Status.Online,
                                                                                                                        LawStatus.User,
+                                                                                                                       false,
                                                                                                                        Login,
                                                                                                                        regPage.Password_1)));
                                     switch (response.RRType)

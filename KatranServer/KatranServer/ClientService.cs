@@ -152,6 +152,20 @@ namespace KatranServer
                                     RemoveConv(rconvT);
                                 }
                                 break;
+                            case RRType.AdminSearch:
+                                AdminSearchTemplate admST = clientRequest.RRObject as AdminSearchTemplate;
+                                if (admST != null)
+                                {
+                                    AdminSearch(admST);
+                                }
+                                break;
+                            case RRType.BlockUnblockUser:
+                                BlockUnblockUserTemplate bunbUT = clientRequest.RRObject as BlockUnblockUserTemplate;
+                                if (bunbUT != null)
+                                {
+                                    BlockUnblockUser(bunbUT);
+                                }
+                                break;
                             default:
                                 ErrorResponse(ErrorType.Other, new Exception("Получен необработанный запрос"));
                                 break;
@@ -174,6 +188,105 @@ namespace KatranServer
                 }
                 
             }
+        }
+
+        private void BlockUnblockUser(BlockUnblockUserTemplate bunbUT)
+        {
+            #region Проверка, что действие совершает админ
+            SqlCommand command = new SqlCommand("select u.id from Users as u where u.id = @adminId and law_status = 'Admin' ", Server.sql);
+            command.Parameters.Add(new SqlParameter("@adminId", bunbUT.AdminId));
+            SqlDataReader reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                reader.Close();
+                command = new SqlCommand("update Users_info set is_blocked = @isBlocked where id = @userId ", Server.sql);
+                command.Parameters.Add(new SqlParameter("@isBlocked", bunbUT.IsBlocked));
+                command.Parameters.Add(new SqlParameter("@userId", bunbUT.UserId));
+                command.ExecuteNonQuery();
+
+                BinaryFormatter formatter = new BinaryFormatter();
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    formatter.Serialize(memoryStream, new RRTemplate(RRType.BlockUnblockUser, bunbUT));
+
+                    client.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                }
+
+                foreach (ConectedUser u in Server.conectedUsers)
+                {
+                    using (MemoryStream memoryStream = new MemoryStream())
+                    {
+                        formatter.Serialize(memoryStream, new RRTemplate(RRType.BlockUnblockUserTarget, bunbUT));
+
+                        u.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                    }
+                }
+            }
+            else
+            {
+                reader.Close();
+                bunbUT.IsBlocked = !bunbUT.IsBlocked;
+                BinaryFormatter formatter = new BinaryFormatter();
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    formatter.Serialize(memoryStream, new RRTemplate(RRType.BlockUnblockUser, bunbUT));
+
+                    client.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                }
+            }
+            #endregion
+        }
+
+        private void AdminSearch(AdminSearchTemplate admST)
+        {
+            #region Отправка запроса на поиск контактов по паттерну 
+            SqlCommand command = new SqlCommand("select ui.id, ui.app_name, ui.image, ui.status, ui.is_blocked " +
+                                                "from Users_info as ui " +
+                                                "where charindex(@pattern, ui.app_name) > 0 and ui.id != @adminID ", Server.sql);
+            command.Parameters.Add(new SqlParameter("@pattern", admST.Pattern));
+            command.Parameters.Add(new SqlParameter("@adminID", admST.AdminId));
+
+            SqlDataReader reader = command.ExecuteReader();
+
+            List<Contact> contacts = new List<Contact>();
+            if (reader.HasRows)
+            {
+                Contact tempContact = null;
+                while (reader.Read())
+                {
+                    tempContact = new Contact();
+                    tempContact.UserId = reader.GetInt32(0);
+                    tempContact.AppName = reader.GetString(1);
+
+                    object imageObj = reader.GetValue(2);
+                    if (imageObj is System.DBNull)
+                    {
+                        tempContact.AvatarImage = GetDefaultUserImage();
+                    }
+                    else
+                    {
+                        tempContact.AvatarImage = (byte[])imageObj;
+                    }
+                    tempContact.Status = (Status)Enum.Parse(typeof(Status), reader.GetString(3));
+                    tempContact.IsBlocked = reader.GetBoolean(4);
+                    contacts.Add(tempContact);
+                }
+            }
+            reader.Close();
+            #endregion
+            admST.Users = contacts;
+            #region Отправка найденных контактов или пустого листа 
+
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                formatter.Serialize(memoryStream, new RRTemplate(RRType.AdminSearch, admST));
+
+                client.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+            }
+
+            #endregion
+
         }
 
         private void RemoveConv(RemoveConvTemplate rconvT)
@@ -652,7 +765,7 @@ namespace KatranServer
         private void SearchOutContacts(SearchOutContactsTemplate searchOutC)
         {
             #region Отправка запроса на поиск контактов по паттерну вне контактов и запись их в лист contacts
-            SqlCommand command = new SqlCommand("select ui.id, ui.app_name, ui.image, ui.status " +
+            SqlCommand command = new SqlCommand("select ui.id, ui.app_name, ui.image, ui.status, ui.is_blocked " +
                                                 "from Users_info as ui " +
                                                 "where charindex(@pattern, ui.app_name) > 0 and ui.id != @userID and " +
                                                 "ui.id NOT IN(select ui.id from Users_info as ui join Contacts as c on ui.id = c.contact and c.contact_owner = @userID)", Server.sql);
@@ -681,7 +794,7 @@ namespace KatranServer
                         tempContact.AvatarImage = (byte[])imageObj;
                     }
                     tempContact.Status = (Status)Enum.Parse(typeof(Status), reader.GetString(3));
-
+                    tempContact.IsBlocked = reader.GetBoolean(4);
                     contacts.Add(tempContact);
                 }
             }
@@ -709,7 +822,7 @@ namespace KatranServer
         private void RefreshUserData(AuthtorizationTemplate refrUserData)
         {
             #region Запрос на данные о пользователе
-            SqlCommand command = new SqlCommand("select ui.id, ui.app_name, ui.email, ui.user_discription, ui.image, ui.status, u.law_status, u.password " +
+            SqlCommand command = new SqlCommand("select ui.id, ui.app_name, ui.email, ui.user_discription, ui.image, ui.status, u.law_status, u.password, ui.is_blocked " +
                                                 "from Users_info ui join Users u on ui.id = u.id " +
                                                 "where ui.id = (select u2.id from Users as u2 where u2.auth_login = @auth_login)", Server.sql);
             command.Parameters.Add(new SqlParameter("@auth_login", refrUserData.AuthLogin));
@@ -740,6 +853,7 @@ namespace KatranServer
                 image,
                 Status.Online, //(Status)Enum.Parse(typeof(Status), reader_User_info.GetString(5))
                 (LawStatus)Enum.Parse(typeof(LawStatus), reader_User_info.GetString(6)),
+                reader_User_info.GetBoolean(8),
                 refrUserData.AuthLogin,
                 (string)reader_User_info.GetValue(7));
 
@@ -759,7 +873,7 @@ namespace KatranServer
         {
             #region Получение из бд контактов юзера и запись в лист contacts
 
-            SqlCommand contactsCommand = new SqlCommand("select ui.id, ui.app_name, ui.image, ui.status " +
+            SqlCommand contactsCommand = new SqlCommand("select ui.id, ui.app_name, ui.image, ui.status, ui.is_blocked " +
                                                         "from Users_info as ui " +
                                                         "join Contacts as c " +
                                                         "on ui.id = c.contact and c.contact_owner = @userID", Server.sql);
@@ -787,7 +901,7 @@ namespace KatranServer
                         tempContact.AvatarImage = (byte[])imageObj;
                     }
                     tempContact.Status = (Status)Enum.Parse(typeof(Status), contactsReader.GetString(3));
-
+                    tempContact.IsBlocked = contactsReader.GetBoolean(4);
                     contacts.Add(tempContact);
                 }
                 contactsReader.Close();
@@ -1150,7 +1264,7 @@ namespace KatranServer
             {
                 #region Запрос на данные о пользователе
                 reader_Users.Read();
-                command = new SqlCommand("select ui.id, ui.app_name, ui.email, ui.user_discription, ui.image, ui.status, u.law_status from Users_info ui, Users u where ui.id = @id", Server.sql);
+                command = new SqlCommand("select ui.id, ui.app_name, ui.email, ui.user_discription, ui.image, ui.status, u.law_status, ui.is_blocked from Users_info ui join Users as u on ui.id = u.id where ui.id = @id", Server.sql);
                 command.Parameters.Add(new SqlParameter("@id", (int)reader_Users.GetValue(0)));
                 reader_Users.Close();
                 SqlDataReader reader_Users_info = command.ExecuteReader();
@@ -1179,6 +1293,7 @@ namespace KatranServer
                     image,
                     (Status)Enum.Parse(typeof(Status), reader_Users_info.GetString(5)),
                     (LawStatus)Enum.Parse(typeof(LawStatus), reader_Users_info.GetString(6)),
+                    reader_Users_info.GetBoolean(7),
                     auth.AuthLogin, auth.Password);
 
                 BinaryFormatter formatter = new BinaryFormatter();
