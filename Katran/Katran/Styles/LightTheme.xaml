@@ -4,10 +4,10 @@
                     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" xmlns:system="clr-namespace:System;assembly=mscorlib">
 
     <SolidColorBrush x:Key="TextColor" Color="Black" />
-    <SolidColorBrush x:Key="AR_BorderBrush" Color="#FFFAFAFA" /> <!--цвет окон регистрации и авторизации-->
+    <SolidColorBrush x:Key="AR_BorderBrush" Color="LightGray" /> <!--цвет окон регистрации и авторизации-->
 
     <SolidColorBrush x:Key="WindowBackgroundBrush" Color="White" />
-    <SolidColorBrush x:Key="ChromeBrush" Color="#FFFAFAFA" />
-    <Color x:Key="ChromeColor" >#FFFAFAFA</Color>
+    <SolidColorBrush x:Key="ChromeBrush" Color="LightGray" />
+    <Color x:Key="ChromeColor" >LightGray</Color>
 
 </ResourceDictionary>

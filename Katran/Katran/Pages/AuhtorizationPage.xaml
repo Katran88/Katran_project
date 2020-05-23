@@ -29,9 +29,9 @@
                         Height="45" Width="180"
                         Margin="0,40,0,0" Command="{Binding SignInCommand}"
                         />
-                <Button x:Name="SignUpButton" 
+                <Button x:Name="SignUpButton" HorizontalAlignment="Right" 
                         Template="{StaticResource ResourceKey=btTemplateWithoutBorder}"
-                        Margin="305,55,0,0" Command="{Binding SignUpPageCommand}" >
+                        Margin="0,55,5,0" Command="{Binding SignUpPageCommand}" >
                     <TextBlock Text="{DynamicResource l_SignUp_q}" Style="{StaticResource ResourceKey=BigTextStyle}" TextDecorations="Underline" />
                 </Button>
             </StackPanel>

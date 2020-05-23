@@ -11,7 +11,7 @@
         MinHeight="550" MinWidth="850" BorderThickness="1" BorderBrush="{StaticResource OutlineBrush}"
         Icon="/Resources/Katran.png" Title="{DynamicResource l_Title}"
         WindowStyle="None"
-        FontFamily="{DynamicResource ResourceKey=FontFamilyStyle}" ScrollViewer.CanContentScroll="True" Background="{StaticResource WindowBackgroundBrush}" >
+        FontFamily="{DynamicResource ResourceKey=FontFamilyStyle}" ScrollViewer.CanContentScroll="True" Background="{DynamicResource WindowBackgroundBrush}" >
 
     <Window.DataContext>
         <ViewModels:MainViewModel/>

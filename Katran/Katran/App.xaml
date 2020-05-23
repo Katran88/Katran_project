@@ -7,7 +7,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 
-                <ResourceDictionary Source="Resources\Dictionary_EN.xaml" />
+                <ResourceDictionary Source="Resources\Dictionary_RU.xaml" />
                 <ResourceDictionary Source="Styles\DarkTheme.xaml" />
                 <ResourceDictionary Source="Styles\CommonStyle.xaml" />
                 <ResourceDictionary Source="Styles\CustomWindowStyle.xaml" />

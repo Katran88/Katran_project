@@ -157,6 +157,7 @@
     <Compile Include="Models\ClientListener.cs" />
     <Compile Include="Models\ContactsTab.cs" />
     <Compile Include="Models\Converters.cs" />
+    <Compile Include="Models\Settings.cs" />
     <Compile Include="Models\SettingsTab.cs" />
     <Compile Include="Models\UserInfo.cs" />
     <Compile Include="Models\AdminTab.cs" />

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Katran.Models;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -29,17 +30,17 @@ namespace Katran
                 switch (value.Name)
                 {
                     case "ru":
-                        dict.Source = new Uri("Resources/Dictionary_RU.xaml", UriKind.Relative);
+                        dict.Source = new Uri(@"Resources\Dictionary_RU.xaml", UriKind.Relative);
                         break;
                     case "en":
                     default:
-                        dict.Source = new Uri("Resources/Dictionary_EN.xaml", UriKind.Relative);
+                        dict.Source = new Uri(@"Resources\Dictionary_EN.xaml", UriKind.Relative);
                         break;
                 }
 
                 //3. Находим старую ResourceDictionary и удаляем его и добавляем новую ResourceDictionary
                 ResourceDictionary oldDict = (from d in Application.Current.Resources.MergedDictionaries
-                                              where d.Source != null && d.Source.OriginalString.StartsWith("Resources/Dictionary")
+                                              where d.Source != null && d.Source.OriginalString.StartsWith(@"Resources\Dictionary_")
                                               select d).First();
                 if (oldDict != null)
                 {
@@ -54,6 +55,60 @@ namespace Katran
 
                 System.Threading.Thread.CurrentThread.CurrentUICulture = value;
             }
+
+
+        }
+
+        public static Settings.Theme Theme
+        {
+            set
+            {
+                ResourceDictionary myDict = new ResourceDictionary();
+                ResourceDictionary matDict = new ResourceDictionary();
+                switch (value)
+                {
+                    case Settings.Theme.Dark:
+                        myDict.Source = new Uri(@"Styles\DarkTheme.xaml", UriKind.Relative);
+                        matDict.Source = new Uri(@"pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Dark.xaml", UriKind.Absolute);
+                        break;
+                    case Settings.Theme.Light:
+                    default:
+                        myDict.Source = new Uri(@"Styles\LightTheme.xaml", UriKind.Relative);
+                        matDict.Source = new Uri(@"pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml", UriKind.Absolute);
+                        break;
+                }
+
+                
+                ResourceDictionary oldMyDict = (from d in Application.Current.Resources.MergedDictionaries
+                                              where d.Source != null && d.Source.OriginalString.EndsWith(@"Theme.xaml")
+                                              select d).First();
+                if (oldMyDict != null)
+                {
+                    int ind = Application.Current.Resources.MergedDictionaries.IndexOf(oldMyDict);
+                    Application.Current.Resources.MergedDictionaries.Remove(oldMyDict);
+                    Application.Current.Resources.MergedDictionaries.Insert(ind, myDict);
+                }
+                else
+                {
+                    Application.Current.Resources.MergedDictionaries.Add(myDict);
+                }
+
+                ResourceDictionary oldMatDict = (from d in Application.Current.Resources.MergedDictionaries
+                                                where d.Source != null && d.Source.OriginalString.StartsWith(@"pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.")
+                                                select d).First();
+                if (oldMatDict != null)
+                {
+                    int ind = Application.Current.Resources.MergedDictionaries.IndexOf(oldMatDict);
+                    Application.Current.Resources.MergedDictionaries.Remove(oldMatDict);
+                    Application.Current.Resources.MergedDictionaries.Insert(ind, matDict);
+                }
+                else
+                {
+                    Application.Current.Resources.MergedDictionaries.Add(matDict);
+                }
+            }
+
+
         }
     }
 }

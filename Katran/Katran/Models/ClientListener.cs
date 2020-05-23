@@ -238,16 +238,21 @@ namespace Katran.Models
         {
             if (bunbUT.UserId == mainPageViewModel.MainViewModel.UserInfo.Info.Id)
             {
-                mainPageViewModel.MainViewModel.UserInfo.Info.IsBlocked = bunbUT.IsBlocked;
-                if (bunbUT.IsBlocked)
+                Application.Current.Dispatcher.Invoke(new Action(() =>
                 {
-                    MainPageViewModel.clientListener.CloseConnection();
-                    mainPageViewModel.MainViewModel.CurrentPage = new BlockPage(mainPageViewModel.MainViewModel);
-                }
-                else
-                {
-                    mainPageViewModel.MainViewModel.CurrentPage = new AuhtorizationPage(mainPageViewModel.MainViewModel);
-                }
+                    if (bunbUT.IsBlocked)
+                    {
+                        MainPageViewModel.clientListener.CloseConnection();
+                        mainPageViewModel.MainViewModel.CurrentPage = new BlockPage(mainPageViewModel.MainViewModel);
+                    }
+                    else
+                    {
+                        if (mainPageViewModel.MainViewModel.UserInfo.Info.IsBlocked)
+                            mainPageViewModel.MainViewModel.CurrentPage = new AuhtorizationPage(mainPageViewModel.MainViewModel);
+                    }
+                    mainPageViewModel.MainViewModel.UserInfo.Info.IsBlocked = bunbUT.IsBlocked;
+                }));
+                
             }
             else
             {

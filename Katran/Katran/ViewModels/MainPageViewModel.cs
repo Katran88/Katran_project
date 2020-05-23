@@ -269,12 +269,11 @@ namespace Katran.ViewModels
             {
                 return new DelegateCommand(obj =>
                 {
+                    Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+                    bool? result = dlg.ShowDialog();
+
                     Task.Factory.StartNew(() =>
                     {
-                        Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-
-                        bool? result = dlg.ShowDialog();
-
                         if (result.HasValue && result.Value == true)
                         {
                             Message message = new Message(-1,

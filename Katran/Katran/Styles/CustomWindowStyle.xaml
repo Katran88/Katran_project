@@ -4,8 +4,8 @@
 
     <ControlTemplate x:Key="ButtonWindowClose" TargetType="Button">
         <Grid  x:Name="CloseButton" Width="25" VerticalAlignment="Top" Height="20" Background="{DynamicResource ResourceKey=ChromeBrush}">
-            <Path x:Name="Close1" Data="M18,-2 L0.125,16" Fill="#FF282E33" Height="10" Stretch="Fill" Width="10" Stroke="#FFE0E0E0" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat" StrokeMiterLimit="12"/>
-            <Path x:Name="Close2" Data="M0.75,1.0333333 L15,15" Fill="#FF282E33" HorizontalAlignment="Left" Height="10" Margin="7.5,5,0,0" StrokeStartLineCap="Flat" Stretch="Fill" StrokeEndLineCap="Flat" Stroke="#FFE0E0E0" StrokeMiterLimit="12" VerticalAlignment="Top" Width="10"/>
+            <Path x:Name="Close1" Data="M18,-2 L0.125,16" Fill="{DynamicResource TextColor}" Height="10" Stretch="Fill" Width="10" Stroke="#FFE0E0E0" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat" StrokeMiterLimit="12"/>
+            <Path x:Name="Close2" Data="M0.75,1.0333333 L15,15" Fill="{DynamicResource TextColor}" HorizontalAlignment="Left" Height="10" Margin="7.5,5,0,0" StrokeStartLineCap="Flat" Stretch="Fill" StrokeEndLineCap="Flat" Stroke="#FFE0E0E0" StrokeMiterLimit="12" VerticalAlignment="Top" Width="10"/>
         </Grid>
         <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
@@ -18,7 +18,7 @@
 
     <ControlTemplate x:Key="ButtonWindowCollapse" TargetType="Button">
         <Grid x:Name="CollapseButton"  Width="25" Height="20" Background="{DynamicResource ResourceKey=ChromeBrush}">
-            <Path Data="M15.975,6.3 L1.075,6.3" x:Name="Collapse" Fill="#FF282E33" Height="10" StrokeStartLineCap="Flat" Stretch="Fill" StrokeEndLineCap="Flat" Stroke="#FFE0E0E0" StrokeMiterLimit="12" Width="12" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="6.4,0,6.6,5"/>
+            <Path Data="M15.975,6.3 L1.075,6.3" x:Name="Collapse" Fill="{DynamicResource TextColor}" Height="10" StrokeStartLineCap="Flat" Stretch="Fill" StrokeEndLineCap="Flat" Stroke="#FFE0E0E0" StrokeMiterLimit="12" Width="12" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="6.4,0,6.6,5"/>
         </Grid>
         <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True">

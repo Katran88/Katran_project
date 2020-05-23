@@ -20,7 +20,7 @@
 			<ColumnDefinition />
 		</Grid.ColumnDefinitions>
 
-		<Expander Grid.Column="0" ExpandDirection="left" HorizontalAlignment="Left" Panel.ZIndex="1" Foreground="{DynamicResource TextColor}" >
+		<Expander Grid.Column="0" ExpandDirection="left" HorizontalAlignment="Left" Panel.ZIndex="1" Foreground="{DynamicResource TextColor}" Background="{DynamicResource AR_BorderBrush}" >
 			<Expander.Header >
 				<TextBlock Text="{DynamicResource ResourceKey=l_Menu}" Style="{DynamicResource ResourceKey=MediumTextStyle}" >
 					<TextBlock.LayoutTransform>
@@ -129,7 +129,8 @@
 						Height="30" Width="100" HorizontalAlignment="Center" VerticalAlignment="Bottom"
 						Margin="5" Command="{Binding CreateConversationTab.CreateConv}"/>
 
-				<StackPanel Grid.Row="1" Orientation="Vertical" Visibility="{Binding AdminTab.TabVisibility}" Grid.RowSpan="2" >
+                <!--{Binding AdminTab.TabVisibility}-->
+                <StackPanel Grid.Row="1" Orientation="Vertical" Visibility="{Binding AdminTab.TabVisibility}" Grid.RowSpan="2" >
                     
                     <usercontrolls:ContactsSearcher SearchFieldText="{Binding AdminTab.SearchTextField, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
 													SearchButtonBind="{Binding AdminTab.SearchButton}"
@@ -151,6 +152,7 @@
                             <materialDesign:PackIcon Kind="AccountCancel" Height="25" Width="25" Foreground="{DynamicResource TextColor}" />
                         </Button>
 
+                        
                         <Button Template="{StaticResource ResourceKey=btTemplateWithBorder}"
 								Visibility="{Binding AdminTab.UnblockUserButtonVisibility}"
 								Command="{Binding AdminTab.UnblockUser}"
@@ -166,8 +168,45 @@
 
                 <!--{Binding SettingsTab.TabVisibility}-->
                 <StackPanel Grid.Row="1" Orientation="Vertical" Visibility="{Binding SettingsTab.TabVisibility}" Grid.RowSpan="2" >
-					<TextBlock Text="Settings" />
-				</StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0" >
+                        <TextBlock Style="{DynamicResource BigTextStyle}" Margin="5,5,0,5"
+                                   Text="{DynamicResource l_Language}"/>
+
+                        <Button x:Name="CultureChangeButton" VerticalAlignment="Center" HorizontalAlignment="Right"
+								Template="{StaticResource ResourceKey=btTemplateWithoutBorder}"
+								Command="{Binding MainViewModel.ChangeCulture}" Margin="5,0,7,0" >
+                            <TextBlock Text="{Binding MainViewModel.CultureTag}" Style="{DynamicResource ResourceKey=BigTextStyle}" TextDecorations="Underline"  />
+                        </Button>
+
+                    </StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0" >
+                        <TextBlock Style="{DynamicResource BigTextStyle}" Margin="5,5,0,5"
+                                   Text="{DynamicResource l_Theme}"/>
+
+                        <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" 
+                                      IsChecked="{Binding SettingsTab.IsDarkTheme, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Margin="5,5,0,5" >
+                            <materialDesign:ToggleButtonAssist.SwitchTrackOnBackground>
+                                <SolidColorBrush Color="{StaticResource OutlineColor}" />
+                            </materialDesign:ToggleButtonAssist.SwitchTrackOnBackground>
+                            <materialDesign:ToggleButtonAssist.SwitchTrackOffBackground>
+                                <SolidColorBrush Color="{StaticResource OutlineColor}" />
+                            </materialDesign:ToggleButtonAssist.SwitchTrackOffBackground>
+                        </ToggleButton>
+
+                    </StackPanel>
+
+                    <Button Template="{StaticResource ResourceKey=btTemplateWithBorder}"
+							Command="{Binding SettingsTab.LogOut}"
+                            ToolTip="{DynamicResource ResourceKey=l_LogOut}"
+							Grid.Row="2" Margin="5"
+							Height="60" Width="80"  HorizontalAlignment="Right" VerticalAlignment="Bottom" >
+                        <materialDesign:PackIcon Kind="Logout" Height="50" Width="50" Foreground="{DynamicResource TextColor}" />
+                    </Button>
+
+                </StackPanel>
 				
 				
 
@@ -191,7 +230,7 @@
 				</Grid.RowDefinitions>
 
 				<TextBox Grid.Row="0" Text="{Binding MessageText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-						 Foreground="{DynamicResource TextColor}"
+						 Foreground="{DynamicResource TextColor}" MaxLength="{StaticResource MessageMaxLength}"
 						 Style="{StaticResource MaterialDesignOutlinedTextFieldTextBox}"
 						 VerticalAlignment="Bottom" AcceptsReturn="True"
 						 TextWrapping="Wrap" MaxHeight="180" Margin="4"
@@ -200,12 +239,14 @@
 
 				<Button Grid.Row="1" HorizontalAlignment="Left" Margin="0,0,5,0"
 						Command="{Binding SendFile}"
+                        ToolTip="{DynamicResource l_SendFile}"
 						Template="{DynamicResource ResourceKey=btTemplateWithoutBorder}" >
 					<materialDesign:PackIcon Kind="Paperclip" VerticalAlignment="Center" Height="20" Width="20" />
 				</Button>
 
 				<Button Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,5,0"
 						Command="{Binding SendMessage}"
+                        ToolTip="{DynamicResource l_SendMessage}"
 						Template="{DynamicResource ResourceKey=btTemplateWithoutBorder}" >
 					<materialDesign:PackIcon Kind="Send" VerticalAlignment="Center" Height="20" Width="20" />
 				</Button>

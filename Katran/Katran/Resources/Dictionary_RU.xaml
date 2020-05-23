@@ -4,5 +4,75 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
     <system:String x:Key="l_Title">Катран</system:String>
-    
+    <system:String x:Key="l_ConversationTitle">Название:</system:String>
+    <system:String x:Key="l_Menu">Меню</system:String>
+    <system:String x:Key="l_ToolTipContacts">Контакты и Беседы</system:String>
+    <system:String x:Key="l_ToolTipCreateConversation">Создать Беседу</system:String>
+    <system:String x:Key="l_YourMessage">Ваше сообщение</system:String>
+    <system:String x:Key="l_SearchForContact">Поиск контактов</system:String>
+    <system:String x:Key="l_Search">Поиск</system:String>
+    <system:String x:Key="l_AddToContacts">Добавить в контакты</system:String>
+    <system:String x:Key="l_RemoveFromContacts">Удалить из контактов</system:String>
+    <system:String x:Key="l_SearchOutContacts">Искать вне контактов</system:String>
+    <system:String x:Key="l_Confirm">Подтвердить</system:String>
+    <system:String x:Key="l_Reject">Отмена</system:String>
+    <system:String x:Key="l_download">Загразка файла...</system:String>
+    <system:String x:Key="l_succsDownloaded">Загрузка завершена успешно</system:String>
+    <system:String x:Key="l_upload">Отправка файла...</system:String>
+    <system:String x:Key="l_succsUploaded">Отправка завершена успешно</system:String>
+    <system:String x:Key="l_CreateNewConversation">Создать новую Беседу</system:String>
+    <system:String x:Key="l_Create">Создать</system:String>
+    <system:String x:Key="l_Members">Участников</system:String>
+    <system:String x:Key="l_UserLoggedOut">Пользователь вышел из беседы</system:String>
+    <system:String x:Key="l_ToolTipAdminPanel">Панель Администратора</system:String>
+    <system:String x:Key="l_ToolTipSettings">Настройки</system:String>
+    <system:String x:Key="l_Blocked">Заблокирован</system:String>
+    <system:String x:Key="l_BlockUser">Заблокировать Пользователя</system:String>
+    <system:String x:Key="l_UnblockUser">Разблокировать Пользователя</system:String>
+    <system:String x:Key="l_YouBlocked">Вы были заблокированы Администратором</system:String>
+    <system:String x:Key="l_OpenSignInPage">Открыть страницу Авторизации?</system:String>
+    <system:String x:Key="l_SendFile">Отправить файл</system:String>
+    <system:String x:Key="l_SendMessage">Отправить сообщние</system:String>
+    <system:String x:Key="l_Theme">Тема</system:String>
+    <system:String x:Key="l_Language">Язык</system:String>
+
+    <system:String x:Key="l_RemoveContact">Вы действительно хотите удалить выделеный контакт? Переписка будет безвозвратно удалена.</system:String>
+    <system:String x:Key="l_AddContact">Добавить выбраного пользователя в Контакты.</system:String>
+    <system:String x:Key="l_LogOut">Выйти из аккаунта</system:String>
+    <system:String x:Key="l_LogOutTooltip">Вы дейтвительно хотите выйти из аккаунта?</system:String>
+
+    <system:String x:Key="l_Login">Логин:</system:String>
+    <system:String x:Key="l_Password">Пароль:</system:String>
+
+    <system:String x:Key="l_SignIn_main">Войти</system:String>
+    <system:String x:Key="l_SignUp_main">Зарегестрироваться</system:String>
+    <system:String x:Key="l_SignIn_q">Войти?</system:String>
+    <system:String x:Key="l_SignUp_q">Зарегестрироваться?</system:String>
+
+    <system:String x:Key="l_Username">Имя в приложении:</system:String>
+    <system:String x:Key="l_Email">Почта:</system:String>
+    <system:String x:Key="l_Avatar">Аватарка:</system:String>
+    <system:String x:Key="l_Image">Картинка:</system:String>
+
+
+    <!--Уведомления для строки состояния (при добавлении нового уведомления не забывай добавлять ее в enum в MainViewModel.cs)-->
+    <system:String x:Key="l_sAuth">Успешная авторизация</system:String>
+    <system:String x:Key="l_sReg">Успешная регистрация</system:String>
+    <system:String x:Key="l_uncorServerResponse">Некорректный ответ от сервера</system:String>
+    <system:String x:Key="l_wrngLogOrPass">Неправильный логин или пароль</system:String>
+    <system:String x:Key="l_userAlrReg">Такой пользователь уже существует</system:String>
+    <system:String x:Key="l_undefError">Необработанная ошибка</system:String>
+    <system:String x:Key="l_noConWithServer">Отсутствует подключение с сервером</system:String>
+
+    <system:String x:Key="l_forgotLogin">Введите ваш логин</system:String>
+    <system:String x:Key="l_forgotUsername">Введите ваше имя в приложении</system:String>
+    <system:String x:Key="l_forgotEmail">Введите вашу почту</system:String>
+    <system:String x:Key="l_forgotPassword">Введите пароль</system:String>
+    <system:String x:Key="l_forgotConvTitle">Введите название Беседы</system:String>
+    <system:String x:Key="l_convCreated">Беседа успешно создана, проверьте вкладку Контктов и Бесед</system:String>
+
+    <system:String x:Key="l_uncorrectEmail">Некорректная почта</system:String>
+    <system:String x:Key="l_uncorrectPassword">Некорректный пароль</system:String>
+    <system:String x:Key="l_notSamePasswords">Пароли не совпадают</system:String>
+
 </ResourceDictionary>

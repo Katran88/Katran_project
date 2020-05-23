@@ -12,7 +12,7 @@ using System.Security.Cryptography;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-
+using System.Xml.Serialization;
 
 namespace Katran.ViewModels
 {
@@ -53,6 +53,21 @@ namespace Katran.ViewModels
             set
             {
                 userInfo = value;
+                OnPropertyChanged();
+            }
+        }
+
+        internal Settings settings;
+        public Settings CurrentSettings
+        {
+            get
+            {
+                return settings;
+            }
+
+            set
+            {
+                settings = value;
                 OnPropertyChanged();
             }
         }
@@ -105,8 +120,22 @@ namespace Katran.ViewModels
         public MainViewModel()
         {
             UserInfo = new UserInfo(null);
-            CultureTag = "EN";
 
+            try
+            {
+                XmlSerializer formatter = new XmlSerializer(typeof(Settings));
+
+                using (FileStream fs = new FileStream(Settings.SettingsFileName, FileMode.OpenOrCreate))
+                {
+                    CurrentSettings = (Settings)formatter.Deserialize(fs);
+                    CurrentSettings.ApplySettings();
+                }
+            }
+            catch(Exception ex)
+            {
+                CurrentSettings = new Settings();
+            }
+            CultureTag = CurrentSettings.CurrentCulture.ToString();
             TryAuthtorizait(true);
         }
 
@@ -199,13 +228,18 @@ namespace Katran.ViewModels
                     if (CultureTag.Equals("RU"))
                     {
                         App.Language = new CultureInfo("EN");
+                        CurrentSettings.CurrentCulture = Settings.Culture.EN;
                         CultureTag = "EN";
                     }
                     else
                     {
                         App.Language = new CultureInfo("RU");
+                        CurrentSettings.CurrentCulture = Settings.Culture.RU;
                         CultureTag = "RU";
                     }
+
+                    Settings.SaveSettings(CurrentSettings);
+
                 }/*вторым параметром можно задать функцию-условие, которая возвращает булевое значение для доступности кнопки(во вью достаточно просто забиндить команду)*/);
             }
         }

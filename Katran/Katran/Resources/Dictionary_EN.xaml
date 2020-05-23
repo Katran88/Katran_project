@@ -31,9 +31,15 @@
     <system:String x:Key="l_UnblockUser">Unblock User</system:String>
     <system:String x:Key="l_YouBlocked">You has been blocked by Administator</system:String>
     <system:String x:Key="l_OpenSignInPage">Open Sign In page?</system:String>
+    <system:String x:Key="l_SendFile">Send File</system:String>
+    <system:String x:Key="l_SendMessage">Send Message</system:String>
+    <system:String x:Key="l_Theme">Theme</system:String>
+    <system:String x:Key="l_Language">Language</system:String>
 
     <system:String x:Key="l_RemoveContact">Are you sure you want to remove selected user from contacts? All messages will be lost.</system:String>
     <system:String x:Key="l_AddContact">Add selected user to the contact list.</system:String>
+    <system:String x:Key="l_LogOut">Log Out</system:String>
+    <system:String x:Key="l_LogOutTooltip">Are you really want to Log Out?</system:String>
 
     <system:String x:Key="l_Login">Login:</system:String>
     <system:String x:Key="l_Password">Password:</system:String>
@@ -68,4 +74,5 @@
     <system:String x:Key="l_uncorrectEmail">Uncorrect email</system:String>
     <system:String x:Key="l_uncorrectPassword">Uncorrect password</system:String>
     <system:String x:Key="l_notSamePasswords">Passwords are not same</system:String>
+    
 </ResourceDictionary>

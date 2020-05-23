@@ -118,13 +118,16 @@ namespace Katran.UserControlls
                 isBlocked = value; 
                 OnPropertyChanged();
 
-                if (isBlocked)
+                if (contactType == ContactType.Chat)
                 {
-                    ContactLastMessage = (string)Application.Current.FindResource("l_Blocked");
-                }
-                else
-                {
-                    ContactLastMessage = "";
+                    if (isBlocked)
+                    {
+                        ContactLastMessage = (string)Application.Current.FindResource("l_Blocked");
+                    }
+                    else
+                    {
+                        ContactLastMessage = "";
+                    }
                 }
             }
         }
@@ -191,12 +194,11 @@ namespace Katran.UserControlls
             ConvMembers = null;
         }
 
-        public ContactUI(string contactUsername, string contactLasMessage, BitmapImage bitmapImage, Status contactStatus, int contactID, int chatId, ObservableCollection<MessageUI> contactMessages, bool isBlocked, ContactType contactType = ContactType.Chat, ObservableCollection<Contact> convMembers = null)
+        public ContactUI(string contactUsername, string contactLastMessage, BitmapImage bitmapImage, Status contactStatus, int contactID, int chatId, ObservableCollection<MessageUI> contactMessages, bool isBlocked, ContactType contactType = ContactType.Chat, ObservableCollection<Contact> convMembers = null)
         {
             InitializeComponent();
 
             ContactUsername = contactUsername;
-            ContactLastMessage = contactLasMessage;
             ContactAvatar = bitmapImage;
             ContactStatus = contactStatus;
             ContactID = contactID;
@@ -224,7 +226,7 @@ namespace Katran.UserControlls
                     ConvMembers = convMembers;
                 }
             }
-
+            ContactLastMessage = contactLastMessage;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
