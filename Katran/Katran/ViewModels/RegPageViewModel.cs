@@ -163,21 +163,22 @@ namespace Katran.ViewModels
                             regPage.Password_1.Length != 0 &&
                             regPage.Password_1.CompareTo(regPage.Password_2) == 0 &&
                             Username.Length != 0 &&
-                            Email.Length != 0)
+                            Email.Length != 0 &&
+                            Regex.Match((string)Email, EmailInputField.pattern, RegexOptions.IgnoreCase).Value.Length != 0)
                         {
 
                             Task.Factory.StartNew(() =>
                                 {
                                     RRTemplate response = Client.ServerRequest(new RRTemplate(RRType.Registration, new RegistrationTemplate(-1,
-                                                                                                                       Username,
-                                                                                                                       Email,
-                                                                                                                       "",
-                                                                                                                       userAvatar,
-                                                                                                                       Status.Online,
-                                                                                                                       LawStatus.User,
-                                                                                                                       false,
-                                                                                                                       Login,
-                                                                                                                       regPage.Password_1)));
+                                                                                                                                           Username,
+                                                                                                                                           Email,
+                                                                                                                                           "",
+                                                                                                                                           userAvatar,
+                                                                                                                                           Status.Online,
+                                                                                                                                           LawStatus.User,
+                                                                                                                                           false,
+                                                                                                                                           Login,
+                                                                                                                                           regPage.Password_1)));
                                     switch (response.RRType)
                                     {
                                         case RRType.Authorization:

@@ -325,16 +325,19 @@ namespace KatranServer
                 }
             }
 
-            using (MemoryStream memoryStream = new MemoryStream()) //Уведомление других юзеров о его выходе
+            if (!reader.IsClosed)
             {
-                formatter.Serialize(memoryStream, new RRTemplate(RRType.RemoveConvTarget, rconvT));
-                ConectedUser user;
-                while (reader.Read())
+                using (MemoryStream memoryStream = new MemoryStream()) //Уведомление других юзеров о его выходе
                 {
-                    user = Server.conectedUsers.Find(x => x.id == reader.GetInt32(0));
-                    if (user != null)
+                    formatter.Serialize(memoryStream, new RRTemplate(RRType.RemoveConvTarget, rconvT));
+                    ConectedUser user;
+                    while (reader.Read())
                     {
-                        user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                        user = Server.conectedUsers.Find(x => x.id == reader.GetInt32(0));
+                        if (user != null)
+                        {
+                            user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+                        }
                     }
                 }
             }
@@ -857,6 +860,8 @@ namespace KatranServer
                 refrUserData.AuthLogin,
                 (string)reader_User_info.GetValue(7));
 
+            reader_User_info.Close();
+
             BinaryFormatter formatter = new BinaryFormatter();
             using (MemoryStream memoryStream = new MemoryStream())
             {
@@ -865,7 +870,7 @@ namespace KatranServer
                 client.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
             }
 
-            reader_User_info.Close();
+            
             #endregion
         }
 
@@ -999,7 +1004,7 @@ namespace KatranServer
 
                 #endregion
             }
-
+            contactsReader.Close();
             #endregion
 
             #region Добавление в лист контактов всех бесед
@@ -1164,7 +1169,7 @@ namespace KatranServer
 
             #endregion
             
-            contactsReader.Close();
+            
         }
 
         //обновление Статуса пользователя (Online/Offline)
@@ -1242,6 +1247,11 @@ namespace KatranServer
             using (MemoryStream memoryStream = new MemoryStream())
             {
                 reg.Status = Status.Online;
+                if (reg.Image == null)
+                {
+                    reg.Image = GetDefaultUserImage();
+                }
+                
                 formatter.Serialize(memoryStream, new RRTemplate(RRType.Authorization, reg));
 
                 client.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
@@ -1296,6 +1306,8 @@ namespace KatranServer
                     reader_Users_info.GetBoolean(7),
                     auth.AuthLogin, auth.Password);
 
+                reader_Users_info.Close();
+
                 BinaryFormatter formatter = new BinaryFormatter();
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
@@ -1305,7 +1317,7 @@ namespace KatranServer
                     client.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
                 }
 
-                reader_Users_info.Close();
+                
                 #endregion
                 
             }

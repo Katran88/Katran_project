@@ -169,16 +169,18 @@ namespace Katran.ViewModels
                         }
                     }
 
-
-                    if (UserInfo.Info.IsBlocked)
+                    if (UserInfo.Info != null)
                     {
-                        CurrentPage = new BlockPage(this);
-                    }
-                    else
-                    {
-                        CurrentPage = new MainPage(this);
-                        NotifyUserByRowState(RowStateResourcesName.l_sAuth);
-                    }                    
+                        if (UserInfo.Info.IsBlocked)
+                        {
+                            CurrentPage = new BlockPage(this);
+                        }
+                        else
+                        {
+                            CurrentPage = new MainPage(this);
+                            NotifyUserByRowState(RowStateResourcesName.l_sAuth);
+                        }
+                    }               
                 }
                 else
                 {
