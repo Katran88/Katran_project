@@ -26,13 +26,6 @@ namespace Katran.ViewModels
 {
     public class MainPageViewModel : INotifyPropertyChanged
     {
-        private Visibility settingsTabVisibility;
-        public Visibility SettingsTabVisibility
-        {
-            get { return settingsTabVisibility; }
-            set { settingsTabVisibility = value; OnPropertyChanged(); }
-        }
-
         private Visibility adminTabButtonVisibility;
         public Visibility AdminTabButtonVisibility
         {

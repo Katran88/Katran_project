@@ -1,0 +1,324 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Katran.Models.AdminTab" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="0.5" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>ICAAACAAAAQAAAAEoAAAAAAAgAAIIAAAiIAAgAiAACA=</HashCode>
+      <FileName>Models\AdminTab.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="MainPageViewModel" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.Models.Client">
+    <Position X="18" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAAAAAAAEAAAAACAgAAAAAAAAAAAAAQBAAABAA=</HashCode>
+      <FileName>Models\Client.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Katran.Models.ClientListener">
+    <Position X="19.75" Y="1.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIADkAAAEgAAAASABACAQAgIAAgCAAABAAAQEA=</HashCode>
+      <FileName>Models\ClientListener.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Katran.Models.ContactsTab" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="5" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>BLAAECYAAAgQAAAAoCUAAQQkggAIIAAAiAAAQAAgCBA=</HashCode>
+      <FileName>Models\ContactsTab.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="MainPageViewModel" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.Models.Converters">
+    <Position X="16.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQA=</HashCode>
+      <FileName>Models\Converters.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Katran.Models.CreateConversationTab" BaseTypeListCollapsed="true">
+    <Position X="3.5" Y="0.5" Width="2.75" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>BHAAgAQEAAAAABAAoCQAIAQ0gAAIIAAAiEAAQABwAAA=</HashCode>
+      <FileName>Models\CreateConversationTab.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="MainPageViewModel" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.Models.Settings">
+    <Position X="14.25" Y="1.5" Width="1.5" />
+    <NestedTypes>
+      <Enum Name="Katran.Models.Settings.Culture" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Models\Settings.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="Katran.Models.Settings.Theme" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Models\Settings.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAACAAAgAAAAAAAAAAAAAAAAYAAAAAAAAIA=</HashCode>
+      <FileName>Models\Settings.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Katran.Models.SettingsTab" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="10.25" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAAAAAAAAogAAAAAAgAAAIAAAggAAAAAAAAA=</HashCode>
+      <FileName>Models\SettingsTab.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="MainPageViewModel" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.Models.UserInfo" BaseTypeListCollapsed="true">
+    <Position X="13" Y="8.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAQAAAAEgAAAAAAAQAAAAEAAAAA=</HashCode>
+      <FileName>Models\UserInfo.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.Pages.AuhtorizationPage" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="14.75" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAA=</HashCode>
+      <FileName>Pages\AuhtorizationPage.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.Pages.BlockPage" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="14.75" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Pages\BlockPage.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.Pages.MainPage" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="14.75" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Pages\MainPage.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.Pages.RegistrationPage" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="14.75" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAA=</HashCode>
+      <FileName>Pages\RegistrationPage.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.UserControlls.ContactsBorder" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="8.25" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAEAAAAAAAIAAAAAAAgAQAAAAAAAAEAAAAAAA=</HashCode>
+      <FileName>UserControlls\ContactsBorder.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.UserControlls.ContactsSearcher" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="8.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABABAAAIAAAAoAAAAABggAAAAAAAAACAQIgEAAA=</HashCode>
+      <FileName>UserControlls\ContactsSearcher.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.UserControlls.ContactUI" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="12" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAEBAAAAAACQAgIAEAIAAAlQAAAgEAQAIABIYAABQ=</HashCode>
+      <FileName>UserControlls\ContactUI.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.UserControlls.CryptInputField" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="8.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAAAgAAAAAAAKAAiCAAgACAAAAAAAAAAA=</HashCode>
+      <FileName>UserControlls\CryptInputField.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.UserControlls.EmailInputField" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="12" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAABEAAAAgAAAAAAAKAAiCAEgABAAAAAAAAgAQ=</HashCode>
+      <FileName>UserControlls\EmailInputField.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.UserControlls.LoginField" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="10.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAABEAAAAgAAAAAAAKAAiCAAkABAAAAAAAAgAQ=</HashCode>
+      <FileName>UserControlls\LoginField.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.UserControlls.MessageUI" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="12" Y="3.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>ACABAAxCAEAsCgBAIAAABAEQgQARMAENUQAADQFAAQQ=</HashCode>
+      <FileName>UserControlls\MessageUI.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.UserControlls.WindowStyle" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="10.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAABAAQCAAAAAABAAAAAAAAAAAAQAIA=</HashCode>
+      <FileName>UserControlls\WindowStyle.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.ViewModels.AuthPageViewModel" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="17.25" Y="9" Width="1.5" />
+    <AssociationLine Name="mainViewModel" Type="Katran.ViewModels.MainViewModel" ManuallyRouted="true">
+      <Path>
+        <Point X="17.25" Y="9.281" />
+        <Point X="16.312" Y="9.281" />
+        <Point X="16.312" Y="13.064" />
+        <Point X="11.25" Y="13.064" />
+        <Point X="11.25" Y="12.516" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAEAAAAAMAAAAAAAgAAAAAAAAAAQAAAAEAA=</HashCode>
+      <FileName>ViewModels\AuthPageViewModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="mainViewModel" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.ViewModels.BlockPageViewModel" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="17.5" Y="10" Width="1.5" />
+    <AssociationLine Name="mainViewModel" Type="Katran.ViewModels.MainViewModel" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="17.5" Y="10.281" />
+        <Point X="16.5" Y="10.281" />
+        <Point X="16.5" Y="11.941" />
+        <Point X="16.396" Y="11.941" Type="JumpStart" />
+        <Point X="16.229" Y="11.941" Type="JumpEnd" />
+        <Point X="12.375" Y="11.941" />
+        <Point X="12.375" Y="11.688" />
+        <Point X="12" Y="11.688" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAMAAAAAAAgAAAAAAAAAAAAAABAAA=</HashCode>
+      <FileName>ViewModels\BlockPageViewModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="mainViewModel" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.ViewModels.DelegateCommand" BaseTypeListCollapsed="true">
+    <Position X="14.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAACAAQAAEAEAABAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ViewModels\DelegateCommand.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.ViewModels.MainViewModel" BaseTypeListCollapsed="true">
+    <Position X="10.5" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAIQAAAAAAAAAAAAIAAAIgAAkACCAhAAAAAAAiAAAAI=</HashCode>
+      <FileName>ViewModels\MainViewModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="UserInfo" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.ViewModels.RegPageViewModel" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="18" Y="11" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAECAAAAAgIQAAAAEQgAAAAAAAAEAQAgBAEAA=</HashCode>
+      <FileName>ViewModels\RegPageViewModel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.Views.DialogWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="10.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAgAAAAAIAAAEAAAgBAAAAAAAAAAAAAAAAI=</HashCode>
+      <FileName>Views\DialogWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.MainWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="10.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Views\MainWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Katran.ViewModels.MainPageViewModel">
+    <Position X="6.75" Y="6.75" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AABCAAAAAAAQIgBAMCIAADAAgAQwQAAAAKiAAAAoAAA=</HashCode>
+      <FileName>ViewModels\MainPageViewModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="AdminTab" />
+      <Property Name="ContactsTab" />
+      <Property Name="CreateConversationTab" />
+      <Property Name="MainViewModel" />
+      <Property Name="SettingsTab" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Enum Name="Katran.ViewModels.RowStateResourcesName">
+    <Position X="16.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACiCAAAAABAACAIAAAICAACEAAAAQAAQQQMAAACgAI=</HashCode>
+      <FileName>ViewModels\MainViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

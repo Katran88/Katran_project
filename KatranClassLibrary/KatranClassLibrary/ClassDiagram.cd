@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="KatranClassLibrary.AddRemoveContactTargetTemplate">
+    <Position X="14.25" Y="5.25" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>AddRemoveContactTargetTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KatranClassLibrary.AddRemoveContactTemplate">
+    <Position X="19.75" Y="3" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAACAQ=</HashCode>
+      <FileName>AddRemoveContactTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KatranClassLibrary.AdminSearchTemplate">
+    <Position X="12" Y="5.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>AdminSearchTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KatranClassLibrary.AuthtorizationTemplate">
+    <Position X="18.25" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAQAAA=</HashCode>
+      <FileName>AuthtorizationTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KatranClassLibrary.BlockUnblockUserTemplate">
+    <Position X="10.5" Y="3" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAAAAAAAAAAAgAAAAAAgAAAAAAAAAAAAA=</HashCode>
+      <FileName>BlockUnblockUserTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KatranClassLibrary.CheckUserNameTemplate">
+    <Position X="15.25" Y="3" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>CheckUserNameTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KatranClassLibrary.Contact">
+    <Position X="7" Y="6" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAEAAAAAAAAAAEAAAkAAAAAAgAAAAAEAQAAAAQ=</HashCode>
+      <FileName>Contact.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="ContactType" />
+      <Field Name="Status" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="KatranClassLibrary.CreateConvTemplate">
+    <Position X="13" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAEAgAAAAAAAAAAAAABAAAAAAAAAAAAQ=</HashCode>
+      <FileName>CreateConvTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KatranClassLibrary.DownloadFileTemplate">
+    <Position X="15.75" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAQ=</HashCode>
+      <FileName>DownloadFileTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KatranClassLibrary.ErrorReportTemplate">
+    <Position X="12" Y="7.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAACAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ErrorReportTemplate.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="ErrorType" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="KatranClassLibrary.Message">
+    <Position X="5.25" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAMAABAAAAAAAAAAAAAAAAEAQAAAABgAQA=</HashCode>
+      <FileName>Message.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="MessageState" />
+      <Field Name="MessageType" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="KatranClassLibrary.RefreshContactStatusTemplate">
+    <Position X="17.5" Y="5.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAAAAAAAEAAAAAAAAAAAA=</HashCode>
+      <FileName>RefreshContactStatusTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KatranClassLibrary.RefreshContactsTemplate">
+    <Position X="20" Y="5.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>RefreshContactsTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KatranClassLibrary.RefreshMessageStateTemplate">
+    <Position X="6" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQ=</HashCode>
+      <FileName>RefreshMessageStateTemplate.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="MessageState" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="KatranClassLibrary.RefreshUserTemplate">
+    <Position X="17.5" Y="3" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>RefreshUserTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KatranClassLibrary.RegistrationTemplate" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="6.25" Width="2.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <AssociationLine Name="LawStatus" Type="KatranClassLibrary.LawStatus" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="1.562" Y="10.247" />
+        <Point X="1.562" Y="10.497" />
+        <Point X="3.25" Y="10.497" />
+        <Point X="3.25" Y="8.254" />
+        <Point X="4.25" Y="8.254" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAQSAKAEECAAAAAgIAAAAAAAkAAAAxACgAIQAgAAEgg=</HashCode>
+      <FileName>RegistrationTemplate.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Status" />
+      <Property Name="LawStatus" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="KatranClassLibrary.RemoveConvTemplate">
+    <Position X="13" Y="3" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>RemoveConvTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KatranClassLibrary.RRTemplate">
+    <Position X="0.5" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAiAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>RRTemplate.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="RRType" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="KatranClassLibrary.SearchOutContactsTemplate">
+    <Position X="20.75" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAACAAAA=</HashCode>
+      <FileName>SearchOutContactsTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KatranClassLibrary.SendMessageTemplate">
+    <Position X="10.75" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAQAAA=</HashCode>
+      <FileName>SendMessageTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="KatranClassLibrary.ContactType">
+    <Position X="4.25" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAA=</HashCode>
+      <FileName>Contact.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="KatranClassLibrary.ErrorType">
+    <Position X="14.75" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAACAAAAAAAAAAAgAAAAAAAAAAAAAAAABAQAAAA=</HashCode>
+      <FileName>ErrorReportTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="KatranClassLibrary.MessageType">
+    <Position X="8.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAACAAAAAA=</HashCode>
+      <FileName>Message.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="KatranClassLibrary.MessageState">
+    <Position X="8.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAABAAAAAIAAA=</HashCode>
+      <FileName>Message.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="KatranClassLibrary.Status">
+    <Position X="4.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAgAEAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>RegistrationTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="KatranClassLibrary.LawStatus">
+    <Position X="4.25" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>RegistrationTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="KatranClassLibrary.RRType">
+    <Position X="3.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAICDEAACQgAISAQAAAgAAAgAAAgCEIAAAEEQAA=</HashCode>
+      <FileName>RRTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
