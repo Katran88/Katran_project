@@ -10,7 +10,7 @@ using System.Windows;
 [assembly: AssemblyTitle("Katran")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Hunko Dmitry")]
 [assembly: AssemblyProduct("Katran")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
