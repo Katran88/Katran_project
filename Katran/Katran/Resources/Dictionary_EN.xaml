@@ -74,5 +74,6 @@
     <system:String x:Key="l_uncorrectEmail">Uncorrect email</system:String>
     <system:String x:Key="l_uncorrectPassword">Uncorrect password</system:String>
     <system:String x:Key="l_notSamePasswords">Passwords are not same</system:String>
+    <system:String x:Key="l_fileIsTooLarge">File is too large, you can send only less then 2 Gb file</system:String>
     
 </ResourceDictionary>

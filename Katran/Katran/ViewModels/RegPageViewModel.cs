@@ -129,6 +129,12 @@ namespace Katran.ViewModels
                         this.mainViewModel.NotifyUserByRowState(RowStateResourcesName.l_forgotEmail);
                     }
 
+                    if (Regex.Match(Email, EmailInputField.pattern, RegexOptions.IgnoreCase).Value.Length == 0)
+                    {
+                        regPage.emailInputField.Textbox_InputField_UncorrectValueStyle();
+                        this.mainViewModel.NotifyUserByRowState(RowStateResourcesName.l_uncorrectEmail);
+                    }
+
                     if (regPage.Password_1.Length == 0)
                     {
                         regPage.passwordInputField_1.Textbox_InputField_UncorrectValueStyle();

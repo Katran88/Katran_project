@@ -41,7 +41,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="KatranClassLibrary">
-      <HintPath>..\..\KatranClassLibrary\KatranClassLibrary\bin\Debug\netstandard2.0\KatranClassLibrary.dll</HintPath>
+      <HintPath>..\..\KatranClassLibrary\KatranClassLibrary\bin\Release\netstandard2.0\KatranClassLibrary.dll</HintPath>
     </Reference>
     <Reference Include="MaterialDesignColors, Version=1.2.4.1361, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialDesignColors.1.2.4\lib\net45\MaterialDesignColors.dll</HintPath>

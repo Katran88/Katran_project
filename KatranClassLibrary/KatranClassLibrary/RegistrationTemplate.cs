@@ -107,7 +107,7 @@ namespace KatranClassLibrary
             }
         }
 
-        public string User_discription
+        public string User_discription 
         {
             get
             {
@@ -116,7 +116,14 @@ namespace KatranClassLibrary
 
             set
             {
-                user_discription = value;
+                if (value == null || value.Length == 0)
+                { 
+                    user_discription = " "; 
+                }
+                else
+                {
+                    user_discription = value;
+                }
                 OnPropertyChanged();
             }
         }
@@ -186,7 +193,7 @@ namespace KatranClassLibrary
             Id = -1;
             App_name = "";
             Email = "";
-            User_discription = "";
+            User_discription = " ";
             Image = null;
             Status = Status.Offline;
             LawStatus = LawStatus.User;
@@ -212,7 +219,7 @@ namespace KatranClassLibrary
             Id = id;
             App_name = app_name;
             Email = email;
-            User_discription = user_discription;
+            User_discription = user_discription == null || user_discription.Length == 0 ? " " : user_discription;
             Image = image;
             Status = status;
             LawStatus = lawStatus;

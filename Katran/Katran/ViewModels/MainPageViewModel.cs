@@ -269,33 +269,42 @@ namespace Katran.ViewModels
                     {
                         if (result.HasValue && result.Value == true)
                         {
-                            Message message = new Message(-1,
+                            byte[] file = File.ReadAllBytes(dlg.FileName);
+
+                            if (file.Length <= 2_000_000_000)
+                            {
+                                Message message = new Message(-1,
                                                           mainViewModel.UserInfo.Info.Id,
                                                           mainViewModel.UserInfo.Info.App_name,
-                                                          File.ReadAllBytes(dlg.FileName),
+                                                          file,
                                                           MessageType.File,
                                                           dlg.SafeFileName, "",
                                                           DateTime.Now,
                                                           MessageState.Unsended);
 
-                            Application.Current.Dispatcher.Invoke(new Action(() =>
+                                Application.Current.Dispatcher.Invoke(new Action(() =>
+                                {
+                                    contactsTab.SelectedContact.ContactMessages.Add(new MessageUI(this,
+                                                                                                  true,
+                                                                                                  mainViewModel.UserInfo.Avatar,
+                                                                                                  mainViewModel.UserInfo.Info.Status,
+                                                                                                  message.MessageType,
+                                                                                                  message.MessageState,
+                                                                                                  message.Time,
+                                                                                                  new byte[1],
+                                                                                                  message.SenderName,
+                                                                                                  -1,
+                                                                                                  -1,
+                                                                                                  message.SenderID,
+                                                                                                  message.FileName, ""));
+                                }));
+                                mainViewModel.NotifyUserByRowState(RowStateResourcesName.l_upload);
+                                Client.ServerRequest(new RRTemplate(RRType.SendMessage, new SendMessageTemplate(contactsTab.SelectedContact.ChatId, message)));
+                            }
+                            else
                             {
-                                contactsTab.SelectedContact.ContactMessages.Add(new MessageUI(this,
-                                                                                              true,
-                                                                                              mainViewModel.UserInfo.Avatar,
-                                                                                              mainViewModel.UserInfo.Info.Status,
-                                                                                              message.MessageType,
-                                                                                              message.MessageState,
-                                                                                              message.Time,
-                                                                                              new byte[1],
-                                                                                              message.SenderName,
-                                                                                              -1,
-                                                                                              -1,
-                                                                                              message.SenderID,
-                                                                                              message.FileName, ""));
-                            }));
-                            mainViewModel.NotifyUserByRowState(RowStateResourcesName.l_upload);
-                            Client.ServerRequest(new RRTemplate(RRType.SendMessage, new SendMessageTemplate(contactsTab.SelectedContact.ChatId, message)));
+                                mainViewModel.NotifyUserByRowState(RowStateResourcesName.l_upload);
+                            }
                         }
                     });
                 }, obj => contactsTab.SelectedContact != null);

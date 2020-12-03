@@ -1,8 +1,9 @@
 ﻿using KatranClassLibrary;
+using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -26,7 +27,6 @@ namespace KatranServer
 
     class Server
     {
-        internal static SqlConnection sql;
         internal static List<ConectedUser> conectedUsers;
         const string ip = "127.0.0.1";
         const int port = 8001;
@@ -38,16 +38,14 @@ namespace KatranServer
             Timer timer = new Timer(tm, null, TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(5));
 
 
-            TcpListener server = null;
+            TcpListener tcpListener = null;
             try
             {
-                Server.sql = DBConnection.getInstance();
-
-                server = new TcpListener(IPAddress.Parse(ip), port);
-                server.Start();
+                tcpListener = new TcpListener(IPAddress.Parse(ip), port);
+                tcpListener.Start();
                 while (true)
                 {
-                    TcpClient client = server.AcceptTcpClient();
+                    TcpClient client = tcpListener.AcceptTcpClient();
                     Thread clientThread = new Thread(new ThreadStart((new ClientService(client)).Service));
                     clientThread.Start();
                 }
@@ -58,8 +56,8 @@ namespace KatranServer
             }
             finally
             {
-                if (server != null)
-                    server.Stop();
+                if (tcpListener != null)
+                    tcpListener.Stop();
             }
         }
 
@@ -97,10 +95,11 @@ namespace KatranServer
         {
             lock (locker)
             {
-                using (SqlCommand refreshStatusCommand = new SqlCommand("update Users_info set status = @status where id = @id", DBConnection.getInstance()))
+                using (OracleCommand refreshStatusCommand = new OracleCommand("katran_procedures.ChangeUserStatusById", OracleDB.GetDBConnection()))
                 {
-                    refreshStatusCommand.Parameters.Add(new SqlParameter("@id", userID));
-                    refreshStatusCommand.Parameters.Add(new SqlParameter("@status", newStatus.ToString()));
+                    refreshStatusCommand.CommandType = CommandType.StoredProcedure;
+                    refreshStatusCommand.Parameters.Add(ClientService.CreateParam("inNewUserStatus", newStatus.ToString(), ParameterDirection.Input));
+                    refreshStatusCommand.Parameters.Add(ClientService.CreateParam("in_outUserId", userID, ParameterDirection.InputOutput));
                     refreshStatusCommand.ExecuteNonQuery();
                 }
 

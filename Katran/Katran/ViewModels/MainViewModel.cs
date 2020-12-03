@@ -37,7 +37,8 @@ namespace Katran.ViewModels
         l_upload,                   //Upload file...
         l_succsUploaded,            //Succsessful upload
         l_forgotConvTitle,          //Type conversation title
-        l_convCreated               //Conversation has been created, check your Contacts Tab
+        l_convCreated,              //Conversation has been created, check your Contacts Tab
+        l_fileIsTooLarge            //File is too large, you can send only less then 2 Gb file
     }
 
     public class MainViewModel : INotifyPropertyChanged

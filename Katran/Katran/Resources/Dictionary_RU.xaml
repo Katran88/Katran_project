@@ -74,5 +74,7 @@
     <system:String x:Key="l_uncorrectEmail">Некорректная почта</system:String>
     <system:String x:Key="l_uncorrectPassword">Некорректный пароль</system:String>
     <system:String x:Key="l_notSamePasswords">Пароли не совпадают</system:String>
+    <system:String x:Key="l_fileIsTooLarge">Файл слишком большой, максимальный размер файла 2 Гб</system:String>
+    
 
 </ResourceDictionary>
