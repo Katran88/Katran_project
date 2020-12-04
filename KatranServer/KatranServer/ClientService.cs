@@ -705,15 +705,19 @@ namespace KatranServer
             #endregion
 
             #region Создание таблицу с сообщениями для только что созданного чата
-            command = new SqlCommand($"create table ChatMessages_{arContT.ChatId} " +
-                                    "( message_id int identity(1,1) primary key," +
-                                    " sender_id int," +
-                                    " message varbinary(MAX)," +
-                                    " message_type varchar(4) check(message_type in ('File', 'Text'))," +
-                                    " file_name varchar(max)," +
-                                    " time datetime," +
-                                    " message_status varchar(8) check(message_status in ('Readed', 'Sended', 'Unreaded', 'Unsended')))", null); //TODO: sql
-            command.ExecuteNonQuery();
+            OracleConnection adminConnection = OracleDB.GetDBConnection(true);
+            adminConnection.Open();
+            OracleCommand createTableCommand = new OracleCommand($"create table ChatMessages_{arContT.ChatId} " +
+                        "( message_id int generated as identity primary key," +
+                        "  sender_id int," +
+                        "  message blob," +
+                        "  message_type varchar2(4) check(message_type in ('File', 'Text'))," +
+                        "  file_name varchar2(200)," +
+                        "  time date," +
+                        "  message_status varchar2(8) check(message_status in ('Readed', 'Sended', 'Unreaded', 'Unsended'))) tablespace katran_tablespace ", adminConnection);
+
+            createTableCommand.ExecuteNonQuery();
+            adminConnection.Close();
             #endregion
 
             #region Отправка добавленного контакта
@@ -740,24 +744,30 @@ namespace KatranServer
                     newContact.UserId = arContT.ContactOwnerId;
                     newContact.Status = Status.Online;
 
-                    command = new SqlCommand("select ui.app_name, ui.image from Users_info as ui where ui.id = @userID", null); //TODO: sql
-                    command.Parameters.Add(new SqlParameter("@userID", newContact.UserId));
+                    OracleCommand getUserInfo = new OracleCommand("katran_procedures.GetUserInfoById", sql);
+                    getUserInfo.CommandType = CommandType.StoredProcedure;
+                    getUserInfo.Parameters.Add(CreateParam("in_outUserId", newContact.UserId, ParameterDirection.InputOutput));
+                    getUserInfo.Parameters.Add(CreateParam("in_outAppName", new string('\0', 200), ParameterDirection.InputOutput));
+                    getUserInfo.Parameters.Add(CreateParam("in_outEmail", new string('\0', 200), ParameterDirection.InputOutput));
+                    getUserInfo.Parameters.Add(CreateParam("in_outUserDescription", new string('\0', 200), ParameterDirection.InputOutput));
+                    getUserInfo.Parameters.Add(CreateParam("in_outImage", new OracleBlob(sql), ParameterDirection.InputOutput, OracleDbType.Blob));
+                    getUserInfo.Parameters.Add(CreateParam("in_outStatus", new string('\0', 200), ParameterDirection.InputOutput));
+                    getUserInfo.Parameters.Add(CreateParam("in_outLawStatus", new string('\0', 200), ParameterDirection.InputOutput));
+                    getUserInfo.Parameters.Add(CreateParam("in_outIsBlocked", 1, ParameterDirection.InputOutput));
+                    getUserInfo.ExecuteNonQuery();
 
-                    reader = command.ExecuteReader();
-                    reader.Read();
-
-                    newContact.AppName = reader.GetString(0);
-
-                    object imageObj = reader.GetValue(1);
-                    if (imageObj is System.DBNull)
+                    #region Обработка случая если картинка пользователя не задана, то ставится стандартная
+                    OracleBlob imageObj = (OracleBlob)getUserInfo.Parameters["in_outImage"].Value;
+                    if (imageObj.IsNull)
                     {
                         newContact.AvatarImage = GetDefaultUserImage();
                     }
                     else
                     {
-                        newContact.AvatarImage = ((OracleBlob)imageObj).Value;
+                        newContact.AvatarImage = imageObj.Value;
                     }
-                    reader.Close();
+                    #endregion
+
                     formatter.Serialize(memoryStream, new RRTemplate(RRType.AddContactTarget, new AddRemoveContactTargetTemplate(newContact)));
                     user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
                 }

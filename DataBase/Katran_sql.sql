@@ -191,6 +191,14 @@ CREATE OR REPLACE PACKAGE katran_procedures AS
     procedure AddChatMember( inChatId in chat_members.chat_id%type,
                              in_outMemberId in out chat_members.member_id%type);
 
+    procedure RemoveChatMember( inChatId in chat_members.chat_id%type,
+                                inMemberId in chat_members.member_id%type);
+
+    procedure GetChatMembersCount( inChatId in chat_members.chat_id%type,
+                                   outMembersCount out number);
+
+    procedure RemoveChat( in_outChatId in out chat_members.chat_id%type);
+
 END;
 
 create or replace package body katran_procedures as
@@ -351,6 +359,43 @@ create or replace package body katran_procedures as
     end;
 
 ------------------------------------------------- AddChatMember
+
+------------------------------------------------- RemoveChatMember
+
+    procedure RemoveChatMember( inChatId in chat_members.chat_id%type, inMemberId in chat_members.member_id%type)
+    as
+    begin
+        delete from chat_members where chat_id = inChatId and member_id = inMemberId;
+    end;
+
+------------------------------------------------- RemoveChatMember
+
+------------------------------------------------- GetChatMembersCount
+
+    procedure GetChatMembersCount( inChatId in chat_members.chat_id%type, outMembersCount out number)
+    as
+    begin
+        select count(chat_id) into outMembersCount from chat_members where chat_id = inChatId;
+
+    exception
+        when others then
+            outMembersCount := 0;
+    end;
+
+------------------------------------------------- GetChatMembersCount
+
+------------------------------------------------- RemoveChat
+
+    procedure RemoveChat( in_outChatId in out chat_members.chat_id%type)
+    as
+    begin
+        delete from chats where chat_id = in_outChatId;
+    exception
+        when others then
+            in_outChatId := -1;
+    end;
+
+------------------------------------------------- RemoveChat
 
 
 end;
