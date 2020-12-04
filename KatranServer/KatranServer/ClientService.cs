@@ -108,7 +108,7 @@ namespace KatranServer
                                 break;
                             case RRType.AddContact:
                                 AddRemoveContactTemplate aContT = clientRequest.RRObject as AddRemoveContactTemplate;
-                                if(aContT != null)
+                                if (aContT != null)
                                 {
                                     AddContact(aContT);
                                 }
@@ -190,23 +190,26 @@ namespace KatranServer
                     client.Close();
                     sql.Close();
                 }
-                
+
             }
         }
 
         private void BlockUnblockUser(BlockUnblockUserTemplate bunbUT)
         {
             #region Проверка, что действие совершает админ
-            SqlCommand command = new SqlCommand("select u.id from Users as u where u.id = @adminId and law_status = 'Admin' ", null); //TODO: sql
-            command.Parameters.Add(new SqlParameter("@adminId", bunbUT.AdminId));
-            SqlDataReader reader = command.ExecuteReader();
-            if (reader.HasRows)
+            OracleCommand getUserLawStatusCommand = new OracleCommand("katran_procedures.GetUserLawStatusById", sql);
+            getUserLawStatusCommand.CommandType = CommandType.StoredProcedure;
+            getUserLawStatusCommand.Parameters.Add(CreateParam("inUserId", bunbUT.AdminId, ParameterDirection.Input));
+            getUserLawStatusCommand.Parameters.Add(CreateParam("outUserLawStatus", new string('\0', 10), ParameterDirection.Output));
+            getUserLawStatusCommand.ExecuteNonQuery();
+            LawStatus userLawStatus = (LawStatus)Enum.Parse(typeof(LawStatus), (string)getUserLawStatusCommand.Parameters["in_outLawStatus"].Value);
+            if (userLawStatus == LawStatus.Admin)
             {
-                reader.Close();
-                command = new SqlCommand("update Users_info set is_blocked = @isBlocked where id = @userId ", null); //TODO: sql
-                command.Parameters.Add(new SqlParameter("@isBlocked", bunbUT.IsBlocked));
-                command.Parameters.Add(new SqlParameter("@userId", bunbUT.UserId));
-                command.ExecuteNonQuery();
+                OracleCommand blockUnblockUserCommand = new OracleCommand("katran_procedures.BlockUnblockUser", sql);
+                blockUnblockUserCommand.CommandType = CommandType.StoredProcedure;
+                blockUnblockUserCommand.Parameters.Add(CreateParam("in_outUserId", bunbUT.UserId, ParameterDirection.InputOutput));
+                blockUnblockUserCommand.Parameters.Add(CreateParam("inIsBlocked", bunbUT.IsBlocked ? 1 : 0, ParameterDirection.Input));
+                blockUnblockUserCommand.ExecuteNonQuery();
 
                 BinaryFormatter formatter = new BinaryFormatter();
                 using (MemoryStream memoryStream = new MemoryStream())
@@ -228,7 +231,6 @@ namespace KatranServer
             }
             else
             {
-                reader.Close();
                 bunbUT.IsBlocked = !bunbUT.IsBlocked;
                 BinaryFormatter formatter = new BinaryFormatter();
                 using (MemoryStream memoryStream = new MemoryStream())
@@ -244,7 +246,40 @@ namespace KatranServer
         private void AdminSearch(AdminSearchTemplate admST)
         {
             #region Отправка запроса на поиск контактов по паттерну 
-            SqlCommand command = new SqlCommand("select ui.id, ui.app_name, ui.image, ui.status, ui.is_blocked " +
+            OracleCommand adminSearchCommand = new OracleCommand("katran_procedures.AdminSearch", sql);
+            adminSearchCommand.CommandType = CommandType.StoredProcedure;
+            adminSearchCommand.Parameters.Add(CreateParam("outResult", null, ParameterDirection.Output, OracleDbType.RefCursor)); //курсор должен быть на первом месте
+            adminSearchCommand.Parameters.Add(CreateParam("inAdminId", admST.AdminId, ParameterDirection.Input));
+            adminSearchCommand.Parameters.Add(CreateParam("inSearchPattern", admST.Pattern, ParameterDirection.Input));
+            
+            adminSearchCommand.ExecuteNonQuery();
+
+            OracleDataAdapter orclDataAdapter = new OracleDataAdapter(adminSearchCommand);
+            DataSet orclDataSet = new DataSet();
+            orclDataAdapter.Fill(orclDataSet);
+
+            foreach (DataTable dt in orclDataSet.Tables)
+            {
+                Console.WriteLine(dt.TableName); // название таблицы
+                                                 // перебор всех столбцов
+                foreach (DataColumn column in dt.Columns)
+                    Console.Write("\t{0}", column.ColumnName);
+
+
+                Console.WriteLine();
+                // перебор всех строк таблицы
+                foreach (DataRow row in dt.Rows)
+                {
+                    // получаем все ячейки строки
+                    var cells = row.ItemArray;
+                    foreach (object cell in cells)
+                        Console.Write("\t{0}", cell);
+                    Console.WriteLine();
+                }
+            }
+
+
+            SqlCommand command = new SqlCommand("select ui.id, ui.app_name, ui.image, ui.status, ui.is_blocked" +
                                                 "from Users_info as ui " +
                                                 "where charindex(@pattern, ui.app_name) > 0 and ui.id != @adminID ", null); //TODO: sql
             command.Parameters.Add(new SqlParameter("@pattern", admST.Pattern));
@@ -451,7 +486,7 @@ namespace KatranServer
             #region Изменение состояния сообщения на прочитанное
             using (SqlCommand command = new SqlCommand($"update ChatMessages_{rmessT.ChatId} set message_status = @status where message_id = @id", null)) //TODO: sql
             {
-                if(rmessT.MessageState == MessageState.Sended)
+                if (rmessT.MessageState == MessageState.Sended)
                 {
                     rmessT.MessageState = MessageState.Readed;
                 }
@@ -461,7 +496,7 @@ namespace KatranServer
                 command.ExecuteNonQuery();
             }
             #endregion
-            
+
 
             #region Ответ об успешной смене состояния сообщения
             BinaryFormatter formatter = new BinaryFormatter();
@@ -496,14 +531,14 @@ namespace KatranServer
                                 formatter.Serialize(memoryStream, new RRTemplate(RRType.RefreshMessageState, rmessT));
                                 user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
                             }
-                            
+
                         }
 
                     }
                     reader.Close();
                 }
 
-                
+
             }
             #endregion
         }
@@ -540,7 +575,7 @@ namespace KatranServer
             List<int> chatMembers = new List<int>();
             if (reader.HasRows)
             {
-                while(reader.Read())
+                while (reader.Read())
                 {
                     chatMembers.Add(reader.GetInt32(0));
                 }
@@ -623,21 +658,38 @@ namespace KatranServer
         private void RemoveContact(AddRemoveContactTemplate rContT)
         {
             #region Удаление из таблицы контактов 
-            SqlCommand command = new SqlCommand("delete from Contacts where contact_owner = @contactOwner and contact = @targetContact " +
-                                                "delete from Contacts where contact_owner = @targetContact and contact = @contactOwner", null); //TODO: sql
-            command.Parameters.Add(new SqlParameter("@contactOwner", rContT.ContactOwnerId));
-            command.Parameters.Add(new SqlParameter("@targetContact", rContT.TargetContactId));
-            command.ExecuteNonQuery();
+            OracleCommand deleteContact = new OracleCommand("katran_procedures.RemoveContact", sql);
+            deleteContact.CommandType = CommandType.StoredProcedure;
+            deleteContact.Parameters.Add(CreateParam("in_outContactOwner", rContT.ContactOwnerId, ParameterDirection.InputOutput));
+            deleteContact.Parameters.Add(CreateParam("inTargetContact", rContT.TargetContactId, ParameterDirection.Input));
+            deleteContact.ExecuteNonQuery();
+
+            deleteContact = new OracleCommand("katran_procedures.RemoveContact", sql);
+            deleteContact.CommandType = CommandType.StoredProcedure;
+            deleteContact.Parameters.Add(CreateParam("in_outContactOwner", rContT.TargetContactId, ParameterDirection.InputOutput));
+            deleteContact.Parameters.Add(CreateParam("inTargetContact", rContT.ContactOwnerId, ParameterDirection.Input));
+
             #endregion
 
             #region Удаление чата и сообщений этих юзеров из бд
             if (rContT.ChatId != -1)
             {
-                command = new SqlCommand($"drop table ChatMessages_{rContT.ChatId} " +
-                                          "delete from ChatMembers where chat_id = @chatID " +
-                                          "delete from Chats where chat_id = @chatID", null); //TODO: sql
-                command.Parameters.Add(new SqlParameter("@chatID", rContT.ChatId));
-                command.ExecuteNonQuery();
+                OracleConnection adminConnection = OracleDB.GetDBConnection(true);
+                adminConnection.Open();
+                OracleCommand dropTableCommand = new OracleCommand($"drop table ChatMessages_{rContT.ChatId}", adminConnection);
+
+                dropTableCommand.ExecuteNonQuery();
+                adminConnection.Close();
+
+                OracleCommand removeChatAllMembers = new OracleCommand("katran_procedures.RemoveAllChatMembers", sql);
+                removeChatAllMembers.CommandType = CommandType.StoredProcedure;
+                removeChatAllMembers.Parameters.Add(CreateParam("inChatId", rContT.ChatId, ParameterDirection.Input));
+                removeChatAllMembers.ExecuteNonQuery();
+
+                OracleCommand removeChat = new OracleCommand("katran_procedures.RemoveChat", sql);
+                removeChatAllMembers.CommandType = CommandType.StoredProcedure;
+                removeChatAllMembers.Parameters.Add(CreateParam("in_outChatId", rContT.ChatId, ParameterDirection.InputOutput));
+                removeChatAllMembers.ExecuteNonQuery();
             }
             #endregion
 
@@ -889,7 +941,7 @@ namespace KatranServer
                     (Status)Enum.Parse(typeof(Status), (string)getUserInfo.Parameters["in_outStatus"].Value),
                     (LawStatus)Enum.Parse(typeof(LawStatus), (string)getUserInfo.Parameters["in_outLawStatus"].Value),
                     (int)getUserInfo.Parameters["in_outIsBlocked"].Value > 0,
-                    refrUserData.AuthLogin, 
+                    refrUserData.AuthLogin,
                     password);
 
                 BinaryFormatter formatter = new BinaryFormatter();
@@ -1076,7 +1128,7 @@ namespace KatranServer
                     tempConv.ContactType = ContactType.Conversation;
                     tempConv.Members = new List<Contact>();
                     conversations.Add(tempConv);
-                    
+
                 }
                 convReader.Close();
                 #endregion
@@ -1115,7 +1167,7 @@ namespace KatranServer
                     convCommand.Parameters.Clear();
                 }
 
-                
+
                 #endregion
 
                 #region Загрузка сообщений беседы
@@ -1205,8 +1257,8 @@ namespace KatranServer
             }
 
             #endregion
-            
-            
+
+
         }
 
         //обновление Статуса пользователя (Online/Offline)
@@ -1292,7 +1344,7 @@ namespace KatranServer
                 {
                     reg.Image = GetDefaultUserImage();
                 }
-                
+
                 formatter.Serialize(memoryStream, new RRTemplate(RRType.Authorization, reg));
 
                 client.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
@@ -1306,32 +1358,32 @@ namespace KatranServer
             #region Проверка введенного логина и пароля с хранящимися данными в бд
             OracleCommand checkUserByLoginAndPassword = new OracleCommand("katran_procedures.CheckUserByLoginAndPassword", sql);
             checkUserByLoginAndPassword.CommandType = CommandType.StoredProcedure;
-            checkUserByLoginAndPassword.Parameters.Add(CreateParam("@inAuthLogin", auth.AuthLogin, ParameterDirection.Input));
-            checkUserByLoginAndPassword.Parameters.Add(CreateParam("@inPassword", auth.Password, ParameterDirection.Input));
-            checkUserByLoginAndPassword.Parameters.Add(CreateParam("@outAddedUserId", -1, ParameterDirection.Output));
+            checkUserByLoginAndPassword.Parameters.Add(CreateParam("inAuthLogin", auth.AuthLogin, ParameterDirection.Input));
+            checkUserByLoginAndPassword.Parameters.Add(CreateParam("inPassword", auth.Password, ParameterDirection.Input));
+            checkUserByLoginAndPassword.Parameters.Add(CreateParam("outAddedUserId", -1, ParameterDirection.Output));
             checkUserByLoginAndPassword.ExecuteNonQuery();
             #endregion
             //если пользователь с таким логином и паролем существует
-            if ((int)checkUserByLoginAndPassword.Parameters["@outAddedUserId"].Value > 0)
+            if ((int)checkUserByLoginAndPassword.Parameters["outAddedUserId"].Value > 0)
             {
                 #region Запрос на данные о пользователе
                 OracleCommand getUserInfo = new OracleCommand("katran_procedures.GetUserInfoById", sql);
                 getUserInfo.CommandType = CommandType.StoredProcedure;
-                getUserInfo.Parameters.Add(CreateParam("@in_outUserId", (int)checkUserByLoginAndPassword.Parameters["@outAddedUserId"].Value, ParameterDirection.InputOutput));
-                getUserInfo.Parameters.Add(CreateParam("@in_outAppName", new string('\0', 200), ParameterDirection.InputOutput));
-                getUserInfo.Parameters.Add(CreateParam("@in_outEmail", new string('\0', 200), ParameterDirection.InputOutput));
-                getUserInfo.Parameters.Add(CreateParam("@in_outUserDescription", new string('\0', 200), ParameterDirection.InputOutput));
-                getUserInfo.Parameters.Add(CreateParam("@in_outImage", new OracleBlob(sql), ParameterDirection.InputOutput, OracleDbType.Blob));
-                getUserInfo.Parameters.Add(CreateParam("@in_outStatus", new string('\0', 200), ParameterDirection.InputOutput));
-                getUserInfo.Parameters.Add(CreateParam("@in_outLawStatus", new string('\0', 200), ParameterDirection.InputOutput));
-                getUserInfo.Parameters.Add(CreateParam("@in_outIsBlocked", 1, ParameterDirection.InputOutput));
+                getUserInfo.Parameters.Add(CreateParam("in_outUserId", (int)checkUserByLoginAndPassword.Parameters["outAddedUserId"].Value, ParameterDirection.InputOutput));
+                getUserInfo.Parameters.Add(CreateParam("in_outAppName", new string('\0', 200), ParameterDirection.InputOutput));
+                getUserInfo.Parameters.Add(CreateParam("in_outEmail", new string('\0', 200), ParameterDirection.InputOutput));
+                getUserInfo.Parameters.Add(CreateParam("in_outUserDescription", new string('\0', 200), ParameterDirection.InputOutput));
+                getUserInfo.Parameters.Add(CreateParam("in_outImage", new OracleBlob(sql), ParameterDirection.InputOutput, OracleDbType.Blob));
+                getUserInfo.Parameters.Add(CreateParam("in_outStatus", new string('\0', 200), ParameterDirection.InputOutput));
+                getUserInfo.Parameters.Add(CreateParam("in_outLawStatus", new string('\0', 200), ParameterDirection.InputOutput));
+                getUserInfo.Parameters.Add(CreateParam("in_outIsBlocked", 1, ParameterDirection.InputOutput));
                 getUserInfo.ExecuteNonQuery();
                 #endregion
 
                 #region Отправка ответа на запрос авторизации
 
                 #region Обработка случая если картинка не пользователя задана, то ставится стандартная
-                OracleBlob imageObj = (OracleBlob)getUserInfo.Parameters["@in_outImage"].Value;
+                OracleBlob imageObj = (OracleBlob)getUserInfo.Parameters["in_outImage"].Value;
                 byte[] image;
                 if (imageObj.IsNull)
                 {
@@ -1343,16 +1395,16 @@ namespace KatranServer
                 }
                 #endregion
 
-                
+
                 RegistrationTemplate regTempl = new RegistrationTemplate(
-                    (int)getUserInfo.Parameters["@in_outUserId"].Value,
-                    (string)getUserInfo.Parameters["@in_outAppName"].Value,
-                    (string)getUserInfo.Parameters["@in_outEmail"].Value,
-                    (string)getUserInfo.Parameters["@in_outUserDescription"].Value,
+                    (int)getUserInfo.Parameters["in_outUserId"].Value,
+                    (string)getUserInfo.Parameters["in_outAppName"].Value,
+                    (string)getUserInfo.Parameters["in_outEmail"].Value,
+                    (string)getUserInfo.Parameters["in_outUserDescription"].Value,
                     image,
-                    (Status)Enum.Parse(typeof(Status), (string)getUserInfo.Parameters["@in_outStatus"].Value),
-                    (LawStatus)Enum.Parse(typeof(LawStatus), (string)getUserInfo.Parameters["@in_outLawStatus"].Value),
-                    (int)getUserInfo.Parameters["@in_outIsBlocked"].Value != 0,
+                    (Status)Enum.Parse(typeof(Status), (string)getUserInfo.Parameters["in_outStatus"].Value),
+                    (LawStatus)Enum.Parse(typeof(LawStatus), (string)getUserInfo.Parameters["in_outLawStatus"].Value),
+                    (int)getUserInfo.Parameters["in_outIsBlocked"].Value != 0,
                     auth.AuthLogin, auth.Password);
 
                 BinaryFormatter formatter = new BinaryFormatter();

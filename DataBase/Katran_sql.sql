@@ -185,19 +185,31 @@ CREATE OR REPLACE PACKAGE katran_procedures AS
     procedure AddContact( in_outContactOwner in out users.id%type,
                           inTargetContact in users.id%type);
 
+    procedure RemoveContact( in_outContactOwner in out users.id%type,
+                             inTargetContact in users.id%type);
+
     procedure AddChat( inChatTitle in chats.chat_title%type,
                        out_AddedChatId out chats.chat_id%type);
 
     procedure AddChatMember( inChatId in chat_members.chat_id%type,
                              in_outMemberId in out chat_members.member_id%type);
 
-    procedure RemoveChatMember( inChatId in chat_members.chat_id%type,
-                                inMemberId in chat_members.member_id%type);
+    procedure RemoveAllChatMembers( inChatId in chat_members.chat_id%type);
 
     procedure GetChatMembersCount( inChatId in chat_members.chat_id%type,
                                    outMembersCount out number);
 
     procedure RemoveChat( in_outChatId in out chat_members.chat_id%type);
+
+    procedure BlockUnblockUser( in_outUserId in out users_info.id%type,
+                                inIsBlocked in users_info.is_blocked%type);
+
+    procedure GetUserLawStatusById( inUserId in users.id%type,
+                                    outUserLawStatus out users.law_status%type);
+
+        procedure AdminSearch( outResult out sys_refcursor,
+                           inAdminId in users_info.id%type,
+                           inSearchPattern in varchar2);
 
 END;
 
@@ -205,7 +217,8 @@ create or replace package body katran_procedures as
 
 ------------------------------------------------- Is user already registered
 
-    procedure GetUserIdByLogin(inAuthLogin in users.auth_login%type, outFoundUserId out users.id%type)
+    procedure GetUserIdByLogin( inAuthLogin in users.auth_login%type,
+                                outFoundUserId out users.id%type)
     as
     begin
         select id into outFoundUserId from users where users.auth_login = inAuthLogin and ROWNUM <= 1;
@@ -296,7 +309,8 @@ create or replace package body katran_procedures as
 
 ------------------------------------------------- ChangeUserStatusById
 
-    procedure ChangeUserStatusById( inNewUserStatus in users_info.status%type, in_outUserId in out users_info.id%type)
+    procedure ChangeUserStatusById( inNewUserStatus in users_info.status%type,
+                                    in_outUserId in out users_info.id%type)
     as
     begin
         update users_info set status = inNewUserStatus where id = in_outUserId
@@ -310,7 +324,8 @@ create or replace package body katran_procedures as
 
 ------------------------------------------------- AddContact
 
-    procedure AddContact( in_outContactOwner in out users.id%type, inTargetContact in users.id%type)
+    procedure AddContact( in_outContactOwner in out users.id%type,
+                          inTargetContact in users.id%type)
     as
     begin
 
@@ -327,9 +342,24 @@ create or replace package body katran_procedures as
 
 ------------------------------------------------- AddContact
 
+------------------------------------------------- RemoveContact
+
+    procedure RemoveContact( in_outContactOwner in out users.id%type,
+                             inTargetContact in users.id%type)
+    as
+    begin
+        delete from contacts where contact_owner = in_outContactOwner and contact = inTargetContact;
+    exception
+        when others then
+            in_outContactOwner := -1;
+    end;
+
+------------------------------------------------- RemoveContact
+
 ------------------------------------------------- AddChat
 
-    procedure AddChat( inChatTitle in chats.chat_title%type, out_AddedChatId out chats.chat_id%type)
+    procedure AddChat( inChatTitle in chats.chat_title%type,
+                       out_AddedChatId out chats.chat_id%type)
     as
     begin
 
@@ -346,7 +376,8 @@ create or replace package body katran_procedures as
 
 ------------------------------------------------- AddChatMember
 
-    procedure AddChatMember( inChatId in chat_members.chat_id%type, in_outMemberId in out chat_members.member_id%type)
+    procedure AddChatMember( inChatId in chat_members.chat_id%type,
+                             in_outMemberId in out chat_members.member_id%type)
     as
     begin
 
@@ -360,19 +391,20 @@ create or replace package body katran_procedures as
 
 ------------------------------------------------- AddChatMember
 
-------------------------------------------------- RemoveChatMember
+------------------------------------------------- RemoveAllChatMembers
 
-    procedure RemoveChatMember( inChatId in chat_members.chat_id%type, inMemberId in chat_members.member_id%type)
+    procedure RemoveAllChatMembers( inChatId in chat_members.chat_id%type)
     as
     begin
-        delete from chat_members where chat_id = inChatId and member_id = inMemberId;
+        delete from chat_members where chat_id = inChatId;
     end;
 
-------------------------------------------------- RemoveChatMember
+------------------------------------------------- RemoveAllChatMembers
 
 ------------------------------------------------- GetChatMembersCount
 
-    procedure GetChatMembersCount( inChatId in chat_members.chat_id%type, outMembersCount out number)
+    procedure GetChatMembersCount( inChatId in chat_members.chat_id%type,
+                                   outMembersCount out number)
     as
     begin
         select count(chat_id) into outMembersCount from chat_members where chat_id = inChatId;
@@ -397,7 +429,49 @@ create or replace package body katran_procedures as
 
 ------------------------------------------------- RemoveChat
 
+------------------------------------------------- GetUserLawStatusById
+
+    procedure GetUserLawStatusById( inUserId in users.id%type,
+                                    outUserLawStatus out users.law_status%type)
+    as
+    begin
+        select law_status into outUserLawStatus from users where id = inUserId;
+    exception
+        when others then
+            outUserLawStatus := '';
+    end;
+
+------------------------------------------------- GetUserLawStatusById
+
+------------------------------------------------- BlockUnblockUser
+
+    procedure BlockUnblockUser( in_outUserId in out users_info.id%type,
+                                inIsBlocked in users_info.is_blocked%type)
+    as
+    begin
+        update users_info set is_blocked = inIsBlocked where id = in_outUserId;
+    exception
+        when others then
+            in_outUserId := -1;
+    end;
+
+------------------------------------------------- BlockUnblockUser
+
+------------------------------------------------- AdminSearch
+
+    procedure AdminSearch( outResult out sys_refcursor,
+                           inAdminId in users_info.id%type,
+                           inSearchPattern in varchar2
+                           )
+    as
+    begin
+        open outResult for
+        select ui.id, ui.app_name, ui.image, ui.status, ui.is_blocked
+        from Users_info ui
+        where instr(ui.app_name, inSearchPattern) > 0 and ui.id != inAdminId;
+    end;
+
+------------------------------------------------- AdminSearch
 
 end;
-
 ------------------------------------------------------------------------------------------------------------------
