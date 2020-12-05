@@ -248,7 +248,7 @@ namespace KatranServer
             #region Отправка запроса на поиск контактов по паттерну 
             OracleCommand adminSearchCommand = new OracleCommand("katran_procedures.AdminSearch", sql);
             adminSearchCommand.CommandType = CommandType.StoredProcedure;
-            adminSearchCommand.Parameters.Add(CreateParam("outResult", null, ParameterDirection.Output, OracleDbType.RefCursor)); //курсор должен быть на первом месте
+            adminSearchCommand.Parameters.Add(CreateParam("outResult", null, ParameterDirection.Output, OracleDbType.RefCursor)); //курсор должен быть на первом месте в параметрах
             adminSearchCommand.Parameters.Add(CreateParam("inAdminId", admST.AdminId, ParameterDirection.Input));
             adminSearchCommand.Parameters.Add(CreateParam("inSearchPattern", admST.Pattern, ParameterDirection.Input));
             
@@ -258,60 +258,28 @@ namespace KatranServer
             DataSet orclDataSet = new DataSet();
             orclDataAdapter.Fill(orclDataSet);
 
-            foreach (DataTable dt in orclDataSet.Tables)
-            {
-                Console.WriteLine(dt.TableName); // название таблицы
-                                                 // перебор всех столбцов
-                foreach (DataColumn column in dt.Columns)
-                    Console.Write("\t{0}", column.ColumnName);
-
-
-                Console.WriteLine();
-                // перебор всех строк таблицы
-                foreach (DataRow row in dt.Rows)
-                {
-                    // получаем все ячейки строки
-                    var cells = row.ItemArray;
-                    foreach (object cell in cells)
-                        Console.Write("\t{0}", cell);
-                    Console.WriteLine();
-                }
-            }
-
-
-            SqlCommand command = new SqlCommand("select ui.id, ui.app_name, ui.image, ui.status, ui.is_blocked" +
-                                                "from Users_info as ui " +
-                                                "where charindex(@pattern, ui.app_name) > 0 and ui.id != @adminID ", null); //TODO: sql
-            command.Parameters.Add(new SqlParameter("@pattern", admST.Pattern));
-            command.Parameters.Add(new SqlParameter("@adminID", admST.AdminId));
-
-            SqlDataReader reader = command.ExecuteReader();
-
             List<Contact> contacts = new List<Contact>();
-            if (reader.HasRows)
+            Contact tempContact = null;
+            foreach (DataRow row in orclDataSet.Tables[0].Rows)
             {
-                Contact tempContact = null;
-                while (reader.Read())
-                {
-                    tempContact = new Contact();
-                    tempContact.UserId = reader.GetInt32(0);
-                    tempContact.AppName = reader.GetString(1);
+                tempContact = new Contact();
+                tempContact.UserId = (int)row.ItemArray[0];
+                tempContact.AppName = (string)row.ItemArray[1];
 
-                    object imageObj = reader.GetValue(2);
-                    if (imageObj is System.DBNull)
-                    {
-                        tempContact.AvatarImage = GetDefaultUserImage();
-                    }
-                    else
-                    {
-                        tempContact.AvatarImage = ((OracleBlob)imageObj).Value;
-                    }
-                    tempContact.Status = (Status)Enum.Parse(typeof(Status), reader.GetString(3));
-                    tempContact.IsBlocked = reader.GetBoolean(4);
-                    contacts.Add(tempContact);
+                OracleBlob imageObj = (OracleBlob)row.ItemArray[2];
+                if (imageObj.IsNull)
+                {
+                    tempContact.AvatarImage = GetDefaultUserImage();
                 }
+                else
+                {
+                    tempContact.AvatarImage = imageObj.Value;
+                }
+                tempContact.Status = (Status)Enum.Parse(typeof(Status), (string)row.ItemArray[3]);
+                tempContact.IsBlocked = (int)row.ItemArray[4] > 0;
+                contacts.Add(tempContact);
             }
-            reader.Close();
+
             #endregion
             admST.Users = contacts;
             #region Отправка найденных контактов или пустого листа 
@@ -329,25 +297,36 @@ namespace KatranServer
         }
 
         private void RemoveConv(RemoveConvTemplate rconvT)
-        {
-            #region Удаление из таблицы chatMembers юзера у беседы
-            SqlCommand command = new SqlCommand("delete from ChatMembers where chat_id = @chatId and member_id = @memberId ", null); //TODO: sql
-            command.Parameters.Add(new SqlParameter("@chatId", rconvT.ChatId));
-            command.Parameters.Add(new SqlParameter("@memberId", rconvT.OwnerId));
-            command.ExecuteNonQuery();
+        {        
+            #region Удаление из таблицы chatMembers юзера из беседы
+
+            OracleCommand removeChatMemberCommand = new OracleCommand("katran_procedures.RemoveChatMember", sql);
+            removeChatMemberCommand.CommandType = CommandType.StoredProcedure;
+            removeChatMemberCommand.Parameters.Add(CreateParam("inChatId", rconvT.ChatId, ParameterDirection.Input));
+            removeChatMemberCommand.Parameters.Add(CreateParam("inMemberId", rconvT.OwnerId, ParameterDirection.Input));
+            removeChatMemberCommand.ExecuteNonQuery();
+
             #endregion
 
             #region Удаление чата и сообщений если участников беседы больше нет
-            command = new SqlCommand("select member_id from ChatMembers where chat_id = @chatId", null); //TODO: sql
-            command.Parameters.Add(new SqlParameter("@chatId", rconvT.ChatId));
-            SqlDataReader reader = command.ExecuteReader();
-            if (!reader.HasRows)
+            OracleCommand getChatMembersCountCommand = new OracleCommand("katran_procedures.GetChatMembersCount", sql);
+            removeChatMemberCommand.CommandType = CommandType.StoredProcedure;
+            removeChatMemberCommand.Parameters.Add(CreateParam("inChatId", rconvT.ChatId, ParameterDirection.Input));
+            removeChatMemberCommand.Parameters.Add(CreateParam("outMembersCount", 0, ParameterDirection.Output));
+            removeChatMemberCommand.ExecuteNonQuery();
+
+            if ((int)removeChatMemberCommand.Parameters["outMembersCount"].Value == 0)
             {
-                reader.Close();
-                command = new SqlCommand($"drop table ChatMessages_{rconvT.ChatId} " +
-                                          "delete from Chats where chat_id = @chatID", null); //TODO: sql
-                command.Parameters.Add(new SqlParameter("@chatID", rconvT.ChatId));
-                command.ExecuteNonQuery();
+                OracleConnection adminConnection = OracleDB.GetDBConnection(true);
+                adminConnection.Open();
+                OracleCommand dropTableCommand = new OracleCommand($"drop table ChatMessages_{rconvT.ChatId}", adminConnection);
+                dropTableCommand.ExecuteNonQuery();
+                adminConnection.Close();
+
+                OracleCommand removeChat = new OracleCommand("katran_procedures.RemoveChat", sql);
+                removeChat.CommandType = CommandType.StoredProcedure;
+                removeChat.Parameters.Add(CreateParam("in_outChatId", rconvT.ChatId, ParameterDirection.InputOutput));
+                removeChat.ExecuteNonQuery();
             }
             #endregion
 
@@ -363,98 +342,115 @@ namespace KatranServer
                     user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
                 }
             }
+            #region Оповещение других юзеров, что пользователь вышел из чата
+            OracleCommand getChatmembersIdsCommand = new OracleCommand("katran_procedures.GetChatMembersIds", sql);
+            getChatmembersIdsCommand.CommandType = CommandType.StoredProcedure;
+            getChatmembersIdsCommand.Parameters.Add(CreateParam("outChatMembersIds", null, ParameterDirection.Output, OracleDbType.RefCursor)); //курсор должен быть на первом месте в параметрах
+            getChatmembersIdsCommand.Parameters.Add(CreateParam("inChatId", rconvT.ChatId, ParameterDirection.Input));
+            getChatmembersIdsCommand.ExecuteNonQuery();
 
-            if (!reader.IsClosed)
+            OracleDataAdapter orclDataAdapter = new OracleDataAdapter(getChatmembersIdsCommand);
+            DataSet orclDataSet = new DataSet();
+            orclDataAdapter.Fill(orclDataSet);
+
+            foreach (DataRow row in orclDataSet.Tables[0].Rows)
             {
                 using (MemoryStream memoryStream = new MemoryStream()) //Уведомление других юзеров о его выходе
                 {
                     formatter.Serialize(memoryStream, new RRTemplate(RRType.RemoveConvTarget, rconvT));
                     ConectedUser user;
-                    while (reader.Read())
+
+                    user = Server.conectedUsers.Find(x => x.id == (int)row.ItemArray[0]);
+                    if (user != null)
                     {
-                        user = Server.conectedUsers.Find(x => x.id == reader.GetInt32(0));
-                        if (user != null)
-                        {
-                            user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
-                        }
+                        user.userSocket.GetStream().Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
                     }
                 }
             }
+            #endregion
 
-            reader.Close();
             #endregion
         }
 
         private void CreateConv(CreateConvTemplate crconvT)
         {
             #region Добавление чата в бд для беседы
-            SqlCommand command = new SqlCommand("insert into Chats (chat_title, chat_kind, chat_avatar) values (@chatTitle, @chatKind, @chatAvatar)", null); //TODO: sql
-            command.Parameters.Add(new SqlParameter("@chatTitle", crconvT.Title));
-            command.Parameters.Add(new SqlParameter("@chatKind", ContactType.Conversation.ToString()));
+            OracleCommand addConvCommand = new OracleCommand("katran_procedures.AddChat", sql);
+            addConvCommand.CommandType = CommandType.StoredProcedure;
+            addConvCommand.Parameters.Add(CreateParam("out_AddedChatId", -1, ParameterDirection.Output));
+            addConvCommand.Parameters.Add(CreateParam("inChatTitle", crconvT.Title, ParameterDirection.Input));
+            addConvCommand.Parameters.Add(CreateParam("inChatKind", ContactType.Conversation.ToString(), ParameterDirection.Input));
 
             if (crconvT.Image == null || crconvT.Image.Length == 0)
-                command.Parameters.Add("@chatAvatar", SqlDbType.VarBinary).Value = DBNull.Value;
+                addConvCommand.Parameters.Add(CreateParam("inImage", DBNull.Value, ParameterDirection.Input, OracleDbType.Blob));
             else
-                command.Parameters.Add(new SqlParameter("@chatAvatar", crconvT.Image));
+                addConvCommand.Parameters.Add(CreateParam("inImage", crconvT.Image, ParameterDirection.Input, OracleDbType.Blob));
 
-            command.ExecuteNonQuery();
+            addConvCommand.ExecuteNonQuery();
             #endregion
 
-            #region Получаем Id только что добавленного чата и записываем в chatId
-            SqlCommand getChatID = new SqlCommand("select chat_id from Chats where chat_title = @chatTitle", null); //TODO: sql
-            getChatID.Parameters.Add(new SqlParameter("@chatTitle", crconvT.Title));
-            SqlDataReader reader = getChatID.ExecuteReader();
-            reader.Read();
-            crconvT.ChatId = reader.GetInt32(0);
-            reader.Close();
-            #endregion
+            crconvT.ChatId = (int)addConvCommand.Parameters["out_AddedChatId"].Value;
 
             #region Добавляем в таблицу ChatMembers участников беседы
-            command = new SqlCommand("insert into ChatMembers (chat_id, member_id) values (@chatId, @member)", null); //TODO: sql
+
+            OracleCommand addChatMemberCommand = new OracleCommand("katran_procedures.AddChatMember", sql);
+            addChatMemberCommand.CommandType = CommandType.StoredProcedure;
+
             foreach (Contact c in crconvT.ConvMembers)
             {
-                command.Parameters.Add(new SqlParameter("@chatId", crconvT.ChatId));
-                command.Parameters.Add(new SqlParameter("@member", c.UserId));
-                command.ExecuteNonQuery();
-                command.Parameters.Clear();
+                addChatMemberCommand.Parameters.Add(CreateParam("inChatId", crconvT.ChatId, ParameterDirection.Input));
+                addChatMemberCommand.Parameters.Add(CreateParam("in_outMemberId", c.UserId, ParameterDirection.InputOutput));
+                addChatMemberCommand.ExecuteNonQuery();
+
+                addChatMemberCommand.Parameters.Clear();
             }
             #endregion
 
             #region Создание таблицу с сообщениями для только что созданного чата
-            command = new SqlCommand($"create table ChatMessages_{crconvT.ChatId} " +
-                                    "( message_id int identity(1,1) primary key," +
-                                    " sender_id int," +
-                                    " message varbinary(MAX)," +
-                                    " message_type varchar(4) check(message_type in ('File', 'Text'))," +
-                                    " file_name varchar(max)," +
-                                    " time datetime," +
-                                    " message_status varchar(8) check(message_status in ('Readed', 'Sended', 'Unreaded', 'Unsended')))", null); //TODO: sql
-            command.ExecuteNonQuery();
+            OracleConnection adminConnection = OracleDB.GetDBConnection(true);
+            adminConnection.Open();
+            OracleCommand createTableCommand = new OracleCommand($"create table ChatMessages_{crconvT.ChatId} " +
+                        "( message_id int generated as identity primary key," +
+                        "  sender_id int," +
+                        "  message blob," +
+                        "  message_type varchar2(4) check(message_type in ('File', 'Text'))," +
+                        "  file_name varchar2(200)," +
+                        "  time date," +
+                        "  message_status varchar2(8) check(message_status in ('Readed', 'Sended', 'Unreaded', 'Unsended'))) tablespace katran_tablespace ", adminConnection);
+
+            createTableCommand.ExecuteNonQuery();
+            adminConnection.Close();
             #endregion
 
-            #region Отправка созданной беседы всем ее участникам
-            command = new SqlCommand("select ui.app_name, ui.image, ui.status from Users_info as ui where ui.id = @userID", null); //TODO: sql
+            #region Отправка созданной беседы всем ее участникам (заполнение инфы о ее членах)
+            OracleCommand getUserInfo = new OracleCommand("katran_procedures.GetUserInfoById", sql);
+            getUserInfo.CommandType = CommandType.StoredProcedure;
             foreach (Contact c in crconvT.ConvMembers)
             {
-                command.Parameters.Add(new SqlParameter("@userID", c.UserId));
-                reader = command.ExecuteReader();
-                reader.Read();
+                getUserInfo.Parameters.Add(CreateParam("in_outUserId", c.UserId, ParameterDirection.InputOutput));
+                getUserInfo.Parameters.Add(CreateParam("in_outAppName", new string('\0', 200), ParameterDirection.InputOutput));
+                getUserInfo.Parameters.Add(CreateParam("in_outEmail", new string('\0', 200), ParameterDirection.InputOutput));
+                getUserInfo.Parameters.Add(CreateParam("in_outUserDescription", new string('\0', 200), ParameterDirection.InputOutput));
+                getUserInfo.Parameters.Add(CreateParam("in_outImage", new OracleBlob(sql), ParameterDirection.InputOutput, OracleDbType.Blob));
+                getUserInfo.Parameters.Add(CreateParam("in_outStatus", new string('\0', 200), ParameterDirection.InputOutput));
+                getUserInfo.Parameters.Add(CreateParam("in_outLawStatus", new string('\0', 200), ParameterDirection.InputOutput));
+                getUserInfo.Parameters.Add(CreateParam("in_outIsBlocked", 1, ParameterDirection.InputOutput));
+                getUserInfo.ExecuteNonQuery();
 
-                c.AppName = reader.GetString(0);
+                c.AppName = (string)getUserInfo.Parameters["in_outAppName"].Value;
 
-                object imageObj = reader.GetValue(1);
-                if (imageObj is System.DBNull)
+                OracleBlob imageObj = (OracleBlob)getUserInfo.Parameters["in_outImage"].Value;
+                if (imageObj.IsNull)
                 {
                     c.AvatarImage = GetDefaultUserImage();
                 }
                 else
                 {
-                    c.AvatarImage = ((OracleBlob)imageObj).Value;
+                    c.AvatarImage = imageObj.Value;
                 }
 
-                c.Status = (Status)Enum.Parse(typeof(Status), reader.GetString(2));
-                reader.Close();
-                command.Parameters.Clear();
+                c.Status = (Status)Enum.Parse(typeof(Status), (string)getUserInfo.Parameters["in_outStatus"].Value);
+                getUserInfo.Parameters.Clear();
             }
 
             if (crconvT.Image == null)
@@ -736,8 +732,8 @@ namespace KatranServer
             string chatTitle = String.Format("{0}_{1}", arContT.ContactOwnerId, arContT.TargetContactId);
             OracleCommand addChatCommand = new OracleCommand("katran_procedures.AddChat", sql);
             addChatCommand.CommandType = CommandType.StoredProcedure;
-            addChatCommand.Parameters.Add(CreateParam("inChatTitle", chatTitle, ParameterDirection.Input));
             addChatCommand.Parameters.Add(CreateParam("out_AddedChatId", -1, ParameterDirection.Output));
+            addChatCommand.Parameters.Add(CreateParam("inChatTitle", chatTitle, ParameterDirection.Input));
             addChatCommand.ExecuteNonQuery();
             arContT.ChatId = (int)addChatCommand.Parameters["out_AddedChatId"].Value;
             #endregion
@@ -748,9 +744,9 @@ namespace KatranServer
             addChatMemberCommand.Parameters.Add(CreateParam("inChatId", arContT.ChatId, ParameterDirection.Input));
             addChatMemberCommand.Parameters.Add(CreateParam("in_outMemberId", arContT.ContactOwnerId, ParameterDirection.InputOutput));
             addChatMemberCommand.ExecuteNonQuery();
+            
+            addChatMemberCommand.Parameters.Clear();
 
-            addChatMemberCommand = new OracleCommand("katran_procedures.AddChatMember", sql);
-            addChatMemberCommand.CommandType = CommandType.StoredProcedure;
             addChatMemberCommand.Parameters.Add(CreateParam("inChatId", arContT.ChatId, ParameterDirection.Input));
             addChatMemberCommand.Parameters.Add(CreateParam("in_outMemberId", arContT.TargetContactId, ParameterDirection.InputOutput));
             addChatMemberCommand.ExecuteNonQuery();

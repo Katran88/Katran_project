@@ -188,11 +188,16 @@ CREATE OR REPLACE PACKAGE katran_procedures AS
     procedure RemoveContact( in_outContactOwner in out users.id%type,
                              inTargetContact in users.id%type);
 
-    procedure AddChat( inChatTitle in chats.chat_title%type,
-                       out_AddedChatId out chats.chat_id%type);
+    procedure AddChat( out_AddedChatId out chats.chat_id%type,
+                       inChatTitle in chats.chat_title%type,
+                       inChatKind in chats.chat_kind%type default 'Chat',
+                       inChatAvatar in chats.chat_avatar%type default null);
 
     procedure AddChatMember( inChatId in chat_members.chat_id%type,
                              in_outMemberId in out chat_members.member_id%type);
+
+    procedure RemoveChatMember( inChatId in chat_members.chat_id%type,
+                                inMemberId in chat_members.member_id%type);
 
     procedure RemoveAllChatMembers( inChatId in chat_members.chat_id%type);
 
@@ -227,9 +232,9 @@ create or replace package body katran_procedures as
             outFoundUserId := -1;
     end;
 
-    ------------------------------------------------- Is user already registered
+------------------------------------------------- Is user already registered
 
-    ------------------------------------------------- AddUser
+------------------------------------------------- AddUser
 
     procedure AddUser(inAuthLogin in users.auth_login%type,
                       inPassword in users.password%type,
@@ -241,12 +246,14 @@ create or replace package body katran_procedures as
         insert into users (auth_login, password, law_status)
         values (inAuthLogin, inPassword, inLawStatus)
         returning  id into outAddedUserId;
+        commit;
     exception
         when others then
             outAddedUserId := -1;
+            rollback;
     end;
 
-    ------------------------------------------------- AddUserInfo
+------------------------------------------------- AddUserInfo
 
     procedure AddUserInfo(inId in users_info.id%type,
                           inAppName in users_info.app_name%type,
@@ -260,14 +267,16 @@ create or replace package body katran_procedures as
         insert into users_info (id, app_name, email, user_description, image, status)
         values(inId, inAppName, inEmail, inUserDescription, inImage, inStatus)
         returning  id into outAddedUserId;
+        commit;
     exception
         when others then
             outAddedUserId := -1;
+            rollback;
     end;
 
-    ------------------------------------------------- AddUserInfo
+------------------------------------------------- AddUserInfo
 
-    ------------------------------------------------- CheckUserByLoginAndPassword
+------------------------------------------------- CheckUserByLoginAndPassword
 
     procedure CheckUserByLoginAndPassword(inAuthLogin in users.auth_login%type,
                                           inPassword in users.password%type,
@@ -280,9 +289,9 @@ create or replace package body katran_procedures as
             outFoundUserId := -1;
     end;
 
-    ------------------------------------------------- CheckUserByLoginAndPassword
+------------------------------------------------- CheckUserByLoginAndPassword
 
-    ------------------------------------------------- GetUserInfoById
+------------------------------------------------- GetUserInfoById
 
     procedure GetUserInfoById(in_outUserId in out int,
                               in_outAppName in out varchar2,
@@ -315,9 +324,11 @@ create or replace package body katran_procedures as
     begin
         update users_info set status = inNewUserStatus where id = in_outUserId
         returning id into in_outUserId;
+        commit;
     exception
         when others then
             in_outUserId := -1;
+            rollback;
     end;
 
 ------------------------------------------------- ChangeUserStatusById
@@ -334,10 +345,11 @@ create or replace package body katran_procedures as
 
         insert into contacts (contact, contact_owner)
         values(inTargetContact, in_outContactOwner);
-
+        commit;
     exception
         when others then
             in_outContactOwner := -1;
+            rollback;
     end;
 
 ------------------------------------------------- AddContact
@@ -349,27 +361,32 @@ create or replace package body katran_procedures as
     as
     begin
         delete from contacts where contact_owner = in_outContactOwner and contact = inTargetContact;
+        commit;
     exception
         when others then
             in_outContactOwner := -1;
+            rollback;
     end;
 
 ------------------------------------------------- RemoveContact
 
 ------------------------------------------------- AddChat
 
-    procedure AddChat( inChatTitle in chats.chat_title%type,
-                       out_AddedChatId out chats.chat_id%type)
+    procedure AddChat( out_AddedChatId out chats.chat_id%type,
+                       inChatTitle in chats.chat_title%type,
+                       inChatKind in chats.chat_kind%type default 'Chat',
+                       inChatAvatar in chats.chat_avatar%type default null)
     as
     begin
 
-        insert into chats (chat_title)
-        values(inChatTitle)
+        insert into chats (chat_title, chat_kind, chat_avatar)
+        values(inChatTitle, inChatKind, inChatAvatar)
         returning chat_id into out_AddedChatId;
-
+        commit;
     exception
         when others then
             out_AddedChatId := -1;
+            rollback;
     end;
 
 ------------------------------------------------- AddChat
@@ -384,12 +401,26 @@ create or replace package body katran_procedures as
         insert into chat_members (chat_id, member_id)
         values(inChatId, in_outMemberId)
         returning member_id into in_outMemberId;
+        commit;
     exception
         when others then
             in_outMemberId := -1;
+            rollback;
     end;
 
 ------------------------------------------------- AddChatMember
+
+------------------------------------------------- RemoveChatMember
+
+    procedure RemoveChatMember( inChatId in chat_members.chat_id%type,
+                                inMemberId in chat_members.member_id%type)
+    as
+    begin
+        delete from chat_members where chat_id = inChatId and member_id = inMemberId;
+        commit;
+    end;
+
+------------------------------------------------- RemoveChatMember
 
 ------------------------------------------------- RemoveAllChatMembers
 
@@ -397,6 +428,7 @@ create or replace package body katran_procedures as
     as
     begin
         delete from chat_members where chat_id = inChatId;
+        commit;
     end;
 
 ------------------------------------------------- RemoveAllChatMembers
@@ -408,7 +440,6 @@ create or replace package body katran_procedures as
     as
     begin
         select count(chat_id) into outMembersCount from chat_members where chat_id = inChatId;
-
     exception
         when others then
             outMembersCount := 0;
@@ -416,15 +447,29 @@ create or replace package body katran_procedures as
 
 ------------------------------------------------- GetChatMembersCount
 
+------------------------------------------------- GetChatMembersIds
+
+    procedure GetChatMembersIds( outChatMembersIds out sys_refcursor,
+                                 inChatId in chat_members.chat_id%type)
+    as
+    begin
+        open outChatMembersIds for
+        select member_id from chat_members where chat_id = inChatId;
+    end;
+
+------------------------------------------------- GetChatMembersIds
+
 ------------------------------------------------- RemoveChat
 
     procedure RemoveChat( in_outChatId in out chat_members.chat_id%type)
     as
     begin
         delete from chats where chat_id = in_outChatId;
+        commit;
     exception
         when others then
             in_outChatId := -1;
+            rollback;
     end;
 
 ------------------------------------------------- RemoveChat
@@ -450,9 +495,11 @@ create or replace package body katran_procedures as
     as
     begin
         update users_info set is_blocked = inIsBlocked where id = in_outUserId;
+        commit;
     exception
         when others then
             in_outUserId := -1;
+            rollback;
     end;
 
 ------------------------------------------------- BlockUnblockUser
@@ -461,8 +508,7 @@ create or replace package body katran_procedures as
 
     procedure AdminSearch( outResult out sys_refcursor,
                            inAdminId in users_info.id%type,
-                           inSearchPattern in varchar2
-                           )
+                           inSearchPattern in varchar2)
     as
     begin
         open outResult for
