@@ -30,13 +30,13 @@ namespace KatranServer
         internal static List<ConectedUser> conectedUsers;
         const string ip = "127.0.0.1";
         const int port = 8001;
-
+        static OracleConnection connection = OracleDB.GetDBConnection();
         static void Main(string[] args)
         {
             conectedUsers = new List<ConectedUser>();
             TimerCallback tm = new TimerCallback(RefreshForOnlineUsers);
             Timer timer = new Timer(tm, null, TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(5));
-
+            connection.Open();
 
             TcpListener tcpListener = null;
             try
@@ -58,6 +58,7 @@ namespace KatranServer
             {
                 if (tcpListener != null)
                     tcpListener.Stop();
+                connection.Close();
             }
         }
 
@@ -95,7 +96,7 @@ namespace KatranServer
         {
             lock (locker)
             {
-                using (OracleCommand refreshStatusCommand = new OracleCommand("katran_procedures.ChangeUserStatusById", OracleDB.GetDBConnection()))
+                using (OracleCommand refreshStatusCommand = new OracleCommand("katran_procedures.ChangeUserStatusById", connection))
                 {
                     refreshStatusCommand.CommandType = CommandType.StoredProcedure;
                     refreshStatusCommand.Parameters.Add(ClientService.CreateParam("inNewUserStatus", newStatus.ToString(), ParameterDirection.Input));

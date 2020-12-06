@@ -38,11 +38,13 @@ namespace Katran.UserControlls
                 {
                     GridColumn = 3;
                     mainGrid.HorizontalAlignment = HorizontalAlignment.Right;
+                    messageStatusCheck.HorizontalAlignment = HorizontalAlignment.Left;
                 }
                 else
                 {
                     GridColumn = 0;
                     mainGrid.HorizontalAlignment = HorizontalAlignment.Left;
+                    messageStatusCheck.HorizontalAlignment = HorizontalAlignment.Right;
                 }
             }
         }

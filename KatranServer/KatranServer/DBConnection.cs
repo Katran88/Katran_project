@@ -42,7 +42,7 @@ namespace KatranServer
         static string user_name = "katran_user";
         static string user_password = "fu6djHH763";
         static string admin_name = "katran_admin";
-        static string admin_password = "fu6djHH763";
+        static string admin_password = "qw2SF24xvGGS";
 
         public static OracleConnection GetDBConnection(bool needAdminPrivs = false)
         {

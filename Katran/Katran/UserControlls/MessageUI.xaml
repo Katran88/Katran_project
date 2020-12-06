@@ -14,7 +14,7 @@
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="{Binding GridColumn}" Background="Transparent" 
-                CornerRadius="30" BorderThickness="1"  Width="50"
+                CornerRadius="30" BorderThickness="1"  Width="70"
                 HorizontalAlignment="Left" VerticalAlignment="Top">
             <Grid>
                 <Grid.RowDefinitions>

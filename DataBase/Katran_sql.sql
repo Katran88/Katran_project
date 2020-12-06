@@ -204,17 +204,33 @@ CREATE OR REPLACE PACKAGE katran_procedures AS
     procedure GetChatMembersCount( inChatId in chat_members.chat_id%type,
                                    outMembersCount out number);
 
+    procedure GetChatMembersIds( outChatMembersIds out sys_refcursor,
+                                 inChatId in chat_members.chat_id%type);
+
     procedure RemoveChat( in_outChatId in out chat_members.chat_id%type);
+
+    procedure GetConvsInfo( outResult out sys_refcursor,
+                                  inMemberId in chat_members.member_id%type);
+
+    procedure GetConvMembersInfo( outResult out sys_refcursor,
+                                  inChatId in chat_members.member_id%type);
 
     procedure BlockUnblockUser( in_outUserId in out users_info.id%type,
                                 inIsBlocked in users_info.is_blocked%type);
 
-    procedure GetUserLawStatusById( inUserId in users.id%type,
-                                    outUserLawStatus out users.law_status%type);
+    procedure GetUserLawStatusById( in_outUserId in out users.id%type,
+                                    in_outUserLawStatus in out varchar2);
 
-        procedure AdminSearch( outResult out sys_refcursor,
+    procedure AdminSearch( outResult out sys_refcursor,
                            inAdminId in users_info.id%type,
                            inSearchPattern in varchar2);
+
+    procedure SearchOutOfContacts(outResult out sys_refcursor,
+                                  inPattern in varchar2,
+                                  inSearcherUserID in users_info.id%type);
+
+    procedure GetUserContacts(outResult out sys_refcursor,
+                              inContactsOwner in users_info.id%type);
 
 END;
 
@@ -474,16 +490,44 @@ create or replace package body katran_procedures as
 
 ------------------------------------------------- RemoveChat
 
-------------------------------------------------- GetUserLawStatusById
+------------------------------------------------- GetConvsInfo
 
-    procedure GetUserLawStatusById( inUserId in users.id%type,
-                                    outUserLawStatus out users.law_status%type)
+    procedure GetConvsInfo( outResult out sys_refcursor,
+                            inMemberId in chat_members.member_id%type)
     as
     begin
-        select law_status into outUserLawStatus from users where id = inUserId;
+        open outResult for
+        select chat.chat_id, chat.chat_title, chat.chat_avatar
+        from Chats chat
+        where chat.chat_id in (select cm.chat_id from chat_members cm where cm.member_id = inMemberId) and chat.chat_kind = 'Conversation';
+    end;
+
+------------------------------------------------- GetConvsInfo
+
+------------------------------------------------- GetConvMembersInfo
+
+    procedure GetConvMembersInfo( outResult out sys_refcursor,
+                                  inChatId in chat_members.member_id%type)
+    as
+    begin
+        open outResult for
+        select ui.id, ui.app_name, ui.image, ui.status
+        from Users_info ui join chat_members cm
+        on ui.id = cm.member_id and cm.chat_id = inChatId;
+    end;
+
+------------------------------------------------- GetConvMembersInfo
+
+------------------------------------------------- GetUserLawStatusById
+
+    procedure GetUserLawStatusById( in_outUserId in out users.id%type,
+                                    in_outUserLawStatus in out varchar2)
+    as
+    begin
+        select law_status into in_outUserLawStatus from users where id = in_outUserId;
     exception
         when others then
-            outUserLawStatus := '';
+            in_outUserLawStatus := '';
     end;
 
 ------------------------------------------------- GetUserLawStatusById
@@ -519,5 +563,36 @@ create or replace package body katran_procedures as
 
 ------------------------------------------------- AdminSearch
 
-end;
+------------------------------------------------- SearchOutOfContacts
+
+    procedure SearchOutOfContacts(outResult out sys_refcursor,
+                                  inPattern in varchar2,
+                                  inSearcherUserID in users_info.id%type)
+    as
+    begin
+        open outResult for
+        select ui.id, ui.app_name, ui.image, ui.status, ui.is_blocked
+        from Users_info ui
+        where instr(ui.app_name, inPattern) > 0 and ui.id != inSearcherUserID and
+        ui.id NOT IN(select ui.id from Users_info ui join Contacts c on ui.id = c.contact and c.contact_owner = inSearcherUserID);
+    end;
+
+------------------------------------------------- SearchOutOfContacts
+
+------------------------------------------------- GetUserContacts
+
+    procedure GetUserContacts(outResult out sys_refcursor,
+                              inContactsOwner in users_info.id%type)
+    as
+    begin
+        open outResult for
+        select ui.id, ui.app_name, ui.image, ui.status, ui.is_blocked
+        from Users_info ui
+        join Contacts c
+        on ui.id = c.contact and c.contact_owner = inContactsOwner;
+    end;
+
+------------------------------------------------- GetUserContacts
+
+end katran_procedures;
 ------------------------------------------------------------------------------------------------------------------
