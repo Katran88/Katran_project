@@ -68,15 +68,15 @@ namespace KatranServer
             {
                 List<int> offlineUsersID = new List<int>();
 
-                foreach (ConectedUser item in conectedUsers)
+                foreach (ConectedUser user in conectedUsers)
                 {
-                    if(!item.userSocket.Connected)
-                        offlineUsersID.Add(item.id);
+                    if(!user.userSocket.Connected)
+                        offlineUsersID.Add(user.id);
                 }
 
-                foreach (int item in offlineUsersID)
+                foreach (int id in offlineUsersID)
                 {
-                    ConectedUser user = conectedUsers.Find((el) => el.id == item);
+                    ConectedUser user = conectedUsers.Find((el) => el.id == id);
                     if (user != null)
                     {
                         user.userSocket.Close();
@@ -96,7 +96,7 @@ namespace KatranServer
         {
             lock (locker)
             {
-                using (OracleCommand refreshStatusCommand = new OracleCommand("katran_procedures.ChangeUserStatusById", connection))
+                using (OracleCommand refreshStatusCommand = new OracleCommand($"{ClientService.GetPackageName()}.ChangeUserStatusById", connection))
                 {
                     refreshStatusCommand.CommandType = CommandType.StoredProcedure;
                     refreshStatusCommand.Parameters.Add(ClientService.CreateParam("inNewUserStatus", newStatus.ToString(), ParameterDirection.Input));

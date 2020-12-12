@@ -48,6 +48,7 @@ create profile katran_user_security_profile limit
 ------------------------------------------------------------------------------------------------------------------
 -- roles
 create role katran_admin_role;
+grant execute on sys.dbms_crypto to katran_admin_role; -- sys
 grant all privileges to katran_admin_role;
 
 create role katran_user_role;
@@ -59,9 +60,9 @@ grant create session,
       execute any procedure,
       delete any table to katran_user_role;
 
-grant execute on katran_procedures to katran_user_role;
-grant debug on katran_procedures to katran_user_role;
-
+grant execute on sys.dbms_crypto to katran_user_role; -- sys
+grant execute on katran_package to katran_user_role;
+grant debug on katran_package to katran_user_role;
 ------------------------------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------------------------------------
@@ -93,7 +94,9 @@ create table users
 	auth_login varchar2(20) unique,
 	password varchar2(32) not null,
     law_status varchar2(5) default 'User' check(law_status in('Admin', 'User'))
-) tablespace katran_tablespace;
+) tablespace katran_tablespace
+partition by range (id) interval (1000)
+( partition part_1 values less than (1000) ) enable row movement;
 
 create table users_info
 (
@@ -104,13 +107,17 @@ create table users_info
 	image blob,
 	status varchar2(8) default 'Offline' check(status in('Offline', 'Online')),
 	is_blocked number(1) default 0
-) tablespace katran_tablespace;
+) tablespace katran_tablespace
+partition by range (id) interval (1000)
+( partition part_1 values less than (1000) ) enable row movement;
 
 create table contacts
 (
 	contact_owner int constraint contacts_contact_owner_id_fk references users(id),
 	contact int constraint contacts_contact_id_fk references users(id)
-) tablespace katran_tablespace;
+) tablespace katran_tablespace
+partition by range (contact_owner) interval (1000)
+( partition part_1 values less than (1000) ) enable row movement;
 
 create table chats
 (
@@ -118,37 +125,40 @@ create table chats
     chat_title varchar2(40) unique, --для чатов 1 на 1 паттерн названия [id]_[id], для бесед [название беседы]
     chat_kind varchar2(12) default 'Chat' check(chat_kind in('Chat', 'Conversation')),
     chat_avatar blob
-) tablespace katran_tablespace;
+) tablespace katran_tablespace
+partition by range (chat_id) interval (1000)
+( partition part_1 values less than (1000) ) enable row movement;
 
 create table chat_members
 (
     chat_id int constraint chat_members_chat_id_fk references chats (chat_id),
     member_id int constraint chat_members_member_id_fk references users (id)
-) tablespace katran_tablespace;
+) tablespace katran_tablespace
+partition by range (chat_id) interval (1000)
+( partition part_1 values less than (1000) ) enable row movement;
 
 /* template for dynamic tableof messages for each Chat creating
-create table ChatMessages_{chat_id}
-( message_id int generated as identity primary key,
-    sender_id int,
+create table ChatMessages_{chatId}
+(
+    message_id int generated as identity primary key,
+    sender_id int references users(id),
     message blob,
     message_type varchar2(4) check(message_type in ('File', 'Text')),
     file_name varchar2(200),
     time date,
     message_status varchar2(8) check(message_status in ('Readed', 'Sended', 'Unreaded', 'Unsended'))
-) tablespace katran_tablespace;
+) tablespace katran_tablespace
+partition by range (message_id) interval (1000)
+subpartition by hash(message_id) subpartitions 10
+( partition part_1 values less than (1000) ) enable row movement;
 */
 
 ------------------------------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------------------------------------
--- views
+-- procedures and functions
 
-------------------------------------------------------------------------------------------------------------------
-
-------------------------------------------------------------------------------------------------------------------
--- procedures
-create public synonym katran_procedures for katran_admin.katran_procedures;
-CREATE OR REPLACE PACKAGE katran_procedures AS
+create or replace package katran_package AS
 
     procedure GetUserIdByLogin(inAuthLogin in users.auth_login%type,
                                outFoundUserId out users.id%type);
@@ -232,9 +242,17 @@ CREATE OR REPLACE PACKAGE katran_procedures AS
     procedure GetUserContacts(outResult out sys_refcursor,
                               inContactsOwner in users_info.id%type);
 
+    function EncryptBlob (enc_value in blob,
+                          crypt_key in varchar2)
+    return blob;  -- should be 24 symbols length
+
+    function DecryptBlob (enc_value in blob,
+                          crypt_key in varchar2)
+    return blob;  -- should be 24 symbols length
+
 END;
 
-create or replace package body katran_procedures as
+create or replace package body katran_package as
 
 ------------------------------------------------- Is user already registered
 
@@ -358,8 +376,8 @@ create or replace package body katran_procedures as
 
         insert into contacts (contact_owner, contact)
         values(in_outContactOwner, inTargetContact);
-
-        insert into contacts (contact, contact_owner)
+        commit;
+        insert into contacts (contact_owner, contact)
         values(inTargetContact, in_outContactOwner);
         commit;
     exception
@@ -594,5 +612,31 @@ create or replace package body katran_procedures as
 
 ------------------------------------------------- GetUserContacts
 
-end katran_procedures;
+------------------------------------------------- Crypto
+
+    function EncryptBlob (enc_value in blob,
+                          crypt_key in varchar2)  -- should be 24 symbols length
+    return blob
+    is
+        encrypted_blob blob;
+        l_mod number := dbms_crypto.encrypt_aes192 + dbms_crypto.chain_cbc + dbms_crypto.pad_pkcs5;
+    begin
+        encrypted_blob := dbms_crypto.encrypt(enc_value, l_mod, utl_i18n.string_to_raw(crypt_key, 'AL32UTF8'));
+    return encrypted_blob;
+    end EncryptBlob;
+
+    function DecryptBlob (enc_value in blob,
+                          crypt_key in varchar2) -- should be 24 symbols length
+    return blob
+    is
+        decrypted_blob blob;
+        l_mod number := dbms_crypto.encrypt_aes192 + dbms_crypto.chain_cbc + dbms_crypto.pad_pkcs5;
+    begin
+        decrypted_blob := dbms_crypto.decrypt(enc_value, l_mod, utl_i18n.string_to_raw(crypt_key, 'AL32UTF8'));
+    return decrypted_blob;
+    end DecryptBlob;
+
+------------------------------------------------- Crypto
+
+end katran_package;
 ------------------------------------------------------------------------------------------------------------------
