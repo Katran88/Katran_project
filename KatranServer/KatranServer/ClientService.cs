@@ -179,6 +179,7 @@ namespace KatranServer
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 ErrorResponse(ErrorType.Other, new Exception("Ошибка с обработкой данных из запроса"));
             }
             finally

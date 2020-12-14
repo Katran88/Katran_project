@@ -5,7 +5,7 @@ alter session set "_ORACLE_SCRIPT"=true;
 -- tablespaces
 create tablespace katran_tablespace
     datafile 'C:\katran_db\tablespaces\katran_tablespace.dbf'
-    size 15 m
+    size 1000M
     autoextend on next 1m
     maxsize unlimited;
 
@@ -102,7 +102,7 @@ create table users_info
 (
 	id int constraint users_info_users_id_fk references users(id) on delete cascade enable,
 	app_name varchar2(20),
-	email varchar2(50),
+	email varchar2(200),
 	user_description varchar2(200),
 	image blob,
 	status varchar2(8) default 'Offline' check(status in('Offline', 'Online')),
@@ -137,7 +137,8 @@ create table chat_members
 partition by range (chat_id) interval (1000)
 ( partition part_1 values less than (1000) ) enable row movement;
 
-/* template for dynamic tableof messages for each Chat creating
+--template for dynamic table of messages for each Chat creating
+/*
 create table ChatMessages_{chatId}
 (
     message_id int generated as identity primary key,
@@ -637,6 +638,46 @@ create or replace package body katran_package as
     end DecryptBlob;
 
 ------------------------------------------------- Crypto
-
 end katran_package;
+
+
+------------------------------------------------------------------------------------------------------------------
+-- import & export;
+create or replace directory KATRAN_XML as 'C:\katran_db\xml';
+
+CREATE OR REPLACE PROCEDURE chatmessages_export
+IS
+rc sys_refcursor;
+doc DBMS_XMLDOM.DOMDocument;
+BEGIN
+OPEN rc FOR SELECT * FROM katran_admin.CHATMESSAGES_00000000046;
+doc := DBMS_XMLDOM.NewDOMDocument(XMLTYPE(rc));
+DBMS_XMLDOM.WRITETOFILE(doc, 'KATRAN_XML\CHATMESSAGES_00000000046.xml');
+END chatmessages_export;
+
+begin
+    chatmessages_export();
+end;
+
+CREATE OR REPLACE PROCEDURE chatmessages_import
+IS
+BEGIN
+    DELETE FROM CHATMESSAGES_00000000045;
+    INSERT INTO CHATMESSAGES_00000000045 (SENDER_ID, MESSAGE, MESSAGE_TYPE, TIME, MESSAGE_STATUS)
+    SELECT  ExtractValue(VALUE(product_order_xml), '//SENDER_ID')       AS SENDER_ID,
+            ExtractValue(VALUE(product_order_xml), '//MESSAGE')         AS MESSAGE,
+            ExtractValue(VALUE(product_order_xml), '//MESSAGE_TYPE')    AS MESSAGE_TYPE,
+            ExtractValue(VALUE(product_order_xml), '//TIME')            AS TIME,
+            ExtractValue(VALUE(product_order_xml), '//MESSAGE_STATUS')  AS MESSAGE_STATUS
+    FROM TABLE(XMLSequence(EXTRACT(XMLTYPE(bfilename('KATRAN_XML', 'CHATMESSAGES_import.xml'),
+
+        nls_charset_id('UTF-8')),'/ROWSET/ROW'))) product_order_xml;
+END chatmessages_import;
+
+begin
+    chatmessages_import();
+end;
+
+commit;
+
 ------------------------------------------------------------------------------------------------------------------
